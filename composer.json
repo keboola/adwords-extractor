@@ -1,0 +1,49 @@
+ {
+        "name": "keboola/adwords-extractor-bundle",
+        "type": "symfony-bundle",
+        "description": "Keboola AdWords extractor Bundle",
+        "keywords": ["keboola", "adwords", "extractor"],
+        "authors": [
+            {
+                "name": "Jakub Matejka",
+                "email": "jakub@keboola.com"
+            }
+        ],
+        "repositories": [
+            {
+                "type": "vcs",
+                "url": "git@bitbucket.org:keboola/extractor-bundle.git"
+            }
+        ],
+        "require": {
+            "keboola/extractor-bundle": "~0.10.0"
+        },
+        "require-dev": {
+        },
+        "scripts": {
+            "post-install-cmd": [
+                "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
+                "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
+                "Keboola\\ExtractorBundle\\DeploymentHandler\\ScriptHandler::createESMapping"
+            ],
+            "post-update-cmd": [
+                "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
+                "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
+                "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache"
+            ]
+        },
+        "minimum-stability": "stable",
+        "autoload": {
+            "psr-0": { "Keboola\\DummyExtractorBundle": "" }
+        },
+        "target-dir": "Keboola/DummyExtractorBundle",
+        "extra": {
+            "symfony-app-dir": "vendor/keboola/syrup/app",
+            "symfony-web-dir": "vendor/keboola/syrup/web",
+            "incenteev-parameters": {
+                "keep-outdated": true,
+                "file": "vendor/keboola/syrup/app/config/parameters.yml",
+                "dist-file": "parameters.yml"
+            }
+        }
+}

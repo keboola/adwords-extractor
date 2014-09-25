@@ -1,0 +1,5 @@
+.git
+vendor
+.idea
+parameters.yml
+composer.phar
