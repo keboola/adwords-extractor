@@ -1,0 +1,11 @@
+services:
+    ex_adwords.job_executor:
+        class: Keboola\AdWordsExtractorBundle\Job\Executor
+        arguments: ['@keboola_extractor.configuration', '@ex_adwords.extractor', '@logger', '@syrup.temp']
+    ex_adwords.extractor:
+        class: Keboola\AdWordsExtractorBundle\AdWordsExtractor
+        arguments: {  }
+    keboola_extractor.configuration:
+        class: Keboola\ExtractorBundle\Common\Configuration
+        arguments: ['%app_name%', '@syrup.encryptor', '@syrup.temp']
+parameters: null
