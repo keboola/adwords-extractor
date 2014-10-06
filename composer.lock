@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1e954634d9cc26d57f03966b1a2ae906",
+    "hash": "d2b3cabb63da0d4647a9cd7703eae3a4",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -1234,11 +1234,11 @@
         },
         {
             "name": "keboola/extractor-bundle",
-            "version": "0.10.1",
+            "version": "0.10.2",
             "source": {
                 "type": "git",
                 "url": "git@bitbucket.org:keboola/extractor-bundle.git",
-                "reference": "b715101bc07c8b042709dfc5913f935dcb55d9c3"
+                "reference": "58f83310479745320a48489de4c1556ae505e5b9"
             },
             "require": {
                 "php": ">=5.4.0",
@@ -1276,7 +1276,7 @@
                 "keboola",
                 "syrup"
             ],
-            "time": "2014-09-23 22:41:45"
+            "time": "2014-10-01 06:47:56"
         },
         {
             "name": "keboola/php-encryption",
@@ -1482,21 +1482,24 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "1.10.0",
+            "version": "1.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "25b16e801979098cb2f120e697bfce454b18bf23"
+                "reference": "ec3961874c43840e96da3a8a1ed20d8c73d7e5aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/25b16e801979098cb2f120e697bfce454b18bf23",
-                "reference": "25b16e801979098cb2f120e697bfce454b18bf23",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/ec3961874c43840e96da3a8a1ed20d8c73d7e5aa",
+                "reference": "ec3961874c43840e96da3a8a1ed20d8c73d7e5aa",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0",
                 "psr/log": "~1.0"
+            },
+            "provide": {
+                "psr/log-implementation": "1.0.0"
             },
             "require-dev": {
                 "aws/aws-sdk-php": "~2.4, >2.4.8",
@@ -1504,7 +1507,8 @@
                 "graylog2/gelf-php": "~1.0",
                 "phpunit/phpunit": "~3.7.0",
                 "raven/raven": "~0.5",
-                "ruflin/elastica": "0.90.*"
+                "ruflin/elastica": "0.90.*",
+                "videlalvaro/php-amqplib": "~2.4"
             },
             "suggest": {
                 "aws/aws-sdk-php": "Allow sending log messages to AWS services like DynamoDB",
@@ -1514,12 +1518,13 @@
                 "graylog2/gelf-php": "Allow sending log messages to a GrayLog2 server",
                 "raven/raven": "Allow sending log messages to a Sentry server",
                 "rollbar/rollbar": "Allow sending log messages to Rollbar",
-                "ruflin/elastica": "Allow sending log messages to an Elastic Search server"
+                "ruflin/elastica": "Allow sending log messages to an Elastic Search server",
+                "videlalvaro/php-amqplib": "Allow sending log messages to an AMQP server using php-amqplib"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.10.x-dev"
+                    "dev-master": "1.11.x-dev"
                 }
             },
             "autoload": {
@@ -1535,8 +1540,7 @@
                 {
                     "name": "Jordi Boggiano",
                     "email": "j.boggiano@seld.be",
-                    "homepage": "http://seld.be",
-                    "role": "Developer"
+                    "homepage": "http://seld.be"
                 }
             ],
             "description": "Sends your logs to files, sockets, inboxes, databases and various web services",
@@ -1546,7 +1550,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2014-06-04 16:30:04"
+            "time": "2014-09-30 13:30:58"
         },
         {
             "name": "pimple/pimple",
@@ -1837,20 +1841,20 @@
         },
         {
             "name": "swiftmailer/swiftmailer",
-            "version": "v5.2.2",
+            "version": "v5.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swiftmailer/swiftmailer.git",
-                "reference": "e02f71a35436af4bd58a1bd90116089e632e29e1"
+                "reference": "b86b927dfefdb56ab0b22d1350033d9a38e9f205"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/e02f71a35436af4bd58a1bd90116089e632e29e1",
-                "reference": "e02f71a35436af4bd58a1bd90116089e632e29e1",
+                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/b86b927dfefdb56ab0b22d1350033d9a38e9f205",
+                "reference": "b86b927dfefdb56ab0b22d1350033d9a38e9f205",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.2.4"
+                "php": ">=5.3.3"
             },
             "require-dev": {
                 "mockery/mockery": "~0.9.1"
@@ -1858,7 +1862,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "5.2-dev"
+                    "dev-master": "5.3-dev"
                 }
             },
             "autoload": {
@@ -1885,7 +1889,7 @@
                 "mail",
                 "mailer"
             ],
-            "time": "2014-09-20 07:17:36"
+            "time": "2014-10-04 05:53:18"
         },
         {
             "name": "symfony/assetic-bundle",
@@ -2115,16 +2119,16 @@
         },
         {
             "name": "symfony/symfony",
-            "version": "v2.5.4",
+            "version": "v2.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/symfony.git",
-                "reference": "3a369dddea56596df91977d8c2083e70784852f2"
+                "reference": "2aef97bbc95d0c4ae63537cca81bd6d984427d81"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/symfony/zipball/3a369dddea56596df91977d8c2083e70784852f2",
-                "reference": "3a369dddea56596df91977d8c2083e70784852f2",
+                "url": "https://api.github.com/repos/symfony/symfony/zipball/2aef97bbc95d0c4ae63537cca81bd6d984427d81",
+                "reference": "2aef97bbc95d0c4ae63537cca81bd6d984427d81",
                 "shasum": ""
             },
             "require": {
@@ -2225,7 +2229,7 @@
             "keywords": [
                 "framework"
             ],
-            "time": "2014-09-03 09:51:48"
+            "time": "2014-09-28 17:33:53"
         },
         {
             "name": "syrup/component-bundle",

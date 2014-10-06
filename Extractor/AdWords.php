@@ -3,12 +3,15 @@ namespace Keboola\AdWordsExtractorBundle\Extractor;
 
 use AdWordsUser;
 use DateRange;
+use Keboola\Csv\CsvFile;
 use Predicate;
 use ReportDefinition;
 use ReportDownloadException;
 use ReportUtils;
 use Selector;
+use Symfony\Component\Process\Process;
 use Syrup\ComponentBundle\Exception\SyrupComponentException;
+use Syrup\ComponentBundle\Exception\UserException;
 use Syrup\ComponentBundle\Filesystem\Temp;
 
 class AdWordsException extends SyrupComponentException
@@ -94,175 +97,107 @@ class AdWords
 	/**
 	 * Returns accounts managed by current MCC
 	 */
-	public function getClients()
+	public function getCustomers()
 	{
 		return $this->selectorRequest(
 			'ManagedCustomerService',
-			array('Name', 'CompanyName', 'CustomerId'),
+			array('Name', 'Login', 'CompanyName', 'CustomerId', 'CanManageClients', 'CurrencyCode', 'DateTimeZone'),
 			array(new Predicate('CanManageClients', 'EQUALS', 'false'))
 		);
 	}
 
-	public function getCampaigns()
+	public function getCampaigns($since=null, $until=null)
 	{
 		return $this->selectorRequest(
 			'CampaignService',
-			array('Id', 'Name', 'StartDate', 'EndDate', 'CampaignStatus', 'ServingStatus'),
-			array()
+			array('Id', 'Name', 'CampaignStatus', 'ServingStatus', 'StartDate', 'EndDate', 'AdServingOptimizationStatus',
+				'AdvertisingChannelType', 'DisplaySelect', 'TrackingUrlTemplate'),
+			array(),
+			$since,
+			$until
 		);
 	}
 
-	public function getCampaignReport($since, $until)
+
+	public function getReport($query, $since, $until)
 	{
-		return $this->report($since, $until, 'CAMPAIGN_PERFORMANCE_REPORT', array(
-			'AverageCpc',
-			'AverageCpm',
-			'AveragePosition',
-			'CampaignId',
-			'CampaignName',
-			'Clicks',
-			'Cost',
-			'Date',
-			'Impressions',
-			'AdNetworkType1'
-		));
-	}
+		$query .= sprintf(' DURING %d,%d', $since, $until);
 
-
-
-	public function report($since, $until, $reportType, $fields, $tries=3)
-	{
 		try {
-			$this->user->LoadService('ReportDefinitionService');
-
-			$selector = new Selector();
-			$selector->fields = $fields;
-			$selector->dateRange = new DateRange($since, $until);
-
-			$definition = new ReportDefinition();
-			$definition->reportName = 'Keywords report #'. uniqid();
-			$definition->dateRangeType = 'CUSTOM_DATE';
-			$definition->reportType = $reportType;
-			$definition->downloadFormat = 'XML';
-			$definition->selector = $selector;
-
+			$reportFileGz = $this->temp->createTmpFile();
 			$reportFile = $this->temp->createTmpFile();
-			try {
-				@ReportUtils::DownloadReport($definition, $reportFile, $this->user());
+			ReportUtils::DownloadReportWithAwql($query, $reportFileGz, $this->user, 'GZIPPED_CSV');
 
-				if (file_exists($reportFile)) {
-					$xml = simplexml_load_file($reportFile);
-					if (isset($xml->reportDownloadError)) {
-						$e = new AdWordsException('DownloadReport Error', 500);
-						$e->setData(array(
-							'customerId' => $this->user()->GetClientCustomerId(),
-							'since' => $since,
-							'until' => $until,
-							'reportFile' => $reportFile,
-							'report' => file_get_contents($reportFile)
-						));
-						throw $e;
-					} else {
-						$data = array();
-						foreach($xml->table->row as $row) {
-							$subData = array();
-							foreach($row->attributes() as $k => $v) {
-								$subData[$k] = (string)$v;
-							}
-							if (empty($subData['keywordID'])) {
-								$subData['keywordID'] = '';
-							}
-							if (isset($data[$subData['campaignID']][$subData['keywordID']][$subData['day']])) {
-								// merge two different stats for one keyword and day
-								$existingData = $data[$subData['campaignID']][$subData['keywordID']][$subData['day']];
-								$existingData['avgCPC'] = ($existingData['avgCPC'] + $subData['avgCPC']) / 2;
-								$existingData['avgCPM'] = ($existingData['avgCPM'] + $subData['avgCPM']) / 2;
-								$existingData['avgPosition'] = (
-										(isset($existingData['avgPosition']) ? $existingData['avgPosition'] : 0)
-										+ (isset($subData['avgPosition']) ? $subData['avgPosition'] : 0)) / 2;
-								$existingData['clicks'] = $existingData['clicks'] + $subData['clicks'];
-								$existingData['cost'] = $existingData['cost'] + $subData['cost'];
-								$existingData['impressions'] = $existingData['impressions'] + $subData['impressions'];
+			$process = new Process('cat ' . escapeshellarg($reportFileGz) . ' | gzip -d | tail -n+2 | head -n-1 > '
+				. escapeshellarg($reportFile));
+			$process->setTimeout(5 * 60 * 60);
+			$process->run();
+			$output = $process->getOutput();
+			$error = $process->getErrorOutput();
 
-								$data[$subData['campaignID']][$subData['keywordID']][$subData['day']] = $existingData;
-							} else {
-								$data[$subData['campaignID']][$subData['keywordID']][$subData['day']] = $subData;
-							}
-						}
-						unlink($reportFile);
-						return $data;
-					}
-				} else {
-					$e = new AdWordsException('DownloadReport Error, file not exist', 500);
-					$e->setData(array(
-						'customerId' => $this->user()->GetClientCustomerId(),
-						'since' => $since,
-						'until' => $until,
-						'reportType' => $reportType,
-						'reportFile' => $reportFile
-					));
-				}
-
-			} catch (ReportDownloadException $e) {
-				if ($tries > 0) {
-					sleep(30);
-					return $this->report($since, $until, $reportType, $fields, $tries-1);
-				} else {
-					$e = new AdWordsException('DownloadReport Error', 500, $e);
-					$e->setData(array(
-						'customerId' => $this->user()->GetClientCustomerId(),
-						'since' => $since,
-						'until' => $until,
-						'reportType' => $reportType,
-						'reportFile' => $reportFile
-					));
-					throw $e;
-				}
+			if (!$process->isSuccessful() || $error) {
+				$e = new AdWordsException('DownloadReport gzip Error', 500);
+				$e->setData(array(
+					'customerId' => $this->user->GetClientCustomerId(),
+					'query' => $query,
+					'reportFile' => $reportFileGz,
+					'output' => $error? $error : $output
+				));
+				throw $e;
 			}
+
+			if (!file_exists($reportFileGz)) {
+				$e = new AdWordsException('DownloadReport Error, gzip file does not exist', 500);
+				$e->setData(array(
+					'customerId' => $this->user->GetClientCustomerId(),
+					'query' => $query,
+					'reportFile' => $reportFileGz
+				));
+			}
+
+			if (!file_exists($reportFile)) {
+				$e = new AdWordsException('DownloadReport Error, csv file does not exist', 500);
+				$e->setData(array(
+					'customerId' => $this->user->GetClientCustomerId(),
+					'query' => $query,
+					'reportFile' => $reportFile
+				));
+			}
+
+			// Do not save empty reports (with one line only)
+			$process = new Process('wc -l ' . escapeshellarg($reportFile) . ' | awk \'{print $1}\'');
+			$process->run();
+			$output = $process->getOutput();
+			$error = $process->getErrorOutput();
+
+			if (!$process->isSuccessful() || $error) {
+				$e = new AdWordsException('DownloadReport count lines Error', 500);
+				$e->setData(array(
+					'customerId' => $this->user->GetClientCustomerId(),
+					'query' => $query,
+					'reportFile' => $reportFileGz,
+					'output' => $error? $error : $output
+				));
+				throw $e;
+			}
+
+			return ($output > 1)? new CsvFile($reportFile) : false;
+
+		} catch (ReportDownloadException $e) {
+			throw new UserException($e->getMessage(), $e);
 		} catch (\Exception $e) {
 			if (strstr($e->getMessage(), 'RateExceededError')) {
 				sleep (5 * 60);
-				return $this->report($since, $until, $reportType, $fields);
-			}
-
-			if ($tries > 0) {
-				sleep(30);
-				return $this->report($since, $until, $reportType, $fields, $tries-1);
+				return $this->getReport($query, $since, $until);
 			} else {
-				$e = new AdWordsException('DownloadReport Error', 500, $e);
+				$e = new AdWordsException('DownloadReport Error. ' . $e->getMessage(), 500, $e);
 				$e->setData(array(
-					'customerId' => $this->user()->GetClientCustomerId(),
-					'since' => $since,
-					'until' => $until,
-					'reportType' => $reportType
+					'customerId' => $this->user->GetClientCustomerId(),
+					'query' => $query
 				));
 				throw $e;
 			}
 		}
-
-		return array();
-	}
-
-
-	/**
-	 * @return AdWordsUser
-	 */
-	public function user()
-	{
-		return $this->user;
-	}
-
-	public static function normalizeNumber($number)
-	{
-		return str_replace(',', '', $number);
-	}
-
-	/**
-	 * Prices are in micros so we need to divide by million
-	 */
-	public static function normalizePrice($number)
-	{
-		return self::normalizeNumber($number) / 1000000;
 	}
 
 }
