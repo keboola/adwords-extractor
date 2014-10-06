@@ -1,3 +1,0 @@
-keboola_ad_words_extractor_homepage:
-    path:     /hello/{name}
-    defaults: { _controller: KeboolaAdWordsExtractorBundle:Default:index }
