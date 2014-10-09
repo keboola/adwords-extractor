@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d2b3cabb63da0d4647a9cd7703eae3a4",
+    "hash": "e0131bef5699124ece4cc1e88d01946c",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -612,16 +612,16 @@
         },
         {
             "name": "doctrine/orm",
-            "version": "v2.4.5",
+            "version": "v2.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/doctrine2.git",
-                "reference": "c0d3cdbdfbf873871167050ab077e49b1ad02ab0"
+                "reference": "bebacf79d8d4dae9168f0f9bc6811e6c2cb6a4d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/doctrine2/zipball/c0d3cdbdfbf873871167050ab077e49b1ad02ab0",
-                "reference": "c0d3cdbdfbf873871167050ab077e49b1ad02ab0",
+                "url": "https://api.github.com/repos/doctrine/doctrine2/zipball/bebacf79d8d4dae9168f0f9bc6811e6c2cb6a4d9",
+                "reference": "bebacf79d8d4dae9168f0f9bc6811e6c2cb6a4d9",
                 "shasum": ""
             },
             "require": {
@@ -681,7 +681,7 @@
                 "database",
                 "orm"
             ],
-            "time": "2014-09-22 21:58:51"
+            "time": "2014-10-06 13:22:50"
         },
         {
             "name": "elasticsearch/elasticsearch",
@@ -2233,17 +2233,17 @@
         },
         {
             "name": "syrup/component-bundle",
-            "version": "1.8.7",
+            "version": "1.8.10",
             "target-dir": "Syrup/ComponentBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup-component-bundle.git",
-                "reference": "d62517f2a8ba639ad816641a1da1764a177cba75"
+                "reference": "9ed308d64de67a09b78bd0fcdbefde3323700bae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/d62517f2a8ba639ad816641a1da1764a177cba75",
-                "reference": "d62517f2a8ba639ad816641a1da1764a177cba75",
+                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/9ed308d64de67a09b78bd0fcdbefde3323700bae",
+                "reference": "9ed308d64de67a09b78bd0fcdbefde3323700bae",
                 "shasum": ""
             },
             "require": {
@@ -2285,7 +2285,7 @@
                 }
             ],
             "description": "Syrup ComponentBundle",
-            "time": "2014-09-25 11:07:23"
+            "time": "2014-10-09 11:42:57"
         },
         {
             "name": "twig/twig",

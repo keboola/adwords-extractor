@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "keboola/extractor-bundle": "~0.10.0",
+        "keboola/extractor-bundle": "0.10.2",
         "googleads/googleads-php-lib": "~5.5.1"
     },
     "require-dev": {
