@@ -1,0 +1,10 @@
+
+keboola_adwords_extractor_token:
+    pattern:  /ex-adwords/token
+    defaults: { _controller: KeboolaAdWordsExtractorBundle:Token:token }
+    methods:  [GET, POST]
+
+keboola_adwords_extractor_token_callback:
+    pattern:  /ex-adwords/token-callback
+    defaults: { _controller: KeboolaAdWordsExtractorBundle:Token:tokenCallback }
+    methods:  [GET]

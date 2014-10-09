@@ -59,6 +59,35 @@ class AdWords
 		}
 	}
 
+	public static function getUser($clientId, $clientSecret, $developerToken)
+	{
+		$user = new AdWordsUser();
+		$user->SetDeveloperToken($developerToken);
+		$user->SetOAuth2Info(array(
+			'client_id' => $clientId,
+			'client_secret' => $clientSecret
+		));
+		return $user;
+	}
+
+	public static function getOAuthUrl($clientId, $clientSecret, $developerToken, $redirectUri)
+	{
+		$user = self::getUser($clientId, $clientSecret, $developerToken);
+		$OAuth2Handler = $user->GetOAuth2Handler();
+		return $OAuth2Handler->GetAuthorizationUrl($user->GetOAuth2Info(), $redirectUri, true, array(
+			'approval_prompt' => 'force'
+		));
+	}
+
+	public static function getRefreshToken($clientId, $clientSecret, $developerToken, $code, $redirectUri)
+	{
+		$user = self::getUser($clientId, $clientSecret, $developerToken);
+		$OAuth2Handler = $user->GetOAuth2Handler();
+		$t = $OAuth2Handler->GetAccessToken($user->GetOAuth2Info(), $code, $redirectUri);
+
+		return isset($t['refresh_token'])? $t['refresh_token'] : false;
+	}
+
 	public function setCustomerId($customerId)
 	{
 		$this->user->SetClientCustomerId($customerId);

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}KBC AdWords Extractor{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        @media (min-width: 768px) {
+            .container {
+                max-width: 730px;
+            }
+        }
+        .container-narrow > hr {
+            margin: 30px 0;
+        }
+        body {
+            padding-top: 50px;
+        }
+        .starter-template {
+            padding: 40px 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Keboola Connection</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="starter-template">
+            <div class="page-header">
+                <h1>AdWords Extractor - Token Collector</h1>
+            </div>
+
+            {% for flashMessage in app.session.flashbag.get('all') %}
+                {{ flashMessage }}
+            {% endfor %}
+
+            <div class="jumbotron">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            &copy; Keboola
+        </div>
+    </div>
+</body>
+</html>
