@@ -5,7 +5,6 @@ use AdWordsUser;
 use DateRange;
 use Keboola\Csv\CsvFile;
 use Predicate;
-use ReportDefinition;
 use ReportDownloadException;
 use ReportUtils;
 use Selector;

@@ -118,7 +118,7 @@ class AdWordsExtractor extends Extractor
 			$this->saveToFile('customers', $customer);
 
 			$aw->setCustomerId($customer->customerId);
-			foreach ($aw->getCampaigns($since, $until) as $campaign) {print_r($campaign);die();
+			foreach ($aw->getCampaigns($since, $until) as $campaign) {
 				$campaign->customerId = $customer->customerId;
 				$this->saveToFile('campaigns', $campaign);
 			}
@@ -130,22 +130,22 @@ class AdWordsExtractor extends Extractor
 				}
 			}
 
-			$this->logEvent('Data for client ' . $customer->name . ' downloaded', time() - $timer);
+			$this->logEvent('Data for client ' . $customer->name . ' downloaded', $params['config'], time() - $timer);
 		}
 
 		$this->uploadFiles();
-		$this->logEvent('Extraction complete', time() - $timerAll, Event::TYPE_SUCCESS);
+		$this->logEvent('Extraction complete', $params['config'], time() - $timerAll, Event::TYPE_SUCCESS);
 	}
 
 
-	private function logEvent($message, $duration=null, $type=Event::TYPE_INFO)
+	private function logEvent($message, $config, $duration=null, $type=Event::TYPE_INFO)
 	{
 		$event = new Event();
 		$event
 			->setType($type)
 			->setMessage($message)
 			->setComponent('ex-adwords')
-			//->setConfigurationId()
+			->setConfigurationId($config)
 			->setRunId($this->storageApi->getRunId());
 		if ($duration) {
 			$event->setDuration($duration);
