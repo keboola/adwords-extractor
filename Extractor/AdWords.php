@@ -16,7 +16,10 @@ use Syrup\ComponentBundle\Filesystem\Temp;
 
 class AdWordsException extends SyrupComponentException
 {
-
+	public function __construct($message, $code=500, $previous=null)
+	{
+		parent::__construct($code, $message, $previous);
+	}
 }
 
 class AdWords
@@ -55,7 +58,7 @@ class AdWords
 			$credentials = $handler->RefreshAccessToken($this->user->GetOAuth2Info());
 			$this->user->SetOAuth2Info($credentials);
 		} catch (\Exception $e) {
-			throw new AdWordsException($e->getMessage(), 500, $e);
+			throw new UserException($e->getMessage(), $e);
 		}
 	}
 
@@ -114,7 +117,7 @@ class AdWords
 				return (isset($result->entries) && is_array($result->entries))? $result->entries : array();
 			} catch (\Exception $e) {
 				if (!strstr($e->getMessage(), 'RateExceededError')) {
-					throw new AdWordsException($e->getMessage(), 500, $e);
+					throw new UserException($e->getMessage(), $e);
 				}
 			}
 
@@ -165,7 +168,7 @@ class AdWords
 			$error = $process->getErrorOutput();
 
 			if (!$process->isSuccessful() || $error) {
-				$e = new AdWordsException('DownloadReport gzip Error', 500);
+				$e = new AdWordsException('DownloadReport gzip Error');
 				$e->setData(array(
 					'customerId' => $this->user->GetClientCustomerId(),
 					'query' => $query,
@@ -176,7 +179,7 @@ class AdWords
 			}
 
 			if (!file_exists($reportFileGz)) {
-				$e = new AdWordsException('DownloadReport Error, gzip file does not exist', 500);
+				$e = new AdWordsException('DownloadReport Error, gzip file does not exist');
 				$e->setData(array(
 					'customerId' => $this->user->GetClientCustomerId(),
 					'query' => $query,
@@ -185,7 +188,7 @@ class AdWords
 			}
 
 			if (!file_exists($reportFile)) {
-				$e = new AdWordsException('DownloadReport Error, csv file does not exist', 500);
+				$e = new AdWordsException('DownloadReport Error, csv file does not exist');
 				$e->setData(array(
 					'customerId' => $this->user->GetClientCustomerId(),
 					'query' => $query,
@@ -200,7 +203,7 @@ class AdWords
 			$error = $process->getErrorOutput();
 
 			if (!$process->isSuccessful() || $error) {
-				$e = new AdWordsException('DownloadReport count lines Error', 500);
+				$e = new AdWordsException('DownloadReport count lines Error');
 				$e->setData(array(
 					'customerId' => $this->user->GetClientCustomerId(),
 					'query' => $query,
@@ -219,7 +222,7 @@ class AdWords
 				sleep (5 * 60);
 				return $this->getReport($query, $since, $until);
 			} else {
-				$e = new AdWordsException('DownloadReport Error. ' . $e->getMessage(), 500, $e);
+				$e = new AdWordsException('DownloadReport Error. ' . $e->getMessage(), 400, $e);
 				$e->setData(array(
 					'customerId' => $this->user->GetClientCustomerId(),
 					'query' => $query

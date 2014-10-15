@@ -1,0 +1,18 @@
+{% extends 'SyrupComponentBundle:Elasticsearch:mappingDefault.json.twig' %}
+
+{% block params %}
+    "params": {
+        "dynamic": "strict",
+        "properties": {
+            "config": {
+                "type": "string"
+            },
+            "since": {
+                "type": "string"
+            },
+            "until": {
+                "type": "string"
+            }
+        }
+    },
+{% endblock %}

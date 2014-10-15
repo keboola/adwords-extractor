@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e0131bef5699124ece4cc1e88d01946c",
+    "hash": "71fb0d876c91647c9392343a625694c5",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -742,16 +742,16 @@
         },
         {
             "name": "googleads/googleads-php-lib",
-            "version": "5.5.1",
+            "version": "5.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleads/googleads-php-lib.git",
-                "reference": "aded8953eaeddb7d550571327558f790ab674f5d"
+                "reference": "ce028081af905cb8f9971c18db012466bda1629c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleads/googleads-php-lib/zipball/aded8953eaeddb7d550571327558f790ab674f5d",
-                "reference": "aded8953eaeddb7d550571327558f790ab674f5d",
+                "url": "https://api.github.com/repos/googleads/googleads-php-lib/zipball/ce028081af905cb8f9971c18db012466bda1629c",
+                "reference": "ce028081af905cb8f9971c18db012466bda1629c",
                 "shasum": ""
             },
             "require": {
@@ -795,7 +795,7 @@
             ],
             "description": "Google Ads APIs Client Library for PHP (AdWords, Adx, and DFP)",
             "homepage": "https://github.com/googleads/googleads-php-lib",
-            "time": "2014-08-22 19:51:45"
+            "time": "2014-10-10 17:34:11"
         },
         {
             "name": "guzzle/guzzle",
@@ -952,27 +952,32 @@
         },
         {
             "name": "guzzlehttp/log-subscriber",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/log-subscriber.git",
-                "reference": "1231bdb715a96cc7802ada6f7075fa0520bc7d1a"
+                "reference": "99c3c0004165db721d8ef7bbef60c996210e538a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/log-subscriber/zipball/1231bdb715a96cc7802ada6f7075fa0520bc7d1a",
-                "reference": "1231bdb715a96cc7802ada6f7075fa0520bc7d1a",
+                "url": "https://api.github.com/repos/guzzle/log-subscriber/zipball/99c3c0004165db721d8ef7bbef60c996210e538a",
+                "reference": "99c3c0004165db721d8ef7bbef60c996210e538a",
                 "shasum": ""
             },
             "require": {
-                "guzzlehttp/guzzle": "4.*",
+                "guzzlehttp/guzzle": "~4.0 | ~5.0",
                 "php": ">=5.4.0",
                 "psr/log": "~1.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "4.*"
+                "phpunit/phpunit": "~4.0"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "GuzzleHttp\\Subscriber\\Log\\": "src/"
@@ -996,7 +1001,7 @@
                 "log",
                 "plugin"
             ],
-            "time": "2014-03-30 00:07:41"
+            "time": "2014-10-13 03:31:43"
         },
         {
             "name": "guzzlehttp/retry-subscriber",
@@ -1234,15 +1239,15 @@
         },
         {
             "name": "keboola/extractor-bundle",
-            "version": "0.10.2",
+            "version": "0.10.3",
             "source": {
                 "type": "git",
                 "url": "git@bitbucket.org:keboola/extractor-bundle.git",
-                "reference": "58f83310479745320a48489de4c1556ae505e5b9"
+                "reference": "27e5a832914c95382eab9a9c599d84a563a82477"
             },
             "require": {
                 "php": ">=5.4.0",
-                "syrup/component-bundle": "~1.8.0"
+                "syrup/component-bundle": "~1.9.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "3.7.*"
@@ -1276,7 +1281,7 @@
                 "keboola",
                 "syrup"
             ],
-            "time": "2014-10-01 06:47:56"
+            "time": "2014-10-03 06:40:11"
         },
         {
             "name": "keboola/php-encryption",
@@ -1326,6 +1331,54 @@
             "time": "2013-07-15 12:02:24"
         },
         {
+            "name": "keboola/php-temp",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/php-temp.git",
+                "reference": "ba7951bc813228d4b580872be966a39262c4f933"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/php-temp/zipball/ba7951bc813228d4b580872be966a39262c4f933",
+                "reference": "ba7951bc813228d4b580872be966a39262c4f933",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3",
+                "symfony/symfony": ">2.1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Keboola\\Temp": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Miro Cillik",
+                    "email": "miro@keboola.cz"
+                },
+                {
+                    "name": "Ondrej Vana",
+                    "email": "kachna@keboola.cz"
+                }
+            ],
+            "description": "Temp service - handles application's temporary files",
+            "keywords": [
+                "filesystem",
+                "temp"
+            ],
+            "time": "2014-09-30 02:21:07"
+        },
+        {
             "name": "keboola/storage-api-client",
             "version": "2.11.20",
             "source": {
@@ -1367,16 +1420,16 @@
         },
         {
             "name": "keboola/syrup",
-            "version": "1.5.3",
+            "version": "1.6.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup.git",
-                "reference": "7a684814855bb60b968e29559b1776d4fde27390"
+                "reference": "627ff1623a28b0387cf117f108abbd1881175844"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup/zipball/7a684814855bb60b968e29559b1776d4fde27390",
-                "reference": "7a684814855bb60b968e29559b1776d4fde27390",
+                "url": "https://api.github.com/repos/keboola/syrup/zipball/627ff1623a28b0387cf117f108abbd1881175844",
+                "reference": "627ff1623a28b0387cf117f108abbd1881175844",
                 "shasum": ""
             },
             "require": {
@@ -1407,20 +1460,20 @@
                 "MIT"
             ],
             "description": "Syrup - Concentrated extract(or)s",
-            "time": "2014-09-24 19:03:16"
+            "time": "2014-10-08 16:12:27"
         },
         {
             "name": "kriswallsmith/assetic",
-            "version": "v1.1.2",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kriswallsmith/assetic.git",
-                "reference": "735cffd3982c6e8cdebe292d5db39d077f65890f"
+                "reference": "df991c124a2212371443b586a1be767500036dee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kriswallsmith/assetic/zipball/735cffd3982c6e8cdebe292d5db39d077f65890f",
-                "reference": "735cffd3982c6e8cdebe292d5db39d077f65890f",
+                "url": "https://api.github.com/repos/kriswallsmith/assetic/zipball/df991c124a2212371443b586a1be767500036dee",
+                "reference": "df991c124a2212371443b586a1be767500036dee",
                 "shasum": ""
             },
             "require": {
@@ -1435,7 +1488,9 @@
                 "leafo/scssphp": "*",
                 "leafo/scssphp-compass": "*",
                 "mrclay/minify": "*",
-                "phpunit/phpunit": "~3.7",
+                "patchwork/jsqueeze": "~1.0",
+                "phpunit/phpunit": "~4",
+                "psr/log": "~1.0",
                 "ptachoire/cssembed": "*",
                 "twig/twig": "~1.6"
             },
@@ -1443,13 +1498,14 @@
                 "leafo/lessphp": "Assetic provides the integration with the lessphp LESS compiler",
                 "leafo/scssphp": "Assetic provides the integration with the scssphp SCSS compiler",
                 "leafo/scssphp-compass": "Assetic provides the integration with the SCSS compass plugin",
+                "patchwork/jsqueeze": "Assetic provides the integration with the JSqueeze JavaScript compressor",
                 "ptachoire/cssembed": "Assetic provides the integration with phpcssembed to embed data uris",
                 "twig/twig": "Assetic provides the integration with the Twig templating engine"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.1-dev"
+                    "dev-master": "1.2-dev"
                 }
             },
             "autoload": {
@@ -1478,7 +1534,7 @@
                 "compression",
                 "minification"
             ],
-            "time": "2013-07-19 00:03:27"
+            "time": "2014-10-14 14:45:32"
         },
         {
             "name": "monolog/monolog",
@@ -1893,45 +1949,46 @@
         },
         {
             "name": "symfony/assetic-bundle",
-            "version": "v2.3.0",
-            "target-dir": "Symfony/Bundle/AsseticBundle",
+            "version": "v2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/AsseticBundle.git",
-                "reference": "146dd3cb46b302bd471560471c6aaa930483dac1"
+                "reference": "90ea7fb66d6d5245fd4afc16e4c8070214254fec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/AsseticBundle/zipball/146dd3cb46b302bd471560471c6aaa930483dac1",
-                "reference": "146dd3cb46b302bd471560471c6aaa930483dac1",
+                "url": "https://api.github.com/repos/symfony/AsseticBundle/zipball/90ea7fb66d6d5245fd4afc16e4c8070214254fec",
+                "reference": "90ea7fb66d6d5245fd4afc16e4c8070214254fec",
                 "shasum": ""
             },
             "require": {
-                "kriswallsmith/assetic": "~1.1",
+                "kriswallsmith/assetic": "~1.2",
                 "php": ">=5.3.0",
-                "symfony/framework-bundle": "~2.1"
-            },
-            "require-dev": {
-                "symfony/class-loader": "~2.1",
                 "symfony/console": "~2.1",
-                "symfony/css-selector": "~2.1",
-                "symfony/dom-crawler": "~2.1",
-                "symfony/form": "~2.1",
-                "symfony/twig-bundle": "~2.1",
+                "symfony/framework-bundle": "~2.1",
                 "symfony/yaml": "~2.1"
             },
-            "suggest": {
+            "require-dev": {
+                "kriswallsmith/spork": "~0.2",
+                "patchwork/jsqueeze": "~1.0",
+                "symfony/class-loader": "~2.1",
+                "symfony/css-selector": "~2.1",
+                "symfony/dom-crawler": "~2.1",
                 "symfony/twig-bundle": "~2.1"
+            },
+            "suggest": {
+                "kriswallsmith/spork": "to be able to dump assets in parallel",
+                "symfony/twig-bundle": "to use the Twig integration"
             },
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.1.x-dev"
+                    "dev-master": "2.5-dev"
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Symfony\\Bundle\\AsseticBundle": ""
+                "psr-4": {
+                    "Symfony\\Bundle\\AsseticBundle\\": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1952,7 +2009,7 @@
                 "compression",
                 "minification"
             ],
-            "time": "2013-05-16 05:32:23"
+            "time": "2014-10-15 12:03:38"
         },
         {
             "name": "symfony/icu",
@@ -2233,27 +2290,28 @@
         },
         {
             "name": "syrup/component-bundle",
-            "version": "1.8.10",
+            "version": "1.9.12",
             "target-dir": "Syrup/ComponentBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup-component-bundle.git",
-                "reference": "9ed308d64de67a09b78bd0fcdbefde3323700bae"
+                "reference": "dff563432da27ea1bce86330949faaf39d3c51e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/9ed308d64de67a09b78bd0fcdbefde3323700bae",
-                "reference": "9ed308d64de67a09b78bd0fcdbefde3323700bae",
+                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/dff563432da27ea1bce86330949faaf39d3c51e7",
+                "reference": "dff563432da27ea1bce86330949faaf39d3c51e7",
                 "shasum": ""
             },
             "require": {
-                "aws/aws-sdk-php": "2.*",
+                "aws/aws-sdk-php": "2.6.*",
                 "elasticsearch/elasticsearch": "~1.0",
                 "guzzle/guzzle": ">=3.0.0",
                 "keboola/csv": "1.1.*",
                 "keboola/php-encryption": "~0.2.0",
+                "keboola/php-temp": ">=0.1.0",
                 "keboola/storage-api-client": "~2.11.0",
-                "keboola/syrup": "~1.5.3",
+                "keboola/syrup": "~1.6.4",
                 "php": ">=5.3.5",
                 "pimple/pimple": "2.0.*",
                 "sensio/generator-bundle": "~2.3"
@@ -2285,20 +2343,20 @@
                 }
             ],
             "description": "Syrup ComponentBundle",
-            "time": "2014-10-09 11:42:57"
+            "time": "2014-10-10 14:17:33"
         },
         {
             "name": "twig/twig",
-            "version": "v1.16.0",
+            "version": "v1.16.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fabpot/Twig.git",
-                "reference": "8ce37115802e257a984a82d38254884085060024"
+                "reference": "7c4c01dcf578523cfcddf383641a4f12790270ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fabpot/Twig/zipball/8ce37115802e257a984a82d38254884085060024",
-                "reference": "8ce37115802e257a984a82d38254884085060024",
+                "url": "https://api.github.com/repos/fabpot/Twig/zipball/7c4c01dcf578523cfcddf383641a4f12790270ec",
+                "reference": "7c4c01dcf578523cfcddf383641a4f12790270ec",
                 "shasum": ""
             },
             "require": {
@@ -2342,7 +2400,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2014-07-05 12:19:05"
+            "time": "2014-10-10 14:09:53"
         }
     ],
     "packages-dev": [],

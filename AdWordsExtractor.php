@@ -29,12 +29,8 @@ class AdWordsExtractor extends Extractor
 				'dateTimeZone')
 		),
 		'campaigns' => array(
-			'columns' => array('customerId', 'id', 'name', 'campaignStatus', 'servingStatus', 'startDate', 'endDate',
+			'columns' => array('customerId', 'id', 'name', 'status', 'servingStatus', 'startDate', 'endDate',
 				'adServingOptimizationStatus', 'advertisingChannelType', 'displaySelect', 'trackingUrlTemplate')
-		),
-		'stats' => array(
-			'columns' => array('avgCPC', 'avgCPM', 'avgPosition', 'campaignID', 'campaign', 'clicks', 'cost', 'day',
-				'impressions', 'network')
 		)
 	);
 
@@ -122,7 +118,7 @@ class AdWordsExtractor extends Extractor
 			$this->saveToFile('customers', $customer);
 
 			$aw->setCustomerId($customer->customerId);
-			foreach ($aw->getCampaigns($since, $until) as $campaign) {
+			foreach ($aw->getCampaigns($since, $until) as $campaign) {print_r($campaign);die();
 				$campaign->customerId = $customer->customerId;
 				$this->saveToFile('campaigns', $campaign);
 			}
@@ -138,15 +134,15 @@ class AdWordsExtractor extends Extractor
 		}
 
 		$this->uploadFiles();
-		$this->logEvent('Extraction complete', time() - $timerAll);
+		$this->logEvent('Extraction complete', time() - $timerAll, Event::TYPE_SUCCESS);
 	}
 
 
-	private function logEvent($message, $duration=null)
+	private function logEvent($message, $duration=null, $type=Event::TYPE_INFO)
 	{
 		$event = new Event();
 		$event
-			->setType(Event::TYPE_INFO)
+			->setType($type)
 			->setMessage($message)
 			->setComponent('ex-adwords')
 			//->setConfigurationId()

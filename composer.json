@@ -16,17 +16,19 @@
         }
     ],
     "require": {
-        "keboola/extractor-bundle": "0.10.2",
+        "keboola/extractor-bundle": "~0.10.3",
         "googleads/googleads-php-lib": "~5.5.1"
     },
     "require-dev": {
     },
     "scripts": {
         "post-install-cmd": [
+            "Syrup\\CoreBundle\\DeploymentHandler\\ScriptHandler::getSharedParameters",
             "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap"
         ],
         "post-update-cmd": [
+            "Syrup\\CoreBundle\\DeploymentHandler\\ScriptHandler::getSharedParameters",
             "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache"
