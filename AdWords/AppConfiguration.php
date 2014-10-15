@@ -6,7 +6,7 @@
  * Time: 14:18
  */
 
-namespace Keboola\AdWordsExtractorBundle\Extractor;
+namespace Keboola\AdWordsExtractorBundle\AdWords;
 
 class AppConfiguration
 {

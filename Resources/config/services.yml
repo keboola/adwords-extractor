@@ -1,6 +1,6 @@
 services:
     ex_adwords.app_configuration:
-        class: Keboola\AdWordsExtractorBundle\Extractor\AppConfiguration
+        class: Keboola\AdWordsExtractorBundle\AdWords\AppConfiguration
         arguments: ['%app_name%', '%ex_adwords%']
     ex_adwords.job_executor:
         class: Keboola\AdWordsExtractorBundle\Job\Executor

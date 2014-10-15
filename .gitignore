@@ -2,4 +2,5 @@
 vendor
 .idea
 parameters.yml
+parameters_shared.yml
 composer.phar

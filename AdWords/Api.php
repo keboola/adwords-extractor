@@ -1,5 +1,5 @@
 <?
-namespace Keboola\AdWordsExtractorBundle\Extractor;
+namespace Keboola\AdWordsExtractorBundle\AdWords;
 
 use AdWordsUser;
 use DateRange;
@@ -21,7 +21,7 @@ class AdWordsException extends SyrupComponentException
 	}
 }
 
-class AdWords
+class Api
 {
 
 	/**
@@ -132,7 +132,7 @@ class AdWords
 	{
 		return $this->selectorRequest(
 			'ManagedCustomerService',
-			array('Name', 'Login', 'CompanyName', 'CustomerId', 'CanManageClients', 'CurrencyCode', 'DateTimeZone'),
+			array('Name', 'CompanyName', 'CustomerId', 'CanManageClients', 'CurrencyCode', 'DateTimeZone'),
 			array(new Predicate('CanManageClients', 'EQUALS', 'false'))
 		);
 	}
@@ -141,8 +141,8 @@ class AdWords
 	{
 		return $this->selectorRequest(
 			'CampaignService',
-			array('Id', 'Name', 'CampaignStatus', 'ServingStatus', 'StartDate', 'EndDate', 'AdServingOptimizationStatus',
-				'AdvertisingChannelType', 'DisplaySelect', 'TrackingUrlTemplate'),
+			array('Id', 'Name', 'Status', 'ServingStatus', 'StartDate', 'EndDate', 'AdServingOptimizationStatus',
+				'AdvertisingChannelType'),
 			array(),
 			$since,
 			$until

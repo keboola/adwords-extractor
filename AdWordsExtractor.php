@@ -2,8 +2,8 @@
 
 namespace Keboola\AdWordsExtractorBundle;
 
-use Keboola\AdWordsExtractorBundle\Extractor\AdWords;
-use Keboola\AdWordsExtractorBundle\Extractor\AppConfiguration;
+use Keboola\AdWordsExtractorBundle\AdWords\Api;
+use Keboola\AdWordsExtractorBundle\AdWords\AppConfiguration;
 use Keboola\Csv\CsvFile;
 use Keboola\ExtractorBundle\Extractor\Extractors\JsonExtractor as Extractor;
 use Keboola\StorageApi\Client;
@@ -25,12 +25,11 @@ class AdWordsExtractor extends Extractor
 
 	protected $tables = array(
 		'customers' => array(
-			'columns' => array('name', 'login', 'companyName', 'customerId', 'canManageClients', 'currencyCode',
-				'dateTimeZone')
+			'columns' => array('name', 'companyName', 'customerId', 'canManageClients', 'currencyCode', 'dateTimeZone')
 		),
 		'campaigns' => array(
 			'columns' => array('customerId', 'id', 'name', 'status', 'servingStatus', 'startDate', 'endDate',
-				'adServingOptimizationStatus', 'advertisingChannelType', 'displaySelect', 'trackingUrlTemplate')
+				'adServingOptimizationStatus', 'advertisingChannelType', 'displaySelect')
 		)
 	);
 
@@ -84,6 +83,11 @@ class AdWordsExtractor extends Extractor
 		$since = date('Ymd', strtotime(isset($params['since'])? $params['since'] : '-1 day'));
 		$until = date('Ymd', strtotime(isset($params['until'])? $params['until'] : '-1 day'));
 
+		$jobId = $params['config'] . '|' . $this->getSyrupJob()->getId();
+		if (!$this->storageApi->getRunId()) {
+			$this->storageApi->setRunId($this->getSyrupJob()->getId());
+		}
+
 		if (!isset($config['attributes']['developerToken'])) {
 			throw new UserException('AdWords developerToken is not configured in configuration table');
 		}
@@ -103,7 +107,7 @@ class AdWordsExtractor extends Extractor
 
 		$this->prepareFiles();
 
-		$aw = new AdWords(
+		$api = new Api(
 			$this->clientId,
 			$this->clientSecret,
 			$config['attributes']['developerToken'],
@@ -112,29 +116,29 @@ class AdWordsExtractor extends Extractor
 			$this->temp
 		);
 
-		$aw->setCustomerId($config['attributes']['customerId']);
-		foreach ($aw->getCustomers() as $customer) {
+		$api->setCustomerId($config['attributes']['customerId']);
+		foreach ($api->getCustomers() as $customer) {
 			$timer = time();
 			$this->saveToFile('customers', $customer);
 
-			$aw->setCustomerId($customer->customerId);
-			foreach ($aw->getCampaigns($since, $until) as $campaign) {
+			$api->setCustomerId($customer->customerId);
+			foreach ($api->getCampaigns($since, $until) as $campaign) {
 				$campaign->customerId = $customer->customerId;
 				$this->saveToFile('campaigns', $campaign);
 			}
 
 			foreach ($config['data'] as $configReport) {
-				$report = $aw->getReport($configReport['query'], $since, $until);
+				$report = $api->getReport($configReport['query'], $since, $until);
 				if ($report) {
 					$this->sapiUpload(array($configReport['table'] => $report));
 				}
 			}
 
-			$this->logEvent('Data for client ' . $customer->name . ' downloaded', $params['config'], time() - $timer);
+			$this->logEvent('Data for client ' . $customer->name . ' downloaded', $jobId, time() - $timer);
 		}
 
 		$this->uploadFiles();
-		$this->logEvent('Extraction complete', $params['config'], time() - $timerAll, Event::TYPE_SUCCESS);
+		$this->logEvent('Extraction complete', $jobId, time() - $timerAll, Event::TYPE_SUCCESS);
 	}
 
 
