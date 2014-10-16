@@ -1,4 +1,4 @@
-<?
+<?php
 namespace Keboola\AdWordsExtractorBundle\AdWords;
 
 use AdWordsUser;
