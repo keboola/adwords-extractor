@@ -2,7 +2,6 @@
 
 namespace Keboola\AdWordsExtractorBundle;
 
-use Keboola\AdWordsExtractorBundle\AdWords\Api;
 use Keboola\AdWordsExtractorBundle\AdWords\AppConfiguration;
 use Keboola\Csv\CsvFile;
 use Keboola\ExtractorBundle\Extractor\Extractors\JsonExtractor as Extractor;
