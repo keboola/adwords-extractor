@@ -107,7 +107,7 @@ class AdWordsExtractor extends Extractor
 
 		$this->prepareFiles();
 
-		$api = new Api(
+		$api = new AdWords\Api(
 			$this->clientId,
 			$this->clientSecret,
 			$config['attributes']['developerToken'],
