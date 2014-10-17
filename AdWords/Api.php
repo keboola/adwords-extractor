@@ -4,6 +4,7 @@ namespace Keboola\AdWordsExtractorBundle\AdWords;
 use AdWordsUser;
 use DateRange;
 use Keboola\Csv\CsvFile;
+use Keboola\ExtractorBundle\Common\Logger;
 use Predicate;
 use ReportDownloadException;
 use ReportUtils;
@@ -99,8 +100,10 @@ class Api
 	{
 		$this->user->LoadService($service);
 
-		$retriesCount = 1;
+		$retriesCount = 0;
 		do {
+			sleep(self::BACKOFF_INTERVAL * ($retriesCount + 1));
+			$retriesCount++;
 
 			try {
 				$service =  $this->user->GetService($service);
@@ -115,13 +118,23 @@ class Api
 				$result = $service->get($selector);
 				return (isset($result->entries) && is_array($result->entries))? $result->entries : array();
 			} catch (\Exception $e) {
-				if (!strstr($e->getMessage(), 'RateExceededError')) {
+				if ($retriesCount <= self::RETRIES_COUNT) {
+					Logger::log(\Monolog\Logger::ERROR, 'API Error', array(
+						'service' => $service,
+						'fields' => $fields,
+						'predicates' => $predicates,
+						'since' => $since,
+						'until' => $until,
+						'exception' => $e->getMessage(),
+						'code' => $e->getCode(),
+						'retry' => $retriesCount
+					));
+				} else {
 					throw new UserException($e->getMessage(), $e);
 				}
+				//if (!strstr($e->getMessage(), 'RateExceededError')) {
+				//}
 			}
-
-			sleep(self::BACKOFF_INTERVAL * ($retriesCount + 1));
-			$retriesCount++;
 		} while ($retriesCount <= self::RETRIES_COUNT);
 	}
 
