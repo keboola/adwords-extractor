@@ -106,7 +106,7 @@ class Api
 			$retriesCount++;
 
 			try {
-				$service =  $this->user->GetService($service);
+				$serviceClass =  $this->user->GetService($service);
 				$selector = new Selector();
 				$selector->fields = $fields;
 				if (count($predicates)) {
@@ -115,7 +115,7 @@ class Api
 				if ($since && $until) {
 					$selector->dateRange = new DateRange($since, $until);
 				}
-				$result = $service->get($selector);
+				$result = $serviceClass->get($selector);
 				return (isset($result->entries) && is_array($result->entries))? $result->entries : array();
 			} catch (\Exception $e) {
 				if ($retriesCount <= self::RETRIES_COUNT) {
