@@ -128,10 +128,7 @@ class AdWordsExtractor extends Extractor
 
 			foreach ($config['data'] as $configReport) {
 				try {
-					$report = $api->getReport($configReport['query'], $since, $until);
-					if ($report) {
-						$this->sapiUpload(array($configReport['table'] => $report));
-					}
+					$api->getReport($configReport['query'], $since, $until, $configReport['table']);
 				} catch (UserException $e) {
 					$this->logEvent('Getting report for client ' . $customer->name . ' failed. ' . $e->getMessage(), $jobId, time() - $timer, Event::TYPE_WARN);
 				}
@@ -140,6 +137,11 @@ class AdWordsExtractor extends Extractor
 			$this->logEvent('Data for client ' . $customer->name . ' downloaded', $jobId, time() - $timer);
 		}
 
+		$reportFiles = array();
+		foreach ($api->getReportFiles() as $table => $file) {
+			$reportFiles[$table] = new CsvFile($file);
+		}
+		$this->sapiUpload($reportFiles);
 		$this->uploadFiles();
 		$this->logEvent('Extraction complete', $jobId, time() - $timerAll, Event::TYPE_SUCCESS);
 	}

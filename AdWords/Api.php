@@ -40,6 +40,7 @@ class Api
 	private $user;
 
 	private $temp;
+	private $reportFiles = array();
 
 	public function __construct($clientId, $clientSecret, $developerToken, $refreshToken, $userAgent, Temp $temp)
 	{
@@ -163,17 +164,20 @@ class Api
 	}
 
 
-	public function getReport($query, $since, $until)
+	public function getReport($query, $since, $until, $file)
 	{
 		$query .= sprintf(' DURING %d,%d', $since, $until);
+		$isFirstReportInFile = isset($this->reportFiles[$file]);
 
 		try {
 			$reportFileGz = $this->temp->createTmpFile();
 			$reportFile = $this->temp->createTmpFile();
 			ReportUtils::DownloadReportWithAwql($query, $reportFileGz, $this->user, 'GZIPPED_CSV');
 
-			$process = new Process('cat ' . escapeshellarg($reportFileGz) . ' | gzip -d | tail -n+2 | head -n-1 > '
-				. escapeshellarg($reportFile));
+			// If first report, include header
+			$tail = $isFirstReportInFile? 3 : 2;
+			$process = new Process('cat ' . escapeshellarg($reportFileGz) . ' | gzip -d | tail -n+' . $tail
+				. ' | head -n-1 > ' . escapeshellarg($reportFile));
 			$process->setTimeout(5 * 60 * 60);
 			$process->run();
 			$output = $process->getOutput();
@@ -211,7 +215,7 @@ class Api
 			// Do not save empty reports (with one line only)
 			$process = new Process('wc -l ' . escapeshellarg($reportFile) . ' | awk \'{print $1}\'');
 			$process->run();
-			$output = $process->getOutput();
+			$linesCount = $process->getOutput();
 			$error = $process->getErrorOutput();
 
 			if (!$process->isSuccessful() || $error) {
@@ -219,20 +223,41 @@ class Api
 				$e->setData(array(
 					'customerId' => $this->user->GetClientCustomerId(),
 					'query' => $query,
-					'reportFile' => $reportFileGz,
+					'reportFile' => $reportFile,
 					'output' => $error? $error : $output
 				));
 				throw $e;
 			}
 
-			return ($output > 1)? new CsvFile($reportFile) : false;
+			if ($linesCount > 0 || $isFirstReportInFile) {
+				// Append report to main report file
+				if (!isset($this->reportFiles[$file])) {
+					$this->reportFiles[$file] = $this->temp->createTmpFile();
+				}
+
+				$process = new Process('cat ' . escapeshellarg($reportFile) . ' >> ' . escapeshellarg($this->reportFiles[$file]));
+				$process->run();
+				$output = $process->getOutput();
+				$error = $process->getErrorOutput();
+
+				if (!$process->isSuccessful() || $error) {
+					$e = new AdWordsException('Append report Error');
+					$e->setData(array(
+						'customerId' => $this->user->GetClientCustomerId(),
+						'query' => $query,
+						'reportFile' => $reportFile,
+						'output' => $error ? $error : $output
+					));
+					throw $e;
+				}
+			}
 
 		} catch (ReportDownloadException $e) {
 			throw new UserException($e->getMessage(), $e);
 		} catch (\Exception $e) {
 			if (strstr($e->getMessage(), 'RateExceededError')) {
 				sleep (5 * 60);
-				return $this->getReport($query, $since, $until);
+				return $this->getReport($query, $since, $until, $file);
 			} else {
 				$e = new AdWordsException('DownloadReport Error. ' . $e->getMessage(), 400, $e);
 				$e->setData(array(
@@ -242,6 +267,11 @@ class Api
 				throw $e;
 			}
 		}
+	}
+
+	public function getReportFiles()
+	{
+		return $this->reportFiles;
 	}
 
 }
