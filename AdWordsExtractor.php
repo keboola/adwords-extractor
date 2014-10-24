@@ -119,7 +119,7 @@ class AdWordsExtractor extends Extractor
 		$customers = $api->getCustomers();
 		$counter = 1;
 		$counterTotal = count($customers);
-		foreach ($customers as $customer) if (in_array($customer->customerId, array(6874151532, 8971537363, 3272849305, 1924422140))) {
+		foreach ($customers as $customer) {
 			$timer = time();
 			$this->saveToFile('customers', $customer);
 
