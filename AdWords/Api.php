@@ -4,6 +4,7 @@ namespace Keboola\AdWordsExtractorBundle\AdWords;
 use AdWordsConstants;
 use AdWordsUser;
 use DateRange;
+use ErrorUtils;
 use Keboola\Csv\CsvFile;
 use Keboola\ExtractorBundle\Common\Logger;
 use Paging;
@@ -132,7 +133,15 @@ class Api
 				} while ($page->totalNumEntries > $selector->paging->startIndex);
 
 				return $result;
-			} catch (\Exception $e) {
+			} catch (\SoapFault $fault) {
+				$soapErrors = array();
+				foreach (ErrorUtils::GetApiErrors($fault) as $error) {
+					$soapErrors[] = array(
+						'apiErrorType' => $error->ApiErrorType,
+						'externalPolicyName' => $error->externalPolicyName
+					);
+				}
+
 				if ($retriesCount <= self::RETRIES_COUNT) {
 					Logger::log(\Monolog\Logger::ERROR, 'API Error', array(
 						'service' => $service,
@@ -140,12 +149,13 @@ class Api
 						'predicates' => $predicates,
 						'since' => $since,
 						'until' => $until,
-						'exception' => $e->getMessage(),
-						'code' => $e->getCode(),
+						'exception' => $fault->getMessage(),
+						'code' => $fault->getCode(),
+						'soapErrors' => $soapErrors,
 						'retry' => $retriesCount
 					));
 				} else {
-					throw new UserException($e->getMessage(), $e);
+					throw new UserException($fault->getMessage(), $fault);
 				}
 				//if (!strstr($e->getMessage(), 'RateExceededError')) {
 				//}
