@@ -76,7 +76,7 @@ class AdWordsExtractor extends Extractor
 	}
 
 	public function run($config)
-	{return true;
+	{
 		$timerAll = time();
 		$params = $this->getSyrupJob()->getParams();
 		$since = date('Ymd', strtotime(isset($params['since'])? $params['since'] : '-1 day'));
