@@ -116,7 +116,10 @@ class AdWordsExtractor extends Extractor
 		);
 
 		$api->setCustomerId($config['attributes']['customerId']);
-		foreach ($api->getCustomers() as $customer) {
+		$customers = $api->getCustomers();
+		$counter = 1;
+		$counterTotal = count($customers);
+		foreach ($customers as $customer) if (in_array($customer->customerId, array(6874151532, 8971537363, 3272849305, 1924422140))) {
 			$timer = time();
 			$this->saveToFile('customers', $customer);
 
@@ -134,7 +137,8 @@ class AdWordsExtractor extends Extractor
 				}
 			}
 
-			$this->logEvent('Data for client ' . $customer->name . ' downloaded', $jobId, time() - $timer);
+			$this->logEvent(sprintf('Data for client %s downloaded (%d of %d)', $customer->name, $counter, $counterTotal), $jobId, time() - $timer);
+			$counter++;
 		}
 
 		$reportFiles = array();

@@ -167,41 +167,14 @@ class Api
 	public function getReport($query, $since, $until, $file)
 	{
 		$query .= sprintf(' DURING %d,%d', $since, $until);
-		$isFirstReportInFile = isset($this->reportFiles[$file]);
+		$isFirstReportInFile = !isset($this->reportFiles[$file]);
 
 		try {
-			$reportFileGz = $this->temp->createTmpFile();
 			$reportFile = $this->temp->createTmpFile();
-			ReportUtils::DownloadReportWithAwql($query, $reportFileGz, $this->user, 'GZIPPED_CSV');
-
-			// If first report, include header
-			$tail = $isFirstReportInFile? 3 : 2;
-			$process = new Process('cat ' . escapeshellarg($reportFileGz) . ' | gzip -d | tail -n+' . $tail
-				. ' | head -n-1 > ' . escapeshellarg($reportFile));
-			$process->setTimeout(5 * 60 * 60);
-			$process->run();
-			$output = $process->getOutput();
-			$error = $process->getErrorOutput();
-
-			if (!$process->isSuccessful() || $error) {
-				$e = new AdWordsException('DownloadReport gzip Error');
-				$e->setData(array(
-					'customerId' => $this->user->GetClientCustomerId(),
-					'query' => $query,
-					'reportFile' => $reportFileGz,
-					'output' => $error? $error : $output
-				));
-				throw $e;
-			}
-
-			if (!file_exists($reportFileGz)) {
-				$e = new AdWordsException('DownloadReport Error, gzip file does not exist');
-				$e->setData(array(
-					'customerId' => $this->user->GetClientCustomerId(),
-					'query' => $query,
-					'reportFile' => $reportFileGz
-				));
-			}
+			ReportUtils::DownloadReportWithAwql($query, $reportFile, $this->user, 'CSV', array(
+				'skipReportHeader' => true,
+				'skipReportSummary' => true
+			));
 
 			if (!file_exists($reportFile)) {
 				$e = new AdWordsException('DownloadReport Error, csv file does not exist');
@@ -211,6 +184,7 @@ class Api
 					'reportFile' => $reportFile
 				));
 			}
+
 
 			// Do not save empty reports (with one line only)
 			$process = new Process('wc -l ' . escapeshellarg($reportFile) . ' | awk \'{print $1}\'');
@@ -224,24 +198,25 @@ class Api
 					'customerId' => $this->user->GetClientCustomerId(),
 					'query' => $query,
 					'reportFile' => $reportFile,
-					'output' => $error? $error : $output
+					'output' => $error? $error : $linesCount
 				));
 				throw $e;
 			}
-
-			if ($linesCount > 0 || $isFirstReportInFile) {
-				// Append report to main report file
+			if ($linesCount > 1 || $isFirstReportInFile) {
 				if (!isset($this->reportFiles[$file])) {
 					$this->reportFiles[$file] = $this->temp->createTmpFile();
 				}
 
-				$process = new Process('cat ' . escapeshellarg($reportFile) . ' >> ' . escapeshellarg($this->reportFiles[$file]));
+				// If first report, include header
+				$process = new Process('cat ' . escapeshellarg($reportFile) . (!$isFirstReportInFile ? ' | tail -n+2' : '')
+					. ' >> ' . escapeshellarg($this->reportFiles[$file]));
+				$process->setTimeout(5 * 60 * 60);
 				$process->run();
 				$output = $process->getOutput();
 				$error = $process->getErrorOutput();
 
 				if (!$process->isSuccessful() || $error) {
-					$e = new AdWordsException('Append report Error');
+					$e = new AdWordsException('DownloadReport Error');
 					$e->setData(array(
 						'customerId' => $this->user->GetClientCustomerId(),
 						'query' => $query,
@@ -250,6 +225,7 @@ class Api
 					));
 					throw $e;
 				}
+
 			}
 
 		} catch (ReportDownloadException $e) {
