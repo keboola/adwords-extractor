@@ -123,17 +123,31 @@ class AdWordsExtractor extends Extractor
 			$timer = time();
 			$this->saveToFile('customers', $customer);
 
+			// Get start time of earliest campaign and end time of latest campaign
+			$clientStartTime = time();
+			$clientEndTime = strtotime('2000-01-01');
+
 			$api->setCustomerId($customer->customerId);
 			foreach ($api->getCampaigns($since, $until) as $campaign) {
 				$campaign->customerId = $customer->customerId;
 				$this->saveToFile('campaigns', $campaign);
+
+				if (strtotime($campaign->startDate) < $clientStartTime) {
+					$clientStartTime = strtotime($campaign->startDate);
+				}
+				if (strtotime($campaign->endDate) > $clientEndTime) {
+					$clientEndTime = strtotime($campaign->endDate);
+				}
 			}
 
-			foreach ($config['data'] as $configReport) {
-				try {
-					$api->getReport($configReport['query'], $since, $until, $configReport['table']);
-				} catch (UserException $e) {
-					$this->logEvent('Getting report for client ' . $customer->name . ' failed. ' . $e->getMessage(), $jobId, time() - $timer, Event::TYPE_WARN);
+			// Download reports only if there is an active campaign
+			if ($clientStartTime <= strtotime($until) && $clientEndTime >= strtotime($since)) {
+				foreach ($config['data'] as $configReport) {
+					try {
+						$api->getReport($configReport['query'], $since, $until, $configReport['table']);
+					} catch (UserException $e) {
+						$this->logEvent('Getting report for client ' . $customer->name . ' failed. ' . $e->getMessage(), $jobId, time() - $timer, Event::TYPE_WARN);
+					}
 				}
 			}
 
