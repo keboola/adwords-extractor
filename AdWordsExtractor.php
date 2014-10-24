@@ -116,7 +116,7 @@ class AdWordsExtractor extends Extractor
 		);
 
 		$api->setCustomerId($config['attributes']['customerId']);
-		$customers = $api->getCustomers();
+		$customers = $api->getCustomers($since, $until);
 		$counter = 1;
 		$counterTotal = count($customers);
 		foreach ($customers as $customer) {

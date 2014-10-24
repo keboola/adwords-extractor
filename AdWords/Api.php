@@ -1,10 +1,12 @@
 <?php
 namespace Keboola\AdWordsExtractorBundle\AdWords;
 
+use AdWordsConstants;
 use AdWordsUser;
 use DateRange;
 use Keboola\Csv\CsvFile;
 use Keboola\ExtractorBundle\Common\Logger;
+use Paging;
 use Predicate;
 use ReportDownloadException;
 use ReportUtils;
@@ -116,8 +118,20 @@ class Api
 				if ($since && $until) {
 					$selector->dateRange = new DateRange($since, $until);
 				}
-				$result = $serviceClass->get($selector);
-				return (isset($result->entries) && is_array($result->entries))? $result->entries : array();
+
+				$result = array();
+				$selector->paging = new Paging(0, AdWordsConstants::RECOMMENDED_PAGE_SIZE);
+				do {
+					$page = $serviceClass->get($selector);
+
+					if (isset($page->entries)) {
+						$result = array_merge($result, $page->entries);
+					}
+
+					$selector->paging->startIndex += AdWordsConstants::RECOMMENDED_PAGE_SIZE;
+				} while ($page->totalNumEntries > $selector->paging->startIndex);
+
+				return $result;
 			} catch (\Exception $e) {
 				if ($retriesCount <= self::RETRIES_COUNT) {
 					Logger::log(\Monolog\Logger::ERROR, 'API Error', array(
@@ -142,12 +156,14 @@ class Api
 	/**
 	 * Returns accounts managed by current MCC
 	 */
-	public function getCustomers()
+	public function getCustomers($since=null, $until=null)
 	{
 		return $this->selectorRequest(
 			'ManagedCustomerService',
 			array('Name', 'CompanyName', 'CustomerId', 'CanManageClients', 'CurrencyCode', 'DateTimeZone'),
-			array(new Predicate('CanManageClients', 'EQUALS', 'false'))
+			array(new Predicate('CanManageClients', 'EQUALS', 'false')),
+			$since,
+			$until
 		);
 	}
 
