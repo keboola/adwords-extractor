@@ -110,7 +110,7 @@ class Api
 			$retriesCount++;
 
 			try {
-				$serviceClass =  $this->user->GetService($service);)
+				$serviceClass =  $this->user->GetService($service);
 				$selector = new Selector();
 				$selector->fields = $fields;
 				if (count($predicates)) {
