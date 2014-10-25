@@ -106,11 +106,11 @@ class Api
 
 		$retriesCount = 0;
 		do {
-			sleep(self::BACKOFF_INTERVAL * ($retriesCount + 1));
+			sleep(self::BACKOFF_INTERVAL * $retriesCount);
 			$retriesCount++;
 
 			try {
-				$serviceClass =  $this->user->GetService($service);
+				$serviceClass =  $this->user->GetService($service);)
 				$selector = new Selector();
 				$selector->fields = $fields;
 				if (count($predicates)) {
