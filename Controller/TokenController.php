@@ -2,8 +2,8 @@
 
 namespace Keboola\AdWordsExtractorBundle\Controller;
 
-use Keboola\AdWordsExtractorBundle\Extractor\AdWords;
-use Keboola\AdWordsExtractorBundle\Extractor\AppConfiguration;
+use Keboola\AdWordsExtractorBundle\AdWords\Api;
+use Keboola\AdWordsExtractorBundle\AdWords\AppConfiguration;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -35,7 +35,7 @@ class TokenController extends Controller
 			$context = $this->container->get('router')->getContext();
 
 			$session->set('developer_token', $data['token']);
-			return $this->redirect(AdWords::getOAuthUrl($appConfiguration->client_id, $appConfiguration->client_secret, $data['token'],
+			return $this->redirect(Api::getOAuthUrl($appConfiguration->client_id, $appConfiguration->client_secret, $data['token'],
 				sprintf('https://%s%s/ex-adwords/token-callback', $context->getHost(), $context->getBaseUrl())));
 		}
 
@@ -59,7 +59,7 @@ class TokenController extends Controller
 		/** @var \Symfony\Component\Routing\RequestContext $context */
 		$context = $this->container->get('router')->getContext();
 
-		$refreshToken = AdWords::getRefreshToken($appConfiguration->client_id, $appConfiguration->client_secret, $developerToken,
+		$refreshToken = Api::getRefreshToken($appConfiguration->client_id, $appConfiguration->client_secret, $developerToken,
 			$params['code'], sprintf('https://%s%s/ex-adwords/token-callback', $context->getHost(), $context->getBaseUrl()));
 
 		if (!$refreshToken) {
