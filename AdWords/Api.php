@@ -1,17 +1,18 @@
 <?php
 namespace Keboola\AdWordsExtractorBundle\AdWords;
 
+require_once 'Google/Api/Ads/Common/Util/ErrorUtils.php';
+
 use AdWordsConstants;
 use AdWordsUser;
 use DateRange;
 use ErrorUtils;
-use Keboola\Csv\CsvFile;
-use Keboola\ExtractorBundle\Common\Logger;
 use Paging;
 use Predicate;
 use ReportDownloadException;
 use ReportUtils;
 use Selector;
+use Keboola\ExtractorBundle\Common\Logger;
 use Symfony\Component\Process\Process;
 use Syrup\ComponentBundle\Exception\SyrupComponentException;
 use Syrup\ComponentBundle\Exception\UserException;
