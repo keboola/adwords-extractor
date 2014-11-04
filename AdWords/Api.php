@@ -137,6 +137,9 @@ class Api
 			} catch (\SoapFault $fault) {
 				$soapErrors = array();
 				foreach (ErrorUtils::GetApiErrors($fault) as $error) {
+					if (in_array($error->reason, array('DEVELOPER_TOKEN_NOT_APPROVED'))) {
+						throw new UserException($error->reason, $fault);
+					}
 					$soapErrors[] = array(
 						'apiErrorType' => $error->ApiErrorType,
 						'externalPolicyName' => $error->externalPolicyName

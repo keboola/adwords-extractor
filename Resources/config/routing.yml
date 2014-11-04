@@ -1,3 +1,7 @@
+keboola_adwords_extractor_api_run:
+    path:     /ex-adwords/run
+    defaults: { _controller: KeboolaAdWordsExtractorBundle:Api:run, _format: json }
+    methods:  [POST]
 
 keboola_adwords_extractor_token:
     pattern:  /ex-adwords/token
