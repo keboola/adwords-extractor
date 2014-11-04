@@ -23,11 +23,13 @@
     },
     "scripts": {
         "post-install-cmd": [
+            "Syrup\\CoreBundle\\DeploymentHandler\\ScriptHandler::getParameters",
             "Syrup\\CoreBundle\\DeploymentHandler\\ScriptHandler::getSharedParameters",
             "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap"
         ],
         "post-update-cmd": [
+            "Syrup\\CoreBundle\\DeploymentHandler\\ScriptHandler::getParameters",
             "Syrup\\CoreBundle\\DeploymentHandler\\ScriptHandler::getSharedParameters",
             "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
@@ -42,6 +44,7 @@
     },
     "target-dir": "Keboola/AdWordsExtractorBundle",
     "extra": {
+        "syrup-app-name": "ex-adwords",
         "symfony-app-dir": "vendor/keboola/syrup/app",
         "symfony-web-dir": "vendor/keboola/syrup/web",
         "incenteev-parameters": {
