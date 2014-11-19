@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b6c32544e3d4b0f0fdb5e31c09012a69",
+    "hash": "a9c04869b827f9ba96bae49587d9c506",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -888,20 +888,21 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "4.0.2",
+            "version": "4.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "40db53833aaea528347994acd4578d7b9b2211ee"
+                "reference": "66fd916e9f9130bc22c51450476823391cb2f67c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/40db53833aaea528347994acd4578d7b9b2211ee",
-                "reference": "40db53833aaea528347994acd4578d7b9b2211ee",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/66fd916e9f9130bc22c51450476823391cb2f67c",
+                "reference": "66fd916e9f9130bc22c51450476823391cb2f67c",
                 "shasum": ""
             },
             "require": {
-                "guzzlehttp/streams": "~1.0",
+                "ext-json": "*",
+                "guzzlehttp/streams": "~2.1",
                 "php": ">=5.4.0"
             },
             "require-dev": {
@@ -909,10 +910,13 @@
                 "phpunit/phpunit": "~4.0",
                 "psr/log": "~1.0"
             },
+            "suggest": {
+                "ext-curl": "Guzzle will use specific adapters if cURL is present"
+            },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.0.x-dev"
+                    "dev-master": "4.2-dev"
                 }
             },
             "autoload": {
@@ -945,7 +949,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2014-04-16 17:33:22"
+            "time": "2014-10-05 19:29:14"
         },
         {
             "name": "guzzlehttp/log-subscriber",
@@ -1050,16 +1054,16 @@
         },
         {
             "name": "guzzlehttp/streams",
-            "version": "1.5.1",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/streams.git",
-                "reference": "fb0d1ee29987c2bdc59867bffaade6fc88c2675f"
+                "reference": "f91b721d73f0e561410903b3b3c90a5d0e40b534"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/streams/zipball/fb0d1ee29987c2bdc59867bffaade6fc88c2675f",
-                "reference": "fb0d1ee29987c2bdc59867bffaade6fc88c2675f",
+                "url": "https://api.github.com/repos/guzzle/streams/zipball/f91b721d73f0e561410903b3b3c90a5d0e40b534",
+                "reference": "f91b721d73f0e561410903b3b3c90a5d0e40b534",
                 "shasum": ""
             },
             "require": {
@@ -1071,7 +1075,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.5-dev"
+                    "dev-master": "2.0-dev"
                 }
             },
             "autoload": {
@@ -1099,7 +1103,7 @@
                 "Guzzle",
                 "stream"
             ],
-            "time": "2014-08-10 23:57:01"
+            "time": "2014-08-17 21:15:53"
         },
         {
             "name": "incenteev/composer-parameter-handler",
@@ -1236,34 +1240,28 @@
         },
         {
             "name": "keboola/extractor-bundle",
-            "version": "0.10.3",
+            "version": "1.0.0-beta11",
             "source": {
                 "type": "git",
                 "url": "git@bitbucket.org:keboola/extractor-bundle.git",
-                "reference": "27e5a832914c95382eab9a9c599d84a563a82477"
+                "reference": "67d8a56d1280d435d622723246f7ab1b126cd412"
             },
             "require": {
+                "keboola/json-parser": "~0.1.6",
+                "keboola/php-csvtable": "~0.1.3",
+                "keboola/php-temp": "~0.1.0",
+                "keboola/php-utils": "~0.1.3",
                 "php": ">=5.4.0",
-                "syrup/component-bundle": "~1.9.0"
+                "syrup/component-bundle": "~1.9.17"
             },
             "require-dev": {
                 "phpunit/phpunit": "3.7.*"
             },
             "type": "symfony-bundle",
-            "extra": {
-                "extractor-parameters": {
-                    "elasticsearch-mapping-file": "Resources/elasticsearch/mapping.json"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "Keboola\\ExtractorBundle\\": ""
                 }
-            },
-            "scripts": {
-                "post-install-cmd": [
-                    "php ./vendor/keboola/syrup/app/console syrup:register-bundle Keboola/ExtractorBundle"
-                ]
             },
             "authors": [
                 {
@@ -1278,7 +1276,101 @@
                 "keboola",
                 "syrup"
             ],
-            "time": "2014-10-03 06:40:11"
+            "time": "2014-11-17 16:53:47"
+        },
+        {
+            "name": "keboola/json-parser",
+            "version": "0.1.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/php-jsonparser.git",
+                "reference": "9c2b1ffb2118018cce76ac7eef6617aabe0c0e8d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/php-jsonparser/zipball/9c2b1ffb2118018cce76ac7eef6617aabe0c0e8d",
+                "reference": "9c2b1ffb2118018cce76ac7eef6617aabe0c0e8d",
+                "shasum": ""
+            },
+            "require": {
+                "keboola/php-csvtable": "~0.1.0",
+                "keboola/php-temp": "~0.1.0",
+                "keboola/php-utils": "~0.1.2",
+                "monolog/monolog": ">=1.8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Keboola\\Json": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ondrej Vana",
+                    "email": "kachna@keboola.cz"
+                }
+            ],
+            "description": "Keboola JSON to CSV parser",
+            "keywords": [
+                "converter",
+                "csv",
+                "json",
+                "json2csv",
+                "parser"
+            ],
+            "time": "2014-11-09 18:01:23"
+        },
+        {
+            "name": "keboola/php-csvtable",
+            "version": "0.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/php-csvtable.git",
+                "reference": "dfecaef45d320993c12f64bf54b7adcffbd95d3d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/php-csvtable/zipball/dfecaef45d320993c12f64bf54b7adcffbd95d3d",
+                "reference": "dfecaef45d320993c12f64bf54b7adcffbd95d3d",
+                "shasum": ""
+            },
+            "require": {
+                "keboola/csv": "~1.1.0",
+                "keboola/php-temp": ">=0.1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Keboola\\CsvTable": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ondrej Vana",
+                    "email": "kachna@keboola.cz"
+                }
+            ],
+            "description": "CSV file class with Keboola StorageApi extensions",
+            "keywords": [
+                "csv",
+                "storageapi",
+                "table"
+            ],
+            "time": "2014-11-09 22:10:42"
         },
         {
             "name": "keboola/php-encryption",
@@ -1376,22 +1468,65 @@
             "time": "2014-09-30 02:21:07"
         },
         {
-            "name": "keboola/storage-api-client",
-            "version": "2.11.24",
+            "name": "keboola/php-utils",
+            "version": "0.1.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/keboola/storage-api-php-client.git",
-                "reference": "3ce9f6c2b6287c4395074d6013cdd5d078874fc7"
+                "url": "https://github.com/keboola/php-utils.git",
+                "reference": "318a908aca4aaa39f6ef0a7560b712e0bb8d8de9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/storage-api-php-client/zipball/3ce9f6c2b6287c4395074d6013cdd5d078874fc7",
-                "reference": "3ce9f6c2b6287c4395074d6013cdd5d078874fc7",
+                "url": "https://api.github.com/repos/keboola/php-utils/zipball/318a908aca4aaa39f6ef0a7560b712e0bb8d8de9",
+                "reference": "318a908aca4aaa39f6ef0a7560b712e0bb8d8de9",
+                "shasum": ""
+            },
+            "require": {
+                "keboola/php-csvtable": "~0.1.1",
+                "keboola/php-temp": "~0.1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Keboola\\Utils": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ondrej Vana",
+                    "email": "kachna@keboola.cz"
+                }
+            ],
+            "description": "Misc utility functions",
+            "keywords": [
+                "utility"
+            ],
+            "time": "2014-10-27 13:04:14"
+        },
+        {
+            "name": "keboola/storage-api-client",
+            "version": "2.11.27",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/storage-api-php-client.git",
+                "reference": "a8e8239d3225ca5e63df98dbe1b0386a582ddde2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/storage-api-php-client/zipball/a8e8239d3225ca5e63df98dbe1b0386a582ddde2",
+                "reference": "a8e8239d3225ca5e63df98dbe1b0386a582ddde2",
                 "shasum": ""
             },
             "require": {
                 "aws/aws-sdk-php": "2.6.*",
-                "guzzlehttp/guzzle": "~4.0.2",
+                "guzzlehttp/guzzle": "~4.0",
                 "guzzlehttp/log-subscriber": "1.*",
                 "guzzlehttp/retry-subscriber": "~0.1.1",
                 "keboola/csv": "~1.1.3",
@@ -1413,20 +1548,20 @@
             ],
             "description": "Keboola Storage API PHP CLient",
             "homepage": "http://keboola.com",
-            "time": "2014-10-31 13:51:10"
+            "time": "2014-11-12 15:06:40"
         },
         {
             "name": "keboola/syrup",
-            "version": "1.6.6",
+            "version": "1.6.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup.git",
-                "reference": "a4601aa65d3393dd8a18f89784fd7502bdfb9f74"
+                "reference": "f956a89dda43d24f3a85d2076e9daaf70f53c4a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup/zipball/a4601aa65d3393dd8a18f89784fd7502bdfb9f74",
-                "reference": "a4601aa65d3393dd8a18f89784fd7502bdfb9f74",
+                "url": "https://api.github.com/repos/keboola/syrup/zipball/f956a89dda43d24f3a85d2076e9daaf70f53c4a3",
+                "reference": "f956a89dda43d24f3a85d2076e9daaf70f53c4a3",
                 "shasum": ""
             },
             "require": {
@@ -1457,7 +1592,7 @@
                 "MIT"
             ],
             "description": "Syrup - Concentrated extract(or)s",
-            "time": "2014-10-31 13:19:06"
+            "time": "2014-11-06 16:46:33"
         },
         {
             "name": "kriswallsmith/assetic",
@@ -1746,17 +1881,17 @@
         },
         {
             "name": "sensio/framework-extra-bundle",
-            "version": "v3.0.2",
+            "version": "v3.0.3",
             "target-dir": "Sensio/Bundle/FrameworkExtraBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sensiolabs/SensioFrameworkExtraBundle.git",
-                "reference": "9b22aaee517e80aad3238ea0328458b6f964066f"
+                "reference": "b829a8097a41ccbd7d35683b1750043b23d682f5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sensiolabs/SensioFrameworkExtraBundle/zipball/9b22aaee517e80aad3238ea0328458b6f964066f",
-                "reference": "9b22aaee517e80aad3238ea0328458b6f964066f",
+                "url": "https://api.github.com/repos/sensiolabs/SensioFrameworkExtraBundle/zipball/b829a8097a41ccbd7d35683b1750043b23d682f5",
+                "reference": "b829a8097a41ccbd7d35683b1750043b23d682f5",
                 "shasum": ""
             },
             "require": {
@@ -1797,7 +1932,7 @@
                 "annotations",
                 "controllers"
             ],
-            "time": "2014-09-02 07:11:30"
+            "time": "2014-11-10 14:50:31"
         },
         {
             "name": "sensio/generator-bundle",
@@ -2239,17 +2374,17 @@
         },
         {
             "name": "syrup/component-bundle",
-            "version": "1.9.18",
+            "version": "1.9.37",
             "target-dir": "Syrup/ComponentBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup-component-bundle.git",
-                "reference": "8c183de87eb1ad5620fb2e8cf4800823c7a14595"
+                "reference": "268a63ccf8b4e96e13e2d8308067caec84028cd6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/8c183de87eb1ad5620fb2e8cf4800823c7a14595",
-                "reference": "8c183de87eb1ad5620fb2e8cf4800823c7a14595",
+                "url": "https://api.github.com/repos/keboola/syrup-component-bundle/zipball/268a63ccf8b4e96e13e2d8308067caec84028cd6",
+                "reference": "268a63ccf8b4e96e13e2d8308067caec84028cd6",
                 "shasum": ""
             },
             "require": {
@@ -2260,7 +2395,7 @@
                 "keboola/php-encryption": "~0.2.0",
                 "keboola/php-temp": ">=0.1.0",
                 "keboola/storage-api-client": "~2.11.0",
-                "keboola/syrup": "~1.6.4",
+                "keboola/syrup": "~1.6.7",
                 "php": ">=5.3.5",
                 "pimple/pimple": "2.0.*",
                 "sensio/generator-bundle": "~2.3"
@@ -2270,11 +2405,9 @@
             },
             "type": "symfony-bundle",
             "extra": {
-                "incenteev-parameters": {
-                    "keep-outdated": true,
-                    "file": "vendor/keboola/syrup/app/config/parameters.yml",
-                    "dist-file": "parameters.yml"
-                }
+                "symfony-app-dir": "vendor/keboola/syrup/app",
+                "symfony-web-dir": "vendor/keboola/syrup/web",
+                "syrup-app-name": "syrup-component-bundle"
             },
             "autoload": {
                 "psr-0": {
@@ -2292,7 +2425,7 @@
                 }
             ],
             "description": "Syrup ComponentBundle",
-            "time": "2014-10-27 14:16:58"
+            "time": "2014-11-18 16:36:37"
         },
         {
             "name": "twig/twig",
@@ -2355,8 +2488,12 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "keboola/extractor-bundle": 10
+    },
     "prefer-stable": false,
-    "platform": [],
+    "platform": {
+        "ext-soap": "*"
+    },
     "platform-dev": []
 }
