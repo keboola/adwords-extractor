@@ -110,6 +110,15 @@ class Api
 			sleep(self::BACKOFF_INTERVAL * $retriesCount);
 			$retriesCount++;
 
+			Logger::log(\Monolog\Logger::INFO, 'API Request start', array(
+				'customerId' => $this->user->GetClientCustomerId(),
+				'service' => $service,
+				'predicates' => $predicates,
+				'since' => $since,
+				'until' => $until,
+				'retry' => $retriesCount
+			));
+
 			try {
 				$serviceClass =  $this->user->GetService($service);
 				$selector = new Selector();
@@ -133,6 +142,15 @@ class Api
 					$selector->paging->startIndex += AdWordsConstants::RECOMMENDED_PAGE_SIZE;
 				} while ($page->totalNumEntries > $selector->paging->startIndex);
 
+				Logger::log(\Monolog\Logger::INFO, 'API Request end', array(
+					'customerId' => $this->user->GetClientCustomerId(),
+					'service' => $service,
+					'predicates' => $predicates,
+					'since' => $since,
+					'until' => $until,
+					'retry' => $retriesCount
+				));
+
 				return $result;
 			} catch (\SoapFault $fault) {
 				$soapErrors = array();
@@ -148,6 +166,7 @@ class Api
 
 				if ($retriesCount <= self::RETRIES_COUNT) {
 					Logger::log(\Monolog\Logger::ERROR, 'API Error', array(
+						'customerId' => $this->user->GetClientCustomerId(),
 						'service' => $service,
 						'fields' => $fields,
 						'predicates' => $predicates,
