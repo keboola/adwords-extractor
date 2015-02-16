@@ -6,14 +6,14 @@
  * Time: 13:41
  */
 
-namespace Keboola\AdWordsExtractorBundle\Controller;
+namespace Keboola\AdWordsExtractor\Controller;
 
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Syrup\ComponentBundle\Job\Metadata\Job;
+use Keboola\Syrup\Job\Metadata\Job;
 
-class ApiController extends \Syrup\ComponentBundle\Controller\ApiController
+class ApiController extends \Keboola\Syrup\Controller\ApiController
 {
 
 	/**

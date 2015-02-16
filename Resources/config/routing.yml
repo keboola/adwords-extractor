@@ -1,14 +1,14 @@
 keboola_adwords_extractor_api_run:
     path:     /ex-adwords/run
-    defaults: { _controller: KeboolaAdWordsExtractorBundle:Api:run, _format: json }
+    defaults: { _controller: KeboolaAdWordsExtractor:Api:run, _format: json }
     methods:  [POST]
 
 keboola_adwords_extractor_token:
     pattern:  /ex-adwords/token
-    defaults: { _controller: KeboolaAdWordsExtractorBundle:Token:token }
+    defaults: { _controller: KeboolaAdWordsExtractor:Token:token }
     methods:  [GET, POST]
 
 keboola_adwords_extractor_token_callback:
     pattern:  /ex-adwords/token-callback
-    defaults: { _controller: KeboolaAdWordsExtractorBundle:Token:tokenCallback }
+    defaults: { _controller: KeboolaAdWordsExtractor:Token:tokenCallback }
     methods:  [GET]

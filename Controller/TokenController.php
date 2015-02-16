@@ -1,9 +1,8 @@
 <?php
 
-namespace Keboola\AdWordsExtractorBundle\Controller;
+namespace Keboola\AdWordsExtractor\Controller;
 
-use Keboola\AdWordsExtractorBundle\AdWords\Api;
-use Keboola\AdWordsExtractorBundle\AdWords\AppConfiguration;
+use Keboola\AdWordsExtractor\AdWords\Api;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -16,30 +15,33 @@ class TokenController extends Controller
 		$session = new Session();
 		$session->start();
 
-		$form = $this->createFormBuilder(array())
-			->add('token', 'text', array(
+		$form = $this->createFormBuilder([])
+			->add('token', 'text', [
 				'label' => 'Developer Token',
 				'constraints' => new NotBlank()
-			))
-			->add('send', 'submit', array(
+			])
+			->add('send', 'submit', [
 				'label' => 'Get Refresh Token'
-			))
+			])
 			->getForm();
 		$form->handleRequest($request);
 
 		if ($form->isValid()) {
 			$data = $form->getData();
-			/** @var AppConfiguration $appConfiguration */
-			$appConfiguration = $this->container->get('ex_adwords.app_configuration');
 			/** @var \Symfony\Component\Routing\RequestContext $context */
 			$context = $this->container->get('router')->getContext();
 
 			$session->set('developer_token', $data['token']);
-			return $this->redirect(Api::getOAuthUrl($appConfiguration->client_id, $appConfiguration->client_secret, $data['token'],
-				sprintf('https://%s%s/ex-adwords/token-callback', $context->getHost(), $context->getBaseUrl())));
+            $config = $this->container->getParameter('ex_adwords');
+			return $this->redirect(Api::getOAuthUrl(
+                $config['client_id'],
+                $config['client_secret'],
+                $data['token'],
+				sprintf('https://%s%s/ex-adwords/token-callback', $context->getHost(), $context->getBaseUrl())
+            ));
 		}
 
-		return $this->render('KeboolaAdWordsExtractorBundle:Token:input.html.twig', array('form' => $form->createView()));
+		return $this->render('KeboolaAdWordsExtractor:Token:input.html.twig', array('form' => $form->createView()));
 	}
 
 	public function tokenCallbackAction(Request $request)
@@ -54,20 +56,23 @@ class TokenController extends Controller
 			return $this->redirect('/ex-adwords/token');
 		}
 
-		/** @var AppConfiguration $appConfiguration */
-		$appConfiguration = $this->container->get('ex_adwords.app_configuration');
 		/** @var \Symfony\Component\Routing\RequestContext $context */
 		$context = $this->container->get('router')->getContext();
-
-		$refreshToken = Api::getRefreshToken($appConfiguration->client_id, $appConfiguration->client_secret, $developerToken,
-			$params['code'], sprintf('https://%s%s/ex-adwords/token-callback', $context->getHost(), $context->getBaseUrl()));
+        $config = $this->container->getParameter('ex_adwords');
+		$refreshToken = Api::getRefreshToken(
+            $config['client_id'],
+            $config['client_secret'],
+            $developerToken,
+			$params['code'],
+            sprintf('https://%s%s/ex-adwords/token-callback', $context->getHost(), $context->getBaseUrl())
+        );
 
 		if (!$refreshToken) {
 			$session->getFlashBag()->add('warning', 'Unknown error occurred, try again please');
 			return $this->redirect('/ex-adwords/token');
 		}
 
-		return $this->render('KeboolaAdWordsExtractorBundle:Token:result.html.twig', array(
+		return $this->render('KeboolaAdWordsExtractor:Token:result.html.twig', array(
 			'developer_token' => $developerToken,
 			'refresh_token' => $refreshToken
 		));

@@ -1,5 +1,5 @@
 <?php
-namespace Keboola\AdWordsExtractorBundle\AdWords;
+namespace Keboola\AdWordsExtractor\AdWords;
 
 require_once 'Google/Api/Ads/Common/Util/ErrorUtils.php';
 
@@ -7,16 +7,16 @@ use AdWordsConstants;
 use AdWordsUser;
 use DateRange;
 use ErrorUtils;
+use Monolog\Logger;
 use Paging;
 use Predicate;
 use ReportDownloadException;
 use ReportUtils;
 use Selector;
-use Keboola\ExtractorBundle\Common\Logger;
 use Symfony\Component\Process\Process;
-use Syrup\ComponentBundle\Exception\SyrupComponentException;
-use Syrup\ComponentBundle\Exception\UserException;
-use Syrup\ComponentBundle\Filesystem\Temp;
+use Keboola\Syrup\Exception\SyrupComponentException;
+use Keboola\Syrup\Exception\UserException;
+use Keboola\Temp\Temp;
 
 class AdWordsException extends SyrupComponentException
 {
@@ -42,13 +42,21 @@ class Api
 	 * @var AdWordsUser
 	 */
 	private $user;
-
+    /**
+     * @var Temp
+     */
 	private $temp;
+    /**
+     * @var Logger
+     */
+    private $logger;
+
 	private $reportFiles = array();
 
-	public function __construct($clientId, $clientSecret, $developerToken, $refreshToken, $userAgent, Temp $temp)
+	public function __construct($clientId, $clientSecret, $developerToken, $refreshToken, $userAgent, Temp $temp, Logger $logger)
 	{
 		$this->temp = $temp;
+        $this->logger = $logger;
 
 		$this->user = new AdWordsUser();
 		$this->user->SetDeveloperToken($developerToken);
@@ -110,7 +118,7 @@ class Api
 			sleep(self::BACKOFF_INTERVAL * $retriesCount);
 			$retriesCount++;
 
-			Logger::log(\Monolog\Logger::INFO, 'API Request start', array(
+			$this->logger->log(\Monolog\Logger::INFO, 'API Request start', array(
 				'customerId' => $this->user->GetClientCustomerId(),
 				'service' => $service,
 				'predicates' => $predicates,
@@ -142,7 +150,7 @@ class Api
 					$selector->paging->startIndex += AdWordsConstants::RECOMMENDED_PAGE_SIZE;
 				} while ($page->totalNumEntries > $selector->paging->startIndex);
 
-				Logger::log(\Monolog\Logger::INFO, 'API Request end', array(
+                $this->logger->log(\Monolog\Logger::INFO, 'API Request end', array(
 					'customerId' => $this->user->GetClientCustomerId(),
 					'service' => $service,
 					'predicates' => $predicates,
@@ -165,7 +173,7 @@ class Api
 				}
 
 				if ($retriesCount <= self::RETRIES_COUNT) {
-					Logger::log(\Monolog\Logger::ERROR, 'API Error', array(
+                    $this->logger->log(\Monolog\Logger::ERROR, 'API Error', array(
 						'customerId' => $this->user->GetClientCustomerId(),
 						'service' => $service,
 						'fields' => $fields,

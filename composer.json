@@ -1,7 +1,7 @@
 {
-    "name": "keboola/adwords-extractor-bundle",
+    "name": "keboola/adwords-extractor",
     "type": "symfony-bundle",
-    "description": "Keboola AdWords extractor Bundle",
+    "description": "Keboola AdWords extractor",
     "keywords": ["keboola", "adwords", "extractor"],
     "authors": [
         {
@@ -9,28 +9,24 @@
             "email": "jakub@keboola.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@bitbucket.org:keboola/extractor-bundle.git"
-        }
-    ],
     "require": {
         "ext-soap": "*",
-        "keboola/extractor-bundle": "~1.0.0-beta",
+        "keboola/syrup": "~2.0",
         "googleads/googleads-php-lib": "~5.5.1"
     },
     "require-dev": {
+        "symfony/var-dumper": "~2.6",
+        "phpunit/phpunit": "~4.5"
     },
     "scripts": {
         "post-install-cmd": [
-            "Syrup\\CoreBundle\\DeploymentHandler\\ScriptHandler::getParameters",
-            "Syrup\\CoreBundle\\DeploymentHandler\\ScriptHandler::getSharedParameters",
+            "Keboola\\Syrup\\DeploymentHandler\\ScriptHandler::getParameters",
+            "Keboola\\Syrup\\DeploymentHandler\\ScriptHandler::getSharedParameters",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap"
         ],
         "post-update-cmd": [
-            "Syrup\\CoreBundle\\DeploymentHandler\\ScriptHandler::getParameters",
-            "Syrup\\CoreBundle\\DeploymentHandler\\ScriptHandler::getSharedParameters",
+            "Keboola\\Syrup\\DeploymentHandler\\ScriptHandler::getParameters",
+            "Keboola\\Syrup\\DeploymentHandler\\ScriptHandler::getSharedParameters",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache"
         ]
@@ -38,10 +34,10 @@
     "minimum-stability": "stable",
     "autoload": {
         "psr-0": {
-            "Keboola\\AdWordsExtractorBundle": ""
+            "Keboola\\AdWordsExtractor": ""
         }
     },
-    "target-dir": "Keboola/AdWordsExtractorBundle",
+    "target-dir": "Keboola/AdWordsExtractor",
     "extra": {
         "syrup-app-name": "ex-adwords",
         "symfony-app-dir": "vendor/keboola/syrup/app",

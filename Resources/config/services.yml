@@ -1,14 +1,4 @@
 services:
-    ex_adwords.app_configuration:
-        class: Keboola\AdWordsExtractorBundle\AdWords\AppConfiguration
-        arguments: ['%app_name%', '%ex_adwords%']
     ex_adwords.job_executor:
-        class: Keboola\AdWordsExtractorBundle\Job\Executor
-        arguments: ['@keboola_extractor.configuration', '@ex_adwords.extractor', '@logger', '@syrup.temp']
-    ex_adwords.extractor:
-        class: Keboola\AdWordsExtractorBundle\AdWordsExtractor
-        arguments: ['@ex_adwords.app_configuration']
-    keboola_extractor.configuration:
-        class: Keboola\ExtractorBundle\Common\Configuration
-        arguments: ['%app_name%', '@syrup.encryptor', '@syrup.temp']
-parameters: null
+        class: Keboola\AdWordsExtractor\JobExecutor
+        arguments: [%app_name%, %ex_adwords%, @syrup.temp, @logger]
