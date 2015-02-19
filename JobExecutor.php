@@ -65,13 +65,11 @@ class JobExecutor extends \Keboola\Syrup\Job\Executor
 
         foreach ($configIds as $configId) {
             $configuration = $configurationStorage->getConfiguration($configId);
-            $this->extract($configuration['attributes'], $configuration['data'], $since, $until);
+            $this->extract($configId, $configuration['attributes'], $configuration['data'], $since, $until);
         }
-
-        $this->userStorage->uploadData();
     }
 
-    public function extract($attributes, $reports, $since, $until)
+    public function extract($configId, $attributes, $reports, $since, $until)
     {
         $timerAll = time();
         $api = new AdWords\Api(
@@ -133,9 +131,9 @@ class JobExecutor extends \Keboola\Syrup\Job\Executor
             $counter++;
         }
 
-        $this->userStorage->uploadData();
+        $this->userStorage->uploadData($configId);
         foreach ($api->getReportFiles() as $table => $file) {
-            $this->userStorage->uploadTable($table, new CsvFile($file));
+            $this->userStorage->uploadTable($configId, $table, new CsvFile($file));
         }
 
         $this->eventLogger->log('Extraction complete', [], time() - $timerAll, EventLogger::TYPE_SUCCESS);

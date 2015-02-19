@@ -35,9 +35,9 @@ class UserStorage
         $this->temp = $temp;
     }
 
-    public function getBucketId()
+    public function getBucketId($configId)
     {
-        return 'in.c-'.$this->appName;
+        return 'in.c-'.$this->appName . '-' . $configId;
     }
 
     public function save($table, $data)
@@ -61,14 +61,15 @@ class UserStorage
         $file->writeRow($dataToSave);
     }
 
-    public function uploadData()
+    public function uploadData($configId)
     {
-        if (!$this->storageApiClient->bucketExists($this->getBucketId())) {
-            $this->storageApiClient->createBucket($this->appName, 'in', $this->appName.' Data Storage');
+        if (!$this->storageApiClient->bucketExists($this->getBucketId($configId))) {
+            $this->storageApiClient->createBucket($this->appName . '-' . $configId, 'in', $this->appName.' Data Storage');
         }
 
         foreach($this->files as $name => $file) {
             $this->uploadTable(
+                $configId,
                 $name,
                 $file,
                 !empty($this->tables['primaryKey']) ? $this->tables['primaryKey'] : null
@@ -76,9 +77,9 @@ class UserStorage
         }
     }
 
-    public function uploadTable($name, $file, $primaryKey = null)
+    public function uploadTable($configId, $name, $file, $primaryKey = null)
     {
-        $tableId = $this->getBucketId() . "." . $name;
+        $tableId = $this->getBucketId($configId) . "." . $name;
         try {
             $options = array();
             if ($primaryKey) {
@@ -87,7 +88,7 @@ class UserStorage
             if($this->storageApiClient->tableExists($tableId)) {
                 $this->storageApiClient->dropTable($tableId);
             }
-            $this->storageApiClient->createTableAsync($this->getBucketId(), $name, $file, $options);
+            $this->storageApiClient->createTableAsync($this->getBucketId($configId), $name, $file, $options);
         } catch(\Keboola\StorageApi\ClientException $e) {
             throw new UserException(sprintf('Error during upload of table %s to Storage API. %s', $tableId, $e->getMessage()), $e);
         }
