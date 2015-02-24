@@ -1388,16 +1388,16 @@
         },
         {
             "name": "keboola/storage-api-client",
-            "version": "2.12.4",
+            "version": "2.12.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/storage-api-php-client.git",
-                "reference": "faaa7aa7bea27e774dfe0bc514320e6d63f13687"
+                "reference": "a36c63d8cd25ddc0a56d1b4af782a51ba695d35b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/storage-api-php-client/zipball/faaa7aa7bea27e774dfe0bc514320e6d63f13687",
-                "reference": "faaa7aa7bea27e774dfe0bc514320e6d63f13687",
+                "url": "https://api.github.com/repos/keboola/storage-api-php-client/zipball/a36c63d8cd25ddc0a56d1b4af782a51ba695d35b",
+                "reference": "a36c63d8cd25ddc0a56d1b4af782a51ba695d35b",
                 "shasum": ""
             },
             "require": {
@@ -1426,20 +1426,20 @@
             ],
             "description": "Keboola Storage API PHP CLient",
             "homepage": "http://keboola.com",
-            "time": "2015-01-23 13:15:27"
+            "time": "2015-02-21 14:26:37"
         },
         {
             "name": "keboola/syrup",
-            "version": "2.0.4",
+            "version": "2.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup.git",
-                "reference": "36814fef74eea66c5e99aa91db152b0ac4ee3b24"
+                "reference": "1e7ef739f52a2d61c87331ca49b68fda3a5491fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup/zipball/36814fef74eea66c5e99aa91db152b0ac4ee3b24",
-                "reference": "36814fef74eea66c5e99aa91db152b0ac4ee3b24",
+                "url": "https://api.github.com/repos/keboola/syrup/zipball/1e7ef739f52a2d61c87331ca49b68fda3a5491fc",
+                "reference": "1e7ef739f52a2d61c87331ca49b68fda3a5491fc",
                 "shasum": ""
             },
             "require": {
@@ -1491,7 +1491,7 @@
                 }
             ],
             "description": "Syrup",
-            "time": "2015-02-17 12:57:06"
+            "time": "2015-02-24 13:30:09"
         },
         {
             "name": "kriswallsmith/assetic",
