@@ -9,9 +9,11 @@
 namespace Keboola\AdWordsExtractor\Controller;
 
 
+use Keboola\Syrup\Exception\ApplicationException;
+use Keboola\Syrup\Elasticsearch\JobMapper;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Keboola\Syrup\Job\Metadata\Job;
+
 
 class ApiController extends \Keboola\Syrup\Controller\ApiController
 {
@@ -29,15 +31,34 @@ class ApiController extends \Keboola\Syrup\Controller\ApiController
 		// Get params from request
 		$params = $this->getPostJson($request);
 
+		// check params against ES mapping
+		$this->checkMappingParams($params);
+
 		// Create new job
-		/** @var Job $job */
 		$job = $this->createJob('run', $params);
 
 		// Add job to Elasticsearch
-		$jobId = $this->getJobManager()->indexJob($job);
+		try {
+			/** @var JobMapper $jobMapper */
+			$jobMapper = $this->container->get('syrup.elasticsearch.current_component_job_mapper');
+			$jobId = $jobMapper->create($job);
+		} catch (\Exception $e) {
+			throw new ApplicationException("Failed to create job", $e);
+		}
 
-		// Add job to SQS
-		$this->enqueue($jobId, 'ex-adwords');
+		$queueName = 'ex-adwords';
+		$queueParams = $this->container->getParameter('queue');
+
+		if (isset($queueParams['sqs'])) {
+			$queueName = $queueParams['sqs'];
+		}
+		$messageId = $this->enqueue($jobId, $queueName);
+
+		$this->logger->info('Job created', [
+			'sqsQueue' => $queueName,
+			'sqsMessageId' => $messageId,
+			'job' => $job->getLogData()
+		]);
 
 		// Response with link to job resource
 		return $this->createJsonResponse([

@@ -116,7 +116,7 @@ class JobExecutor extends \Keboola\Syrup\Job\Executor
                             sprintf('Getting report for client %s failed. %s', $customer->name, $e->getMessage()),
                             [],
                             time() - $timer,
-                            EventLogger::TYPE_WARN
+                            EventLogger::TYPE_ERROR
                         );
                     }
                 }
