@@ -255,7 +255,7 @@ class Api
 					'customerId' => $this->user->GetClientCustomerId(),
 					'query' => $query,
 					'reportFile' => $reportFile,
-					'output' => $error? $error : $linesCount
+					'output' => $error ? $error : $linesCount
 				));
 				throw $e;
 			}
@@ -282,11 +282,9 @@ class Api
 					));
 					throw $e;
 				}
-
 			}
-
 		} catch (ReportDownloadException $e) {
-			throw new UserException($e->getMessage(), $e);
+			throw $e;
 		} catch (\Exception $e) {
 			if (strstr($e->getMessage(), 'RateExceededError')) {
 				sleep (5 * 60);

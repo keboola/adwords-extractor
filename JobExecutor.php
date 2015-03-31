@@ -11,6 +11,7 @@ use Keboola\Syrup\Exception\UserException;
 use Keboola\Syrup\Job\Metadata\Job;
 use Keboola\Temp\Temp;
 use Monolog\Logger;
+use ReportDownloadException;
 
 class JobExecutor extends \Keboola\Syrup\Job\Executor
 {
@@ -111,13 +112,8 @@ class JobExecutor extends \Keboola\Syrup\Job\Executor
                 foreach ($reports as $configReport) {
                     try {
                         $api->getReport($configReport['query'], $since, $until, $configReport['table']);
-                    } catch (UserException $e) {
-                        $this->eventLogger->log(
-                            sprintf('Getting report for client %s failed. %s', $customer->name, $e->getMessage()),
-                            [],
-                            time() - $timer,
-                            EventLogger::TYPE_ERROR
-                        );
+                    } catch (ReportDownloadException $e) {
+                        throw new UserException(sprintf('Getting report for client %s failed. %s', $customer->name, $e->getMessage()), $e);
                     }
                 }
             }
