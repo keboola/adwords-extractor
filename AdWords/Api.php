@@ -221,7 +221,7 @@ class Api
 	}
 
 
-	public function getReport($query, $since, $until, $file)
+	public function getReport($query, $since, $until, $file, $retries = 10)
 	{
 		$query .= sprintf(' DURING %d,%d', $since, $until);
 		$isFirstReportInFile = !isset($this->reportFiles[$file]);
@@ -284,9 +284,14 @@ class Api
 				}
 			}
 		} catch (ReportDownloadException $e) {
-			throw $e;
+			if (strstr($e->getMessage(), 'ERROR_GETTING_RESPONSE_FROM_BACKEND') !== false && $retries > 0) {
+				sleep(rand(5, 60));
+				return $this->getReport($query, $since, $until, $file, $retries-1);
+			} else {
+				throw $e;
+			}
 		} catch (\Exception $e) {
-			if (strstr($e->getMessage(), 'RateExceededError')) {
+			if (strstr($e->getMessage(), 'RateExceededError') !== false) {
 				sleep (5 * 60);
 				return $this->getReport($query, $since, $until, $file);
 			} else {
