@@ -11,8 +11,8 @@
     ],
     "require": {
         "ext-soap": "*",
-        "keboola/syrup": "~2.0",
-        "googleads/googleads-php-lib": "~5.8.2"
+        "keboola/syrup": "~2.3.13",
+        "googleads/googleads-php-lib": "~6.2.0"
     },
     "require-dev": {
         "symfony/var-dumper": "~2.6",
