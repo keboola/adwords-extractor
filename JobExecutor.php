@@ -90,31 +90,17 @@ class JobExecutor extends \Keboola\Syrup\Job\Executor
             $timer = time();
             $this->userStorage->save('customers', $customer);
 
-            // Get start time of earliest campaign and end time of latest campaign
-            $clientStartTime = time();
-            $clientEndTime = strtotime('2000-01-01');
-
             $api->setCustomerId($customer->customerId);
             foreach ($api->getCampaigns($since, $until) as $campaign) {
                 $campaign->customerId = $customer->customerId;
                 $this->userStorage->save('campaigns', $campaign);
-
-                if (strtotime($campaign->startDate) < $clientStartTime) {
-                    $clientStartTime = strtotime($campaign->startDate);
-                }
-                if (strtotime($campaign->endDate) > $clientEndTime) {
-                    $clientEndTime = strtotime($campaign->endDate);
-                }
             }
 
-            // Download reports only if there is an active campaign
-            if ($clientStartTime <= strtotime($until) && $clientEndTime >= strtotime($since)) {
-                foreach ($reports as $configReport) {
-                    try {
-                        $api->getReport($configReport['query'], $since, $until, $configReport['table']);
-                    } catch (ReportDownloadException $e) {
-                        throw new UserException(sprintf('Getting report for client %s failed. %s', $customer->name, $e->getMessage()), $e);
-                    }
+            foreach ($reports as $configReport) {
+                try {
+                    $api->getReport($configReport['query'], $since, $until, $configReport['table']);
+                } catch (ReportDownloadException $e) {
+                    throw new UserException(sprintf('Getting report for client %s failed. %s', $customer->name, $e->getMessage()), $e);
                 }
             }
 
