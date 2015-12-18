@@ -1,0 +1,13 @@
+engines:
+  phpcodesniffer:
+    enabled: true
+  phpmd:
+    enabled: true
+ratings:
+  paths:
+  - src/**
+exclude_paths:
+- .git/**
+- data/**
+- tests/**/*
+- vendor/**/*

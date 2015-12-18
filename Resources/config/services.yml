@@ -1,4 +1,0 @@
-services:
-    syrup.job_executor:
-        class: Keboola\AdWordsExtractor\JobExecutor
-        arguments: [%app_name%, %ex_adwords%, @syrup.temp, @logger]
