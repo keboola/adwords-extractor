@@ -8,15 +8,6 @@ namespace Keboola\AdWordsExtractor;
 
 require_once 'Google/Api/Ads/Common/Util/ErrorUtils.php';
 
-use AdWordsConstants;
-use AdWordsUser;
-use DateRange;
-use ErrorUtils;
-use Paging;
-use Predicate;
-use ReportDownloadException;
-use ReportUtils;
-use Selector;
 use Symfony\Component\Process\Process;
 use Keboola\Temp\Temp;
 
@@ -33,7 +24,7 @@ class Api
     const BACKOFF_INTERVAL = 60;
 
     /**
-     * @var AdWordsUser
+     * @var \AdWordsUser
      */
     private $user;
     /**
@@ -41,23 +32,21 @@ class Api
      */
     private $temp;
 
-    private $reportFiles = array();
-
     public function __construct($clientId, $clientSecret, $developerToken, $refreshToken)
     {
-        $this->user = new AdWordsUser();
+        $this->user = new \AdWordsUser();
         $this->user->SetDeveloperToken($developerToken);
-        $this->user->SetOAuth2Info(array(
+        $this->user->SetOAuth2Info([
             'client_id' => $clientId,
             'client_secret' => $clientSecret,
             'refresh_token' => $refreshToken
-        ));
+        ]);
         try {
             $handler = $this->user->GetOAuth2Handler();
             $credentials = $handler->RefreshAccessToken($this->user->GetOAuth2Info());
             $this->user->SetOAuth2Info($credentials);
         } catch (\Exception $e) {
-            throw new Exception("OAuth Error: " . $e->getMessage(), $e);
+            throw new Exception("OAuth Error: " . $e->getMessage(), 400, $e);
         }
     }
 
@@ -81,12 +70,12 @@ class Api
 
     public static function getUser($clientId, $clientSecret, $developerToken)
     {
-        $user = new AdWordsUser();
+        $user = new \AdWordsUser();
         $user->SetDeveloperToken($developerToken);
-        $user->SetOAuth2Info(array(
+        $user->SetOAuth2Info([
             'client_id' => $clientId,
             'client_secret' => $clientSecret
-        ));
+        ]);
         return $user;
     }
 
@@ -94,9 +83,9 @@ class Api
     {
         $user = self::getUser($clientId, $clientSecret, $developerToken);
         $OAuth2Handler = $user->GetOAuth2Handler();
-        return $OAuth2Handler->GetAuthorizationUrl($user->GetOAuth2Info(), $redirectUri, true, array(
+        return $OAuth2Handler->GetAuthorizationUrl($user->GetOAuth2Info(), $redirectUri, true, [
             'approval_prompt' => 'force'
-        ));
+        ]);
     }
 
     public static function getRefreshToken($clientId, $clientSecret, $developerToken, $code, $redirectUri)
@@ -119,38 +108,37 @@ class Api
 
             try {
                 $serviceClass =  $this->user->GetService($service);
-                $selector = new Selector();
+                $selector = new \Selector();
                 $selector->fields = $fields;
                 if (count($predicates)) {
                     $selector->predicates = $predicates;
                 }
                 if ($since && $until) {
-                    $selector->dateRange = new DateRange($since, $until);
+                    $selector->dateRange = new \DateRange($since, $until);
                 }
 
-                $result = array();
-                $selector->paging = new Paging(0, AdWordsConstants::RECOMMENDED_PAGE_SIZE);
+                $result = [];
+                $selector->paging = new \Paging(0, \AdWordsConstants::RECOMMENDED_PAGE_SIZE);
                 do {
                     $page = $serviceClass->get($selector);
-
                     if (isset($page->entries)) {
                         $result = array_merge($result, $page->entries);
                     }
 
-                    $selector->paging->startIndex += AdWordsConstants::RECOMMENDED_PAGE_SIZE;
+                    $selector->paging->startIndex += \AdWordsConstants::RECOMMENDED_PAGE_SIZE;
                 } while ($page->totalNumEntries > $selector->paging->startIndex);
 
                 return $result;
             } catch (\SoapFault $fault) {
-                $soapErrors = array();
-                foreach (ErrorUtils::GetApiErrors($fault) as $error) {
-                    if (in_array($error->reason, array('DEVELOPER_TOKEN_NOT_APPROVED'))) {
+                $soapErrors = [];
+                foreach (\ErrorUtils::GetApiErrors($fault) as $error) {
+                    if (in_array($error->reason, ['DEVELOPER_TOKEN_NOT_APPROVED'])) {
                         throw new Exception($error->reason, $fault);
                     }
-                    $soapErrors[] = array(
+                    $soapErrors[] = [
                         'apiErrorType' => $error->ApiErrorType,
                         'externalPolicyName' => $error->externalPolicyName
-                    );
+                    ];
                 }
 
                 if ($retriesCount > self::RETRIES_COUNT) {
@@ -167,8 +155,8 @@ class Api
     {
         return $this->selectorRequest(
             'ManagedCustomerService',
-            array('Name', 'CompanyName', 'CustomerId', 'CanManageClients', 'CurrencyCode', 'DateTimeZone'),
-            array(new Predicate('CanManageClients', 'EQUALS', 'false')),
+            ['Name', 'CompanyName', 'CustomerId', 'CanManageClients', 'CurrencyCode', 'DateTimeZone'],
+            [new \Predicate('CanManageClients', 'EQUALS', 'false')],
             $since,
             $until
         );
@@ -178,9 +166,9 @@ class Api
     {
         return $this->selectorRequest(
             'CampaignService',
-            array('Id', 'Name', 'Status', 'ServingStatus', 'StartDate', 'EndDate', 'AdServingOptimizationStatus',
-                'AdvertisingChannelType'),
-            array(),
+            ['Id', 'Name', 'Status', 'ServingStatus', 'StartDate', 'EndDate', 'AdServingOptimizationStatus',
+                'AdvertisingChannelType'],
+            [],
             $since,
             $until
         );
@@ -194,10 +182,10 @@ class Api
 
         try {
             $reportFile = $this->temp->createTmpFile();
-            ReportUtils::DownloadReportWithAwql($query, $reportFile, $this->user, 'CSV', array(
+            \ReportUtils::DownloadReportWithAwql($query, $reportFile, $this->user, 'CSV', [
                 'skipReportHeader' => true,
                 'skipReportSummary' => true
-            ));
+            ]);
 
             if (!file_exists($reportFile)) {
                 Exception::reportError(
@@ -243,17 +231,17 @@ class Api
                     );
                 }
             }
-        } catch (ReportDownloadException $e) {
+        } catch (\ReportDownloadException $e) {
             if (strstr($e->getMessage(), 'ERROR_GETTING_RESPONSE_FROM_BACKEND') !== false && $retries > 0) {
                 sleep(rand(5, 60));
-                return $this->getReport($query, $since, $until, $file, $retries-1);
+                $this->getReport($query, $since, $until, $file, $retries-1);
             } else {
                 throw $e;
             }
         } catch (\Exception $e) {
             if (strstr($e->getMessage(), 'RateExceededError') !== false) {
                 sleep(5 * 60);
-                return $this->getReport($query, $since, $until, $file);
+                $this->getReport($query, $since, $until, $file);
             } else {
                 Exception::reportError(
                     $e->getMessage(),
@@ -262,10 +250,5 @@ class Api
                 );
             }
         }
-    }
-
-    public function getReportFiles()
-    {
-        return $this->reportFiles;
     }
 }

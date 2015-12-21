@@ -64,16 +64,12 @@ class Extractor
                         $report['query'],
                         $since,
                         $until,
-                        $this->userStorage->getReportFilename($report['table'])
+                        $this->userStorage->getReportFilename($report['name'])
                     );
                 } catch (ReportDownloadException $e) {
                     throw new Exception("Getting report for client '{$customer->name}' failed:{$e->getMessage()}", $e);
                 }
             }
-        }
-
-        foreach ($this->api->getReportFiles() as $table => $file) {
-            $this->userStorage->saveReport($table, new CsvFile($file));
         }
     }
 }

@@ -20,4 +20,10 @@ defined('EX_AW_REFRESH_TOKEN') || define('EX_AW_REFRESH_TOKEN', getenv('EX_AW_RE
 defined('EX_AW_CUSTOMER_ID') || define('EX_AW_CUSTOMER_ID', getenv('EX_AW_CUSTOMER_ID')
     ? getenv('EX_AW_CUSTOMER_ID') : '');
 
+defined('EX_AW_TEST_ACCOUNT_ID') || define('EX_AW_TEST_ACCOUNT_ID', getenv('EX_AW_TEST_ACCOUNT_ID')
+    ? getenv('EX_AW_TEST_ACCOUNT_ID') : '');
+
+defined('EX_AW_USER_AGENT') || define('EX_AW_USER_AGENT', getenv('EX_AW_USER_AGENT')
+    ? getenv('EX_AW_USER_AGENT') : 'Keboola AdWords Extractor Testing');
+
 require_once __DIR__ . '/../vendor/autoload.php';

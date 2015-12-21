@@ -54,27 +54,6 @@ class UserStorage
 
     public function getReportFilename($table)
     {
-        return "$this->path/$this->bucket.$table.csv";
-    }
-
-    public function saveReport($table, CsvFile $file, array $primary = [])
-    {
-        file_put_contents("$this->path/$this->bucket.$table.csv.manifest", Yaml::dump([
-            'destination' => "$this->bucket.$table",
-            'incremental' => true,
-            'primary_key' => $primary
-        ]));
-
-        if (!is_array($data)) {
-            $data = (array)$data;
-        }
-        $dataToSave = [];
-        foreach ($this->tables[$table]['columns'] as $c) {
-            $dataToSave[$c] = isset($data[$c]) ? $data[$c] : null;
-        }
-
-        /** @var CsvFile $file */
-        $file = $this->files[$table];
-        $file->writeRow($dataToSave);
+        return "$this->path/$this->bucket.report-$table.csv";
     }
 }

@@ -10,18 +10,19 @@ class ExceptionTest extends \PHPUnit_Framework_TestCase
 {
     public function testException()
     {
-        $e = Exception::apiError('message', 'method', ['a' => 1], ['b' => 2]);
-        $message = json_decode($e->getMessage(), true);
-        $this->assertNotFalse($message);
-        $this->assertArrayHasKey('error', $message);
-        $this->assertArrayHasKey('method', $message);
-        $this->assertArrayHasKey('args', $message);
-        $this->assertArrayHasKey('result', $message);
-        $this->assertEquals('message', $message['error']);
-        $this->assertEquals('method', $message['method']);
-        $this->assertArrayHasKey('a', $message['args']);
-        $this->assertEquals(1, $message['args']['a']);
-        $this->assertArrayHasKey('b', $message['result']);
-        $this->assertEquals(2, $message['result']['b']);
+        $message = uniqid();
+        $customerId = uniqid();
+        $query = uniqid();
+        $e = Exception::reportError($message, $customerId, $query, ['e' => 1]);
+        $result = json_decode($e->getMessage(), true);
+        $this->assertNotFalse($result);
+        $this->assertArrayHasKey('error', $result);
+        $this->assertArrayHasKey('customerId', $result);
+        $this->assertArrayHasKey('query', $result);
+        $this->assertArrayHasKey('data', $result);
+        $this->assertContains($message, $result['error']);
+        $this->assertEquals($customerId, $result['customerId']);
+        $this->assertEquals($query, $result['query']);
+        $this->assertEquals(['e' => 1], $result['data']);
     }
 }

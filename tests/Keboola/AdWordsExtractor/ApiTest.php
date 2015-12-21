@@ -6,6 +6,8 @@
  */
 namespace Keboola\AdWordsExtractor;
 
+use Keboola\Temp\Temp;
+
 class ApiTest extends AbstractTest
 {
     /** @var  Api */
@@ -15,70 +17,72 @@ class ApiTest extends AbstractTest
     {
         parent::setUp();
 
-        $this->api = new Api(EX_SK_USERNAME, EX_SK_PASSWORD, EX_SK_API_URL);
+        $this->api = new Api(EX_AW_CLIENT_ID, EX_AW_CLIENT_SECRET, EX_AW_DEVELOPER_TOKEN, EX_AW_REFRESH_TOKEN);
+        $this->api->setUserAgent(EX_AW_USER_AGENT);
     }
 
-    public function testApiLogin()
+    public function testApiGetCustomers()
     {
-        $result = $this->api->login();
-        $this->assertArrayHasKey('status', $result);
-        $this->assertEquals(200, $result['status']);
-        $this->assertArrayHasKey('session', $result);
-        $this->assertNotEmpty($result['session']);
-    }
+        $this->api->setCustomerId(EX_AW_CUSTOMER_ID);
 
-    public function testApiLogout()
-    {
-        $result = $this->api->logout();
-        $this->assertArrayHasKey('status', $result);
-        $this->assertEquals(200, $result['status']);
-    }
-
-    public function testApiGetListLimit()
-    {
-        $result = $this->api->getListLimit();
-        $this->assertGreaterThan(0, $result);
-    }
-
-    public function testApiGetAccounts()
-    {
-        $result = $this->api->getAccounts();
-        $this->assertCount(1, $result);
-        $this->assertArrayHasKey('userId', $result[0]);
-        $this->assertArrayHasKey('username', $result[0]);
-        $this->assertEquals(EX_SK_USERNAME, $result[0]['username']);
+        $accountFound = false;
+        foreach ($this->api->getCustomers() as $r) {
+            if ($r->customerId == EX_AW_TEST_ACCOUNT_ID) {
+                $accountFound = true;
+            }
+        }
+        $this->assertTrue($accountFound);
     }
 
     public function testApiGetCampaigns()
     {
-        $campaignName = uniqid();
-        $campaignId = $this->createCampaign($campaignName);
+        $this->api->setCustomerId(EX_AW_TEST_ACCOUNT_ID);
 
-        $result = $this->api->getCampaigns((int)EX_SK_USER_ID);
-        $this->assertGreaterThan(1, count($result));
+        $campaignName = uniqid();
+        $campaignId = $this->prepareCampaign($campaignName);
+
         $campaignFound = false;
-        foreach ($result as $r) {
-            $this->assertArrayHasKey('id', $r);
-            $this->assertArrayHasKey('name', $r);
-            if ($r['id'] == $campaignId) {
-                $this->assertEquals($campaignName, $r['name']);
+        foreach ($this->api->getCampaigns() as $r) {
+            if ($r->id == $campaignId) {
                 $campaignFound = true;
             }
         }
         $this->assertTrue($campaignFound);
     }
 
-    public function testApiGetStats()
+    public function testApiGetReport()
     {
-        $campaignName = uniqid();
-        $campaignId = $this->createCampaign($campaignName);
+        $this->api->setCustomerId(EX_AW_TEST_ACCOUNT_ID);
 
-        $date = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d 00:00:01'));
-        $result = $this->api->getStats(EX_SK_USER_ID, [$campaignId], $date, $date);
-        $this->assertCount(1, $result);
-        $this->assertArrayHasKey('stats', $result[0]);
-        $this->assertCount(1, $result[0]['stats']);
-        $this->assertArrayHasKey('conversions', $result[0]['stats'][0]);
-        $this->assertArrayHasKey('clicks', $result[0]['stats'][0]);
+        $temp = new Temp();
+        $this->api->setTemp($temp);
+        $file = $temp->createFile(uniqid());
+
+        $campaignName = uniqid();
+        $campaignId = $this->prepareCampaign($campaignName);
+
+        $date = date('Ymd', strtotime('-1 day'));
+        $this->api->getReport(
+            'SELECT CampaignId, Impressions, Clicks FROM CAMPAIGN_PERFORMANCE_REPORT',
+            $date,
+            $date,
+            $file
+        );
+
+        $campaignFound = false;
+        $isHeader = true;
+        $fp = fopen($file->getPathname(), 'r');
+        while (($data = fgetcsv($fp, 1000, ",")) !== false) {
+            if ($isHeader) {
+                $this->assertEquals(['Campaign ID', 'Impressions', 'Clicks'], $data);
+                $isHeader = false;
+            }
+            $this->assertCount(3, $data);
+            if ($data[0] == $campaignId) {
+                $campaignFound = true;
+            }
+        }
+        $this->assertTrue($campaignFound);
     }
+
 }
