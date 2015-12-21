@@ -14,4 +14,10 @@
         <directory>tests/Keboola</directory>
     </testsuite>
 
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src/Keboola/AdWordsExtractor</directory>
+        </whitelist>
+    </filter>
+
 </phpunit>
