@@ -84,5 +84,4 @@ class ApiTest extends AbstractTest
         }
         $this->assertTrue($campaignFound);
     }
-
 }
