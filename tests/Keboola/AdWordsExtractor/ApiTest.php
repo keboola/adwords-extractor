@@ -56,7 +56,7 @@ class ApiTest extends AbstractTest
 
         $temp = new Temp();
         $this->api->setTemp($temp);
-        $file = $temp->createFile(uniqid());
+        $file = $temp->getTmpFolder().'/'.uniqid();
 
         $campaignName = uniqid();
         $campaignId = $this->prepareCampaign($campaignName);
@@ -71,7 +71,7 @@ class ApiTest extends AbstractTest
 
         $campaignFound = false;
         $isHeader = true;
-        $fp = fopen($file->getPathname(), 'r');
+        $fp = fopen($file, 'r');
         while (($data = fgetcsv($fp, 1000, ",")) !== false) {
             if ($isHeader) {
                 $this->assertEquals(['Campaign ID', 'Impressions', 'Clicks'], $data);

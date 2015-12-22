@@ -178,7 +178,7 @@ class Api
     public function getReport($query, $since, $until, $file, $retries = 10)
     {
         $query .= sprintf(' DURING %d,%d', $since, $until);
-        $isFirstReportInFile = file_exists($file);
+        $isFirstReportInFile = !file_exists($file);
 
         try {
             $reportFile = $this->temp->createTmpFile();

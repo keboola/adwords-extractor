@@ -23,17 +23,23 @@ if (!isset($arguments['data'])) {
     exit(1);
 }
 $config = Yaml::parse(file_get_contents($arguments['data'] . "/config.yml"));
-if (!isset($config['parameters']['username'])) {
-    print "Missing parameter username";
+
+$required = ['client_id', 'client_secret', 'developer_token', 'refresh_token', 'customer_id', 'bucket', 'queries'];
+foreach ($required as $r) {
+    if (!isset($config['parameters'][$r])) {
+        print "Missing parameter '$r'";
+        exit(1);
+    }
+}
+if (!is_array($config['queries'])) {
+    print "Parameter 'query' has to be array";
     exit(1);
 }
-if (!isset($config['parameters']['password']) && !isset($config['parameters']['#password'])) {
-    print "Missing parameter password";
-    exit(1);
-}
-if (!isset($config['parameters']['bucket'])) {
-    print "Missing parameter bucket";
-    exit(1);
+foreach ($config['queries'] as $q) {
+    if (!isset($q['name']) || !isset($q['query'])) {
+        print "Items of array in parameter 'query' has to contain 'name', 'query' and optionally 'primary'";
+        exit(1);
+    }
 }
 
 if (!file_exists("{$arguments['data']}/out")) {
@@ -56,7 +62,7 @@ try {
 
     $since = date('Ymd', strtotime(isset($config['parameters']['since']) ? $config['parameters']['since'] : '-1 day'));
     $until = date('Ymd', strtotime(isset($config['parameters']['until']) ? $config['parameters']['until'] : '-1 day'));
-    $app->extract($config['parameters']['reports'], $since, $until);
+    $app->extract($config['parameters']['queries'], $since, $until);
 
     exit(0);
 } catch (\Keboola\AdWordsExtractor\Exception $e) {

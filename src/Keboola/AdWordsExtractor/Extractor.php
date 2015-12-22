@@ -9,6 +9,7 @@ namespace Keboola\AdWordsExtractor;
 use Keboola\Csv\CsvFile;
 use Keboola\Temp\Temp;
 use ReportDownloadException;
+use Symfony\Component\Yaml\Yaml;
 
 class Extractor
 {
@@ -45,7 +46,7 @@ class Extractor
         $this->userStorage = new UserStorage(self::$userTables, $folder, $bucket);
     }
 
-    public function extract(array $reports, $since, $until)
+    public function extract(array $queries, $since, $until)
     {
         $customers = $this->api->getCustomers($since, $until);
 
@@ -58,13 +59,14 @@ class Extractor
                 $this->userStorage->save('campaigns', $campaign);
             }
 
-            foreach ($reports as $report) {
+            foreach ($queries as $query) {
                 try {
-                    $this->api->getReport(
-                        $report['query'],
-                        $since,
-                        $until,
-                        $this->userStorage->getReportFilename($report['name'])
+                    $fileName = $this->userStorage->getReportFilename($query['name']);
+                    $this->api->getReport($query['query'], $since, $until, $fileName);
+                    $this->userStorage->createManifest(
+                        $fileName,
+                        $query['name'],
+                        isset($query['primary']) ? $query['primary'] : []
                     );
                 } catch (ReportDownloadException $e) {
                     throw new Exception("Getting report for client '{$customer->name}' failed:{$e->getMessage()}", $e);

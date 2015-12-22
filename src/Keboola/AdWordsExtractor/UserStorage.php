@@ -56,4 +56,15 @@ class UserStorage
     {
         return "$this->path/$this->bucket.report-$table.csv";
     }
+
+    public function createManifest($fileName, $table, array $primary = [])
+    {
+        if (!file_exists("$fileName.manifest")) {
+            file_put_contents("$fileName.manifest", Yaml::dump([
+                'destination' => "$this->bucket.$table",
+                'incremental' => true,
+                'primary_key' => $primary
+            ]));
+        }
+    }
 }
