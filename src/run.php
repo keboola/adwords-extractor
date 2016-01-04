@@ -35,7 +35,7 @@ if (!is_array($config['queries'])) {
     print "Parameter 'query' has to be array";
     exit(1);
 }
-foreach ($config['queries'] as $q) {
+foreach ($config['reports'] as $q) {
     if (!isset($q['name']) || !isset($q['query'])) {
         print "Items of array in parameter 'query' has to contain 'name', 'query' and optionally 'primary'";
         exit(1);
@@ -62,7 +62,7 @@ try {
 
     $since = date('Ymd', strtotime(isset($config['parameters']['since']) ? $config['parameters']['since'] : '-1 day'));
     $until = date('Ymd', strtotime(isset($config['parameters']['until']) ? $config['parameters']['until'] : '-1 day'));
-    $app->extract($config['parameters']['queries'], $since, $until);
+    $app->extract($config['parameters']['reports'], $since, $until);
 
     exit(0);
 } catch (\Keboola\AdWordsExtractor\Exception $e) {
