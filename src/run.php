@@ -24,12 +24,12 @@ if (!isset($arguments['data'])) {
 }
 $config = Yaml::parse(file_get_contents($arguments['data'] . "/config.yml"));
 
-if (!isset($config['image_parameters']['client_id'])) {
-    print("App configuration is missing parameter 'client_id', contact support please.");
+if (!isset($config['image_parameters']['#client_id'])) {
+    print("App configuration is missing parameter '#client_id', contact support please.");
     exit(1);
 }
-if (!isset($config['image_parameters']['client_secret'])) {
-    print("App configuration is missing 'client_secret', contact support please.");
+if (!isset($config['image_parameters']['#client_secret'])) {
+    print("App configuration is missing parameter '#client_secret', contact support please.");
     exit(1);
 }
 
