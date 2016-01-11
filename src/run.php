@@ -49,11 +49,11 @@ foreach ($required as $r) {
         exit(1);
     }
 }
-if (!is_array($config['queries'])) {
+if (!is_array($config['parameters']['queries'])) {
     print "Parameter 'query' has to be array";
     exit(1);
 }
-foreach ($config['reports'] as $q) {
+foreach ($config['parameters']['queries'] as $q) {
     if (!isset($q['name']) || !isset($q['query'])) {
         print "Items of array in parameter 'query' has to contain 'name', 'query' and optionally 'primary'";
         exit(1);
