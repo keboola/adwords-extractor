@@ -24,7 +24,16 @@ if (!isset($arguments['data'])) {
 }
 $config = Yaml::parse(file_get_contents($arguments['data'] . "/config.yml"));
 
-$required = ['client_id', 'client_secret', 'developer_token', 'refresh_token', 'customer_id', 'bucket', 'queries'];
+if (!isset($config['image_parameters']['client_id'])) {
+    print("App configuration is missing parameter 'client_id', contact support please.");
+    exit(1);
+}
+if (!isset($config['image_parameters']['client_secret'])) {
+    print("App configuration is missing 'client_secret', contact support please.");
+    exit(1);
+}
+
+$required = ['developer_token', 'refresh_token', 'customer_id', 'bucket', 'queries'];
 foreach ($required as $r) {
     if (!isset($config['parameters'][$r])) {
         print "Missing parameter '$r'";
@@ -51,8 +60,8 @@ if (!file_exists("{$arguments['data']}/out/tables")) {
 
 try {
     $app = new \Keboola\AdWordsExtractor\Extractor(
-        $config['parameters']['client_id'],
-        $config['parameters']['client_secret'],
+        $config['image_parameters']['client_id'],
+        $config['image_parameters']['client_secret'],
         $config['parameters']['developer_token'],
         $config['parameters']['refresh_token'],
         $config['parameters']['customer_id'],
