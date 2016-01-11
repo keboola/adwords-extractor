@@ -1,7 +1,8 @@
 FROM keboola/base-php56
 MAINTAINER Jakub Matejka <jakub@keboola.com>
 
-WORKDIR /home
+ADD . /code
+WORKDIR /code
 
 RUN composer install --no-interaction
 
