@@ -33,7 +33,16 @@ if (!isset($config['image_parameters']['#client_secret'])) {
     exit(1);
 }
 
-$required = ['developer_token', 'refresh_token', 'customer_id', 'bucket', 'queries'];
+if (!isset($config['parameters']['#developer_token']) && !isset($config['parameters']['developer_token'])) {
+    print("Missing parameter 'developer_token'");
+    exit(1);
+}
+if (!isset($config['parameters']['#refresh_token']) && !isset($config['parameters']['refresh_token'])) {
+    print("Missing parameter 'refresh_token'");
+    exit(1);
+}
+
+$required = ['customer_id', 'bucket', 'queries'];
 foreach ($required as $r) {
     if (!isset($config['parameters'][$r])) {
         print "Missing parameter '$r'";
@@ -62,8 +71,10 @@ try {
     $app = new \Keboola\AdWordsExtractor\Extractor(
         $config['image_parameters']['client_id'],
         $config['image_parameters']['client_secret'],
-        $config['parameters']['developer_token'],
-        $config['parameters']['refresh_token'],
+        isset($config['parameters']['#developer_token'])
+            ? $config['parameters']['#developer_token'] : $config['parameters']['developer_token'],
+        isset($config['parameters']['#refresh_token'])
+            ? $config['parameters']['#refresh_token'] : $config['parameters']['refresh_token'],
         $config['parameters']['customer_id'],
         "{$arguments['data']}/out/tables",
         $config['parameters']['bucket']
