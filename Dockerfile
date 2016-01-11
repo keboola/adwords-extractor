@@ -1,7 +1,7 @@
 FROM keboola/base-php56
 MAINTAINER Jakub Matejka <jakub@keboola.com>
 
-RUN docker-php-ext-install soap
+yum -y --enablerepo=epel,remi,remi-php56 install php-soap
 
 ADD . /code
 WORKDIR /code
