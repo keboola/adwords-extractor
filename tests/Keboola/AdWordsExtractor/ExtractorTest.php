@@ -36,10 +36,6 @@ class ExtractorTest extends AbstractTest
         $fp = file(sys_get_temp_dir().'/out.c-main.customers.csv');
         $this->assertGreaterThan(1, count($fp));
 
-        $this->assertFileExists(sys_get_temp_dir().'/out.c-main.campaigns.csv');
-        $fp = file(sys_get_temp_dir().'/out.c-main.campaigns.csv');
-        $this->assertGreaterThan(1, count($fp));
-
         $this->assertFileExists(sys_get_temp_dir().'/out.c-main.report-'.$report.'.csv');
         $fp = file(sys_get_temp_dir().'/out.c-main.report-'.$report.'.csv');
         $this->assertGreaterThan(1, count($fp));

@@ -54,11 +54,6 @@ class Extractor
             $this->userStorage->save('customers', $customer);
 
             $this->api->setCustomerId($customer->customerId);
-            foreach ($this->api->getCampaigns($since, $until) as $campaign) {
-                $campaign->customerId = $customer->customerId;
-                $this->userStorage->save('campaigns', $campaign);
-            }
-
             foreach ($queries as $query) {
                 try {
                     $fileName = $this->userStorage->getReportFilename($query['name']);
