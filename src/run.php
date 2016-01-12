@@ -69,8 +69,8 @@ if (!file_exists("{$arguments['data']}/out/tables")) {
 
 try {
     $app = new \Keboola\AdWordsExtractor\Extractor(
-        $config['image_parameters']['client_id'],
-        $config['image_parameters']['client_secret'],
+        $config['image_parameters']['#client_id'],
+        $config['image_parameters']['#client_secret'],
         isset($config['parameters']['#developer_token'])
             ? $config['parameters']['#developer_token'] : $config['parameters']['developer_token'],
         isset($config['parameters']['#refresh_token'])
