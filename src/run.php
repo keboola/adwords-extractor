@@ -82,7 +82,7 @@ try {
 
     $since = date('Ymd', strtotime(isset($config['parameters']['since']) ? $config['parameters']['since'] : '-1 day'));
     $until = date('Ymd', strtotime(isset($config['parameters']['until']) ? $config['parameters']['until'] : '-1 day'));
-    $app->extract($config['parameters']['reports'], $since, $until);
+    $app->extract($config['parameters']['queries'], $since, $until);
 
     exit(0);
 } catch (\Keboola\AdWordsExtractor\Exception $e) {
