@@ -64,7 +64,11 @@ class Extractor
                         isset($query['primary']) ? $query['primary'] : []
                     );
                 } catch (ReportDownloadException $e) {
-                    throw new Exception("Getting report for client '{$customer->name}' failed:{$e->getMessage()}", $e);
+                    throw new Exception(
+                        "Getting report for client '{$customer->name}' failed:{$e->getMessage()}",
+                        400,
+                        $e
+                    );
                 }
             }
         }
