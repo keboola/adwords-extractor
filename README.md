@@ -10,7 +10,9 @@ The Extractor gets list of accessible clients, list of their campaigns and defin
 ## Access Tokens
 You have to apply for AdWords Developer Token in your MCC, see [https://developers.google.com/adwords/api/docs/signingup#step2a]
 
-Once you get the Developer Token you can request Refresh Token using extractor's UI in Keboola or directly using API call `https://syrup.keboola.com/oauth/auth20?api=ex-adwords&token={storage_api_token}&id={your_custom_id}` (see docs for more information: [http://docs.oauth9.apiary.io/#reference/api/generate-oauth-token-for-oauth-10-applications/generate-token-manually])
+Once you get the Developer Token you can request Refresh Token using extractor's UI in Keboola or directly using API call `https://syrup.keboola.com/oauth/auth20?api=ex-adwords-v2&token={storage_api_token}&id={your_custom_id}` (see docs for more information: [http://docs.oauth9.apiary.io/#reference/api/generate-oauth-token-for-oauth-10-applications/generate-token-manually])
+
+Please note that refresh token is bound to used Google account and will stop working if someone changes it's password.
 
 ## Configuration
 
