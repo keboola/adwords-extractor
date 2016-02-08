@@ -135,7 +135,14 @@ class Api
                     if (in_array($error->reason, ['DEVELOPER_TOKEN_NOT_APPROVED'])) {
                         throw new Exception($error->reason, $fault);
                     }
+                    if ($error->ApiErrorType == 'AuthorizationError') {
+                        throw new Exception(
+                            'Authorization Error, your token is probably not valid. Try to generate new one.',
+                            $fault
+                        );
+                    }
                     $soapErrors[] = [
+                        'reason' => $error->reason,
                         'apiErrorType' => $error->ApiErrorType,
                         'externalPolicyName' => $error->externalPolicyName
                     ];
