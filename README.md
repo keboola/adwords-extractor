@@ -10,7 +10,8 @@ The Extractor gets list of accessible clients, list of their campaigns and defin
 ## Access Tokens
 You have to apply for AdWords Developer Token in your MCC, see [https://developers.google.com/adwords/api/docs/signingup#step2a]
 
-Once you get the Developer Token you can request Refresh Token using extractor's UI in Keboola or directly using API call `https://syrup.keboola.com/oauth/auth20?api=ex-adwords-v2&token={storage_api_token}&id={your_custom_id}` (see docs for more information: [http://docs.oauth9.apiary.io/#reference/api/generate-oauth-token-for-oauth-10-applications/generate-token-manually])
+Once you get the Developer Token you can request Refresh Token using extractor's UI in Keboola or directly using oAuth API
+(see http://docs.oauthv2.apiary.io/#).
 
 Please note that refresh token is bound to used Google account and will stop working if someone changes it's password.
 
@@ -27,6 +28,9 @@ Please note that refresh token is bound to used Google account and will stop wor
         - **name** - Name of query, data will be saved to table `[bucket].report-[name]`
         - **query** - AWQL query for downloading Ad-hoc report (see [https://developers.google.com/adwords/api/docs/guides/awql]). You should pick columns to download from allowed report values and FROM clause from allowed report types
         - **primary** - Array of columns to be used as primary key
+- **authorization**:
+    - **oauth_api**:
+        - **id** - identifier of oAuth API credentials (see http://docs.oauthv2.apiary.io/#reference/credentials/retrieve-credentials/get-credentials)
 
 Example:
 ```
@@ -43,6 +47,11 @@ Example:
                 "primary": ["CampaignId", "Date"]
             }
         ]
+    },
+    "authorization": {
+        "oauth_api": {
+            "id": "refresh_token"
+        }
     }
 }
 ```
