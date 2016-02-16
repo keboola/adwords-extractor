@@ -37,10 +37,6 @@ if (!isset($config['parameters']['#developer_token']) && !isset($config['paramet
     print("Missing parameter 'developer_token'");
     exit(1);
 }
-if (!isset($config['parameters']['#refresh_token']) && !isset($config['parameters']['refresh_token'])) {
-    print("Missing parameter 'refresh_token'");
-    exit(1);
-}
 
 $required = ['customer_id', 'bucket', 'queries'];
 foreach ($required as $r) {
@@ -60,6 +56,16 @@ foreach ($config['parameters']['queries'] as $q) {
     }
 }
 
+if (!isset($config['authorization']['oauth_api']['credentials']['#data'])) {
+    print("App configuration is missing oauth data, contact support please.");
+    exit(1);
+}
+$oauthData = json_decode($config['authorization']['oauth_api']['credentials']['#data'], true);
+if (!isset($oauthData['refresh_token'])) {
+    print("Missing refresh token, check your oAuth configuration");
+    exit(1);
+}
+
 if (!file_exists("{$arguments['data']}/out")) {
     mkdir("{$arguments['data']}/out");
 }
@@ -75,8 +81,7 @@ try {
             ? $config['image_parameters']['#client_secret'] : $config['image_parameters']['client_secret'],
         isset($config['parameters']['#developer_token'])
             ? $config['parameters']['#developer_token'] : $config['parameters']['developer_token'],
-        isset($config['parameters']['#refresh_token'])
-            ? $config['parameters']['#refresh_token'] : $config['parameters']['refresh_token'],
+        $oauthData['refresh_token'],
         $config['parameters']['customer_id'],
         "{$arguments['data']}/out/tables",
         $config['parameters']['bucket']
