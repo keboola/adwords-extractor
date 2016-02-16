@@ -55,7 +55,7 @@ foreach ($config['parameters']['queries'] as $q) {
         exit(1);
     }
 }
-
+syslog(LOG_INFO, $config['authorization']);
 if (!isset($config['authorization']['oauth_api']['credentials']['#data'])) {
     print("App configuration is missing oauth data, contact support please.");
     exit(1);
