@@ -55,7 +55,7 @@ foreach ($config['parameters']['queries'] as $q) {
         exit(1);
     }
 }
-echo json_encode(['ex-adwords-v2-debug', $config['authorization']]).PHP_EOL;
+
 if (!isset($config['authorization']['oauth_api']['credentials']['#data'])) {
     print("App configuration is missing oauth data, contact support please.");
     exit(1);
