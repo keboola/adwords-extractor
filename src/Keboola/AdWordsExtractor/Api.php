@@ -137,7 +137,7 @@ class Api
                     }
                     if ($error->ApiErrorType == 'AuthorizationError') {
                         throw new Exception(
-                            'Authorization Error, your token is probably not valid. Try to generate new one.',
+                            'Authorization Error, your refresh token is probably not valid. Try to generate new one.',
                             $fault->getCode(),
                             $fault
                         );
