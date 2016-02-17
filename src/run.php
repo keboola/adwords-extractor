@@ -74,8 +74,6 @@ if (!file_exists("{$arguments['data']}/out/tables")) {
 }
 
 try {
-    echo 'dev:' . $config['parameters']['#developer_token'].PHP_EOL;
-    echo 'ref:' . $oauthData['refresh_token'].PHP_EOL;
     $app = new \Keboola\AdWordsExtractor\Extractor(
         isset($config['image_parameters']['#client_id'])
             ? $config['image_parameters']['#client_id'] : $config['image_parameters']['client_id'],
