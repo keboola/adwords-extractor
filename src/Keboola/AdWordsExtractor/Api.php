@@ -133,11 +133,12 @@ class Api
                 $soapErrors = [];
                 foreach (\ErrorUtils::GetApiErrors($fault) as $error) {
                     if (in_array($error->reason, ['DEVELOPER_TOKEN_NOT_APPROVED'])) {
-                        throw new Exception($error->reason, $fault);
+                        throw new Exception($error->reason, $fault->getCode(), $fault);
                     }
                     if ($error->ApiErrorType == 'AuthorizationError') {
                         throw new Exception(
                             'Authorization Error, your token is probably not valid. Try to generate new one.',
+                            $fault->getCode(),
                             $fault
                         );
                     }
@@ -149,7 +150,7 @@ class Api
                 }
 
                 if ($retriesCount > self::RETRIES_COUNT) {
-                    throw new Exception($fault->getMessage(), $fault);
+                    throw new Exception($fault->getMessage(), $fault->getCode(), $fault);
                 }
             }
         } while ($retriesCount <= self::RETRIES_COUNT);
