@@ -19,7 +19,6 @@ Please note that refresh token is bound to used Google account and will stop wor
 
 - **parameters**:
     - **developer_token** - Your developer token
-    - **refresh_token** - Generated refresh token
     - **customer_id** - Instructions to get it are here: https://support.google.com/adwords/answer/1704344?hl=en
     - **bucket** - Name of bucket where the data will be saved
     - **since** *(optional)* - start date of downloaded stats (default is "-1 day")
