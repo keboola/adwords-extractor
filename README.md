@@ -26,7 +26,7 @@ Please note that refresh token is bound to used Google account and will stop wor
     - **queries** - Array of reports to download as Ad-hoc report, each item must contain:
         - **name** - Name of query, data will be saved to table `[bucket].report-[name]`
         - **query** - AWQL query for downloading Ad-hoc report (see [https://developers.google.com/adwords/api/docs/guides/awql]). You should pick columns to download from allowed report values and FROM clause from allowed report types
-        - **primary** - Array of columns to be used as primary key
+        - **primary** - Array of columns to be used as primary key. ***Please Note that Google for some weird reason gives columns in resulting csv somewhat different names than in AWQL. E.g. AWQL column CampaignId will be Campaign_ID in csv and Date will be Day. Unfortunately this is not explained anywhere and you just have to find out correct names by trial and error for yourself.***
 - **authorization**:
     - **oauth_api**:
         - **id** - identifier of oAuth API credentials (see http://docs.oauthv2.apiary.io/#reference/credentials/retrieve-credentials/get-credentials)
@@ -58,7 +58,6 @@ Example:
 
 > **NOTICE!**
 
-> - You should always query for `CampaignId` in your AWQL queries to be able to pair saved stats to campaigns.
 > - Date range in AWQL queries is assembled by the extractor according to API call parameters, so setting it manually
 won't work
 > - Money values are in micros so you have to divide by million to get values in whole units, currency depends on account settings
@@ -78,22 +77,6 @@ Data are saved to these tables **incrementally**:
 - **currencyCode**: The currency in which this account operates, see [supported currencies](https://developers.google.com/adwords/api/docs/appendix/currencycodes)
 - **dateTimeZone**: The local timezone ID for this customer, see [supported zones](https://developers.google.com/adwords/api/docs/appendix/timezones)
 
-
-**campaigns** - contains list of campaigns of all customers accessible from the main account, columns are:
-
-- **customerId**: customer id (foreign key to table **customers**)
-- **id**: ID of the campaign
-- **name**: Name of the campaign
-- **campaignStatus**: Status of this campaign, can be: **ENABLED**, **PAUSED**, **REMOVED**
-- **servingStatus**: Serving status, can be: **SERVING**, **NONE**, **ENDED**, **PENDING**, **SUSPENDED**
-- **startDate**: Date the campaign begins
-- **endDate**: Date the campaign ends
-- **adServingOptimizationStatus**: Ad serving optimization status, can be: **OPTIMIZE**, **CONVERSION_OPTIMIZE**, **ROTATE**, **ROTATE_INDEFINITELY**, **UNAVAILABLE**
-- **advertisingChannelType**: The primary serving target for ads within this campaign, can be: **UNKNOWN**, **SEARCH**, **DISPLAY**, **SHOPPING**
-- **displaySelect**: Indicates if a campaign is a search network with display select enabled campaign
-- **trackingUrlTemplate**: URL template for constructing a tracking URL
-
-
 Other tables will be created according to your reports configuration and will contain reports for each campaign
 
 
@@ -112,11 +95,14 @@ If you want to run this app standalone:
     ```
     parameters:
       developer_token:
-      refresh_token:
       customer_id:
       bucket: in.c-ex-adwords
       reports:
         ...
+    authorization:
+        oauth_api:
+            credentials:
+                #data: "refresh_token:\"{your_token}\""
     ```
 7. Run: `php src/run.php --data=./data`
 8. Data tables will be saved to directory `data/out/tables`
