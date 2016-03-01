@@ -26,7 +26,7 @@ Please note that refresh token is bound to used Google account and will stop wor
     - **queries** - Array of reports to download as Ad-hoc report, each item must contain:
         - **name** - Name of query, data will be saved to table `[bucket].report-[name]`
         - **query** - AWQL query for downloading Ad-hoc report (see [https://developers.google.com/adwords/api/docs/guides/awql]). You should pick columns to download from allowed report values and FROM clause from allowed report types
-        - **primary** - Array of columns to be used as primary key. ***Please Note that Google for some weird reason gives columns in resulting csv somewhat different names than in AWQL. E.g. AWQL column CampaignId will be Campaign_ID in csv and Date will be Day. Unfortunately this is not explained anywhere and you just have to find out correct names by trial and error for yourself.***
+        - **primary** - Array of columns to be used as primary key. _You must use **Display Name** of the columns as defined in reports types documentation [https://developers.google.com/adwords/api/docs/appendix/reports]_ and spaces replace with underscores (e.g. for *CampaignId* use *Campaign_ID* and for *Date* use *Day*)
 - **authorization**:
     - **oauth_api**:
         - **id** - identifier of oAuth API credentials (see http://docs.oauthv2.apiary.io/#reference/credentials/retrieve-credentials/get-credentials)
