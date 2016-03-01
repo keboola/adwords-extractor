@@ -37,7 +37,7 @@ Example:
     "parameters": {
         "developer_token": "...",
         "refresh_token": "...",
-        "customer_id": "984-056-4040",
+        "customer_id": "91165040",
         "bucket": "in.c-ex-adwords",
         "queries": [
             {
