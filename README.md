@@ -43,7 +43,7 @@ Example:
             {
                 "name": "campaigns",
                 "query": "SELECT CampaignId,Date,AverageCpc,AverageCpm,AveragePosition,Clicks,Cost,Impressions,AdNetworkType1 FROM CAMPAIGN_PERFORMANCE_REPORT",
-                "primary": ["CampaignId", "Date"]
+                "primary": ["Campaign_ID", "Day"]
             }
         ]
     },
