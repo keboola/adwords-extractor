@@ -23,7 +23,7 @@ Please note that refresh token is bound to used Google account and will stop wor
     - **bucket** - Name of bucket where the data will be saved
     - **since** *(optional)* - start date of downloaded stats (default is "-1 day")
     - **until** *(optional)* - end date of downloaded stats (default is "-1 day")
-    - **reports** - Array of reports to download as Ad-hoc report, each item must contain:
+    - **queries** - Array of reports to download as Ad-hoc report, each item must contain:
         - **name** - Name of query, data will be saved to table `[bucket].report-[name]`
         - **query** - AWQL query for downloading Ad-hoc report (see [https://developers.google.com/adwords/api/docs/guides/awql]). You should pick columns to download from allowed report values and FROM clause from allowed report types
         - **primary** - Array of columns to be used as primary key
@@ -37,9 +37,9 @@ Example:
     "parameters": {
         "developer_token": "...",
         "refresh_token": "...",
-        "customer_id:": "984-056-4040",
+        "customer_id": "984-056-4040",
         "bucket": "in.c-ex-adwords",
-        "reports": [
+        "queries": [
             {
                 "name": "campaigns",
                 "query": "SELECT CampaignId,Date,AverageCpc,AverageCpm,AveragePosition,Clicks,Cost,Impressions,AdNetworkType1 FROM CAMPAIGN_PERFORMANCE_REPORT",
