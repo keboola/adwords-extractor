@@ -24,12 +24,9 @@ if (!isset($arguments['data'])) {
 }
 $config = Yaml::parse(file_get_contents($arguments['data'] . "/config.yml"));
 
-if (!isset($config['authorization']['oauth_api']['credentials']['appKey'])) {
-    print("App configuration is missing parameter '#client_id', contact support please.");
-    exit(1);
-}
-if (!isset($config['authorization']['oauth_api']['credentials']['#appSecret'])) {
-    print("App configuration is missing parameter '#client_secret', contact support please.");
+if (!isset($config['authorization']['oauth_api']['credentials']['appKey'])
+    || !isset($config['authorization']['oauth_api']['credentials']['#appSecret'])) {
+    print("Authorization credentials are missing. Have you authorized our app for your AdWords account?");
     exit(1);
 }
 
