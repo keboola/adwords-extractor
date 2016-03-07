@@ -24,11 +24,11 @@ if (!isset($arguments['data'])) {
 }
 $config = Yaml::parse(file_get_contents($arguments['data'] . "/config.yml"));
 
-if (!isset($config['image_parameters']['#client_id']) && !isset($config['image_parameters']['client_id'])) {
+if (!isset($config['authorization']['oauth_api']['credentials']['appKey'])) {
     print("App configuration is missing parameter '#client_id', contact support please.");
     exit(1);
 }
-if (!isset($config['image_parameters']['#client_secret']) && !isset($config['image_parameters']['client_secret'])) {
+if (!isset($config['authorization']['oauth_api']['credentials']['#appSecret'])) {
     print("App configuration is missing parameter '#client_secret', contact support please.");
     exit(1);
 }
@@ -75,10 +75,8 @@ if (!file_exists("{$arguments['data']}/out/tables")) {
 
 try {
     $app = new \Keboola\AdWordsExtractor\Extractor(
-        isset($config['image_parameters']['#client_id'])
-            ? $config['image_parameters']['#client_id'] : $config['image_parameters']['client_id'],
-        isset($config['image_parameters']['#client_secret'])
-            ? $config['image_parameters']['#client_secret'] : $config['image_parameters']['client_secret'],
+        $config['authorization']['oauth_api']['credentials']['appKey'],
+        $config['authorization']['oauth_api']['credentials']['#appSecret'],
         isset($config['parameters']['#developer_token'])
             ? $config['parameters']['#developer_token'] : $config['parameters']['developer_token'],
         $oauthData['refresh_token'],
