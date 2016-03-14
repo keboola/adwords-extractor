@@ -77,7 +77,21 @@ Data are saved to these tables **incrementally**:
 - **currencyCode**: The currency in which this account operates, see [supported currencies](https://developers.google.com/adwords/api/docs/appendix/currencycodes)
 - **dateTimeZone**: The local timezone ID for this customer, see [supported zones](https://developers.google.com/adwords/api/docs/appendix/timezones)
 
-Other tables will be created according to your reports configuration and will contain reports for each campaign
+**campaigns** - contains list of campaigns of all customers accessible from the main account, columns are:
+
+- **customerId**: customer id (foreign key to table **customers**)
+- **id**: ID of the campaign
+- **name**: Name of the campaign
+- **campaignStatus**: Status of this campaign, can be: **ENABLED, PAUSED, REMOVED**
+- **servingStatus**: Serving status, can be: **SERVING, NONE, ENDED, PENDING, SUSPENDED**
+- **startDate**: Date the campaign begins
+- **endDate**: Date the campaign ends
+- **adServingOptimizationStatus**: Ad serving optimization status, can be: **OPTIMIZE, CONVERSION_OPTIMIZE, ROTATE, ROTATE_INDEFINITELY, UNAVAILABLE**
+- **advertisingChannelType**: The primary serving target for ads within this campaign, can be: **UNKNOWN, SEARCH, DISPLAY, SHOPPING**
+- **displaySelect**: Indicates if a campaign is a search network with display select enabled campaign
+- **trackingUrlTemplate**: URL template for constructing a tracking URL
+
+Other tables will be created according to your reports configuration
 
 
 
