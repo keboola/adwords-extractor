@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b18a92bc6f078e438544da0e4f5ea741",
-    "content-hash": "9d78b7cb5a16108a11db5e32469cfed3",
+    "hash": "39724db20035557af7d10f58e4405548",
+    "content-hash": "0b4aedb249ceeaceab63e7f56727f5bb",
     "packages": [
         {
             "name": "googleads/googleads-php-lib",
@@ -81,24 +81,24 @@
         },
         {
             "name": "keboola/php-temp",
-            "version": "0.1.5",
+            "version": "0.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/php-temp.git",
-                "reference": "97f0cc548e6ae5a4a7221d50d72cc78998cc3194"
+                "reference": "25a5b7902d3dd6e9f211071acc388b33990d6b6e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/php-temp/zipball/97f0cc548e6ae5a4a7221d50d72cc78998cc3194",
-                "reference": "97f0cc548e6ae5a4a7221d50d72cc78998cc3194",
+                "url": "https://api.github.com/repos/keboola/php-temp/zipball/25a5b7902d3dd6e9f211071acc388b33990d6b6e",
+                "reference": "25a5b7902d3dd6e9f211071acc388b33990d6b6e",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.3"
+                "php": ">=5.3.3",
+                "symfony/filesystem": ">2.1.0"
             },
             "require-dev": {
-                "codeclimate/php-test-reporter": "dev-master",
-                "phpunit/phpunit": "^5.2"
+                "phpunit/phpunit": "3.7.*"
             },
             "type": "library",
             "autoload": {
@@ -125,7 +125,56 @@
                 "filesystem",
                 "temp"
             ],
-            "time": "2016-03-03 07:31:22"
+            "time": "2015-12-18 13:57:34"
+        },
+        {
+            "name": "symfony/filesystem",
+            "version": "v3.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/filesystem.git",
+                "reference": "23ae8f9648d0a7fe94a47c8e20e5bf37c489a451"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/23ae8f9648d0a7fe94a47c8e20e5bf37c489a451",
+                "reference": "23ae8f9648d0a7fe94a47c8e20e5bf37c489a451",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Filesystem\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Filesystem Component",
+            "homepage": "https://symfony.com",
+            "time": "2016-02-23 15:16:06"
         },
         {
             "name": "symfony/process",
@@ -1770,55 +1819,6 @@
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
             "time": "2016-01-27 05:14:19"
-        },
-        {
-            "name": "symfony/filesystem",
-            "version": "v3.0.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/filesystem.git",
-                "reference": "23ae8f9648d0a7fe94a47c8e20e5bf37c489a451"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/23ae8f9648d0a7fe94a47c8e20e5bf37c489a451",
-                "reference": "23ae8f9648d0a7fe94a47c8e20e5bf37c489a451",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.5.9"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\Filesystem\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony Filesystem Component",
-            "homepage": "https://symfony.com",
-            "time": "2016-02-23 15:16:06"
         },
         {
             "name": "symfony/polyfill-mbstring",
