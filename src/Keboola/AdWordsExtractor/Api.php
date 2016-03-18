@@ -196,7 +196,7 @@ class Api
             ]);
 
             if (!file_exists($reportFile)) {
-                Exception::reportError(
+                throw Exception::reportError(
                     'Csv file was not created',
                     $this->user->GetClientCustomerId(),
                     $query
@@ -211,7 +211,7 @@ class Api
             $error = $process->getErrorOutput();
 
             if (!$process->isSuccessful() || $error) {
-                Exception::reportError(
+                throw Exception::reportError(
                     'Counting csv file lines failed',
                     $this->user->GetClientCustomerId(),
                     $query,
@@ -231,7 +231,7 @@ class Api
                 $error = $process->getErrorOutput();
 
                 if (!$process->isSuccessful() || $error) {
-                    Exception::reportError(
+                    throw Exception::reportError(
                         'Concatenating csv files failed',
                         $this->user->GetClientCustomerId(),
                         $query,
@@ -251,7 +251,7 @@ class Api
                 sleep(5 * 60);
                 $this->getReport($query, $since, $until, $file);
             } else {
-                Exception::reportError(
+                throw Exception::reportError(
                     $e->getMessage(),
                     $this->user->GetClientCustomerId(),
                     $query
