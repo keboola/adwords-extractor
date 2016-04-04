@@ -27,6 +27,9 @@
     "autoload": {
         "psr-4": {
             "Keboola\\": "src/Keboola/"
-        }
+        },
+        "classmap": [
+            "vendor/googleads/googleads-php-lib/src/Google/Api/Ads/AdWords/Util/v201603"
+        ]
     }
 }

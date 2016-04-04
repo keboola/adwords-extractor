@@ -6,10 +6,8 @@
  */
 namespace Keboola\AdWordsExtractor;
 
-use Keboola\Csv\CsvFile;
 use Keboola\Temp\Temp;
 use ReportDownloadException;
-use Symfony\Component\Yaml\Yaml;
 
 class Extractor
 {
