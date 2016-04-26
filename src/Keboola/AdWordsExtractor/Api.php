@@ -135,9 +135,10 @@ class Api
                     if (in_array($error->reason, ['DEVELOPER_TOKEN_NOT_APPROVED'])) {
                         throw new Exception($error->reason, $fault->getCode(), $fault);
                     }
-                    if ($error->ApiErrorType == 'AuthorizationError') {
+                    if (property_exists($error, 'ApiErrorType') && $error->ApiErrorType == 'AuthorizationError') {
                         throw new Exception(
-                            'Authorization Error, your refresh token is probably not valid. Try to generate new one.',
+                            'Authorization Error, your refresh token is probably not valid. Check if you still have '
+                                . 'access to the service.',
                             $fault->getCode(),
                             $fault
                         );
