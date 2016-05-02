@@ -145,7 +145,7 @@ class Api
                     }
                     $soapErrors[] = [
                         'reason' => $error->reason,
-                        'apiErrorType' => $error->ApiErrorType,
+                        'apiErrorType' => property_exists($error, 'ApiErrorType') ? $error->ApiErrorType : null,
                         'externalPolicyName' => $error->externalPolicyName
                     ];
                 }
