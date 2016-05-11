@@ -132,7 +132,8 @@ class Api
             } catch (\SoapFault $fault) {
                 $soapErrors = [];
                 foreach (\ErrorUtils::GetApiErrors($fault) as $error) {
-                    if (in_array($error->reason, ['DEVELOPER_TOKEN_NOT_APPROVED'])) {
+                    if (property_exists($error, 'reason')
+                        && in_array($error->reason, ['DEVELOPER_TOKEN_NOT_APPROVED'])) {
                         throw new Exception($error->reason, $fault->getCode(), $fault);
                     }
                     if (property_exists($error, 'ApiErrorType') && $error->ApiErrorType == 'AuthorizationError') {
@@ -146,7 +147,8 @@ class Api
                     $soapErrors[] = [
                         'reason' => $error->reason,
                         'apiErrorType' => property_exists($error, 'ApiErrorType') ? $error->ApiErrorType : null,
-                        'externalPolicyName' => $error->externalPolicyName
+                        'externalPolicyName' => property_exists($error, 'externalPolicyName')
+                            ? $error->externalPolicyName : null
                     ];
                 }
 
