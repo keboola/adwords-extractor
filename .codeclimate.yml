@@ -1,13 +1,27 @@
 engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - php
+  fixme:
+    enabled: true
   phpcodesniffer:
     enabled: true
+    config:
+      standard: "PSR1,PSR2"
   phpmd:
     enabled: true
+    checks:
+      CleanCode/ElseExpression:
+        enabled: false
+      CleanCode/StaticAccess:
+        enabled: false
 ratings:
   paths:
-  - src/**
+  - "**.php"
 exclude_paths:
 - .git/**
-- data/**
-- tests/**/*
-- vendor/**/*
+- src/run.php
+- tests/**
+- vendor/**

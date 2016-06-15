@@ -10,14 +10,24 @@
          syntaxCheck="false"
          bootstrap="tests/bootstrap.php">
 
-    <testsuite name="Main Test">
+    <testsuite name="main">
         <directory>tests/Keboola/AdWordsExtractor</directory>
     </testsuite>
 
     <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./src/Keboola/AdWordsExtractor</directory>
+        <whitelist>
+            <directory suffix=".php">src</directory>
         </whitelist>
+        <blacklist>
+            <file>src/run.php</file>
+            <directory>build</directory>
+            <directory>tests</directory>
+            <directory>vendor</directory>
+        </blacklist>
     </filter>
+
+    <logging>
+        <log type="coverage-clover" target="build/logs/clover.xml"/>
+    </logging>
 
 </phpunit>

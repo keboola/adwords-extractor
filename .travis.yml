@@ -1,16 +1,45 @@
-language: php
+sudo: required
 
-php:
-- '5.6'
-- '7'
+language: bash
+
+services:
+  - docker
+
+env:
+  DOCKER_COMPOSE_VERSION: 1.6.2
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -o Dpkg::Options::="--force-confnew" -y install docker-engine
+
+install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
 
 before_script:
-  - composer self-update
-  - composer install --dev
+  - docker -v
+  - docker-compose -v
+  - docker-compose build tests-with-report
 
 script:
-  - ./vendor/bin/phpcs --standard=psr2 -n --ignore=vendor .
-  - ./vendor/bin/phpunit
+  - >
+    docker-compose run
+    --rm
+    -e EX_AW_CLIENT_ID=$EX_AW_CLIENT_ID
+    -e EX_AW_CLIENT_SECRET=$EX_AW_CLIENT_SECRET
+    -e EX_AW_DEVELOPER_TOKEN=$EX_AW_DEVELOPER_TOKEN
+    -e EX_AW_REFRESH_TOKEN=$EX_AW_REFRESH_TOKEN
+    -e EX_AW_CUSTOMER_ID=$EX_AW_CUSTOMER_ID
+    -e EX_AW_TEST_ACCOUNT_ID=$EX_AW_TEST_ACCOUNT_ID
+    -e CODECLIMATE_REPO_TOKEN=$CODECLIMATE_REPO_TOKEN
+    tests-with-report
+after_success:
+  - docker images
 
-after_script:
-  - ./codeclimate.sh
+deploy:
+  provider: script
+  script: ./deploy.sh
+  on:
+    tags: true

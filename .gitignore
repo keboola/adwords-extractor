@@ -1,7 +1,7 @@
-.git
-vendor
 .idea
 composer.phar
+vendor
+run-test.sh
 data
 build
-test.sh
+vars
