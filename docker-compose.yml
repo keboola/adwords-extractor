@@ -8,10 +8,3 @@ services:
     tty: true
     stdin_open: true
     command: ./tests.sh
-
-  tests-with-report:
-    extends:
-      service: tests
-    volumes:
-      - ./.git:/code/.git
-    command: sh -c './tests.sh && ./vendor/bin/test-reporter'

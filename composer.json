@@ -19,9 +19,7 @@
         "googleads/googleads-php-lib": "~13.0.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~5.0",
-        "squizlabs/php_codesniffer": "2.*",
-        "codeclimate/php-test-reporter": "dev-master"
+        "phpunit/phpunit": "~5.0"
     },
     "minimum-stability": "stable",
     "autoload": {
