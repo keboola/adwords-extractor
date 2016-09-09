@@ -5,7 +5,6 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install unzip git libxml2-dev -y
 RUN cd && curl -sS https://getcomposer.org/installer | php && ln -s /root/composer.phar /usr/local/bin/composer
-RUN pecl install xdebug && docker-php-ext-enable xdebug
 RUN docker-php-ext-install soap
 
 ADD . /code

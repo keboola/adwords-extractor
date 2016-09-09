@@ -193,7 +193,8 @@ class Api
 
         try {
             $reportFile = $this->temp->createTmpFile();
-            \ReportUtils::DownloadReportWithAwql($query, $reportFile, $this->user, 'CSV', [
+            $reportUtils = new \ReportUtils();
+            $reportUtils->DownloadReportWithAwql($query, $reportFile, $this->user, 'CSV', [
                 'skipReportHeader' => true,
                 'skipReportSummary' => true
             ]);

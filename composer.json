@@ -16,7 +16,7 @@
         "symfony/yaml": "~2.6.3",
         "symfony/process": "~3.0.1",
         "keboola/php-temp": "0.1.3",
-        "googleads/googleads-php-lib": "~8.2.0"
+        "googleads/googleads-php-lib": "~13.0.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.0",
@@ -29,7 +29,7 @@
             "Keboola\\": "src/Keboola/"
         },
         "classmap": [
-            "vendor/googleads/googleads-php-lib/src/Google/Api/Ads/AdWords/Util/v201603"
+            "vendor/googleads/googleads-php-lib/src/Google/Api/Ads/AdWords/Util/v201607"
         ]
     }
 }

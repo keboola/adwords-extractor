@@ -5,7 +5,9 @@ The Extractor gets list of accessible clients, list of their campaigns and defin
 
 ## Status
 
-[![Build Status](https://travis-ci.org/keboola/adwords-extractor.svg)](https://travis-ci.org/keboola/adwords-extractor) [![Code Climate](https://codeclimate.com/github/keboola/adwords-extractor/badges/gpa.svg)](https://codeclimate.com/github/keboola/adwords-extractor) [![Test Coverage](https://codeclimate.com/github/keboola/adwords-extractor/badges/coverage.svg)](https://codeclimate.com/github/keboola/adwords-extractor/coverage)
+[![Build Status](https://travis-ci.org/keboola/adwords-extractor.svg)](https://travis-ci.org/keboola/adwords-extractor) [![Code Climate](https://codeclimate.com/github/keboola/adwords-extractor/badges/gpa.svg)](https://codeclimate.com/github/keboola/adwords-extractor)
+
+Uses [googleads-php-lib](https://github.com/googleads/googleads-php-lib) version **13.0** with API **v201607**.
 
 ## Access Tokens
 You have to apply for AdWords Developer Token in your MCC, see [https://developers.google.com/adwords/api/docs/signingup#step2a]
