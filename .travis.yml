@@ -34,7 +34,7 @@ script:
     -e EX_AW_CUSTOMER_ID=$EX_AW_CUSTOMER_ID
     -e EX_AW_TEST_ACCOUNT_ID=$EX_AW_TEST_ACCOUNT_ID
     -e CODECLIMATE_REPO_TOKEN=$CODECLIMATE_REPO_TOKEN
-    tests-with-report
+    tests
 after_success:
   - docker images
 
