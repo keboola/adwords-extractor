@@ -8,6 +8,7 @@ namespace Keboola\AdWordsExtractor;
 
 require_once 'Google/Api/Ads/Common/Util/ErrorUtils.php';
 
+use Keboola\Csv\CsvFile;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Process\Process;
 use Keboola\Temp\Temp;
@@ -217,20 +218,12 @@ class Api
             $this->logger->info(sprintf('Report downloaded - %s (%d bytes)', $query, filesize($reportFile)));
 
             // Do not save empty reports (with one line only)
-            $process = new Process('wc -l ' . escapeshellarg($reportFile) . ' | awk \'{print $1}\'');
-            $process->run();
-            $linesCount = $process->getOutput();
-            $error = $process->getErrorOutput();
+            $csv = new CsvFile($reportFile);
 
-            if (!$process->isSuccessful() || $error) {
-                throw Exception::reportError(
-                    'Counting csv file lines failed',
-                    $this->user->GetClientCustomerId(),
-                    $query,
-                    ['output' => $error ? $error : $linesCount]
-                );
-            }
-            if ($linesCount > 1 || $isFirstReportInFile) {
+            // skip header
+            $csv->next();
+
+            if ($csv->next() !== false > 1 || $isFirstReportInFile) {
                 // If first report, include header
                 $process = new Process(
                     'cat ' . escapeshellarg($reportFile)
