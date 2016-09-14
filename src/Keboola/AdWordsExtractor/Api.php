@@ -202,6 +202,8 @@ class Api
         try {
             $reportFile = $this->temp->createTmpFile();
             $reportUtils = new \ReportUtils();
+
+            $this->logger->info(sprintf('Report download start - %s', $query));
             $reportUtils->DownloadReportWithAwql($query, $reportFile, $this->user, 'CSV', [
                 'skipReportHeader' => true,
                 'skipReportSummary' => true
