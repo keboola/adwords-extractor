@@ -132,7 +132,7 @@ If you want to run this app standalone:
 3. Create test manager account (see [https://developers.google.com/adwords/api/docs/test-accounts?hl=en]) and generate refresh token using this account
 4. Create a client account under the test manager account from AdWords frontend
 
-Run `phpunit` with these env variables set from previous steps:
+Run `docker-compose run --rm tests` with these env variables set from previous steps:
 
 - **EX_AW_CLIENT_ID** - oAuth client id
 - **EX_AW_CLIENT_SECRET** - oAuth client secret

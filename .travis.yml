@@ -24,17 +24,7 @@ before_script:
   - docker-compose build tests
 
 script:
-  - >
-    docker-compose run
-    --rm
-    -e EX_AW_CLIENT_ID=$EX_AW_CLIENT_ID
-    -e EX_AW_CLIENT_SECRET=$EX_AW_CLIENT_SECRET
-    -e EX_AW_DEVELOPER_TOKEN=$EX_AW_DEVELOPER_TOKEN
-    -e EX_AW_REFRESH_TOKEN=$EX_AW_REFRESH_TOKEN
-    -e EX_AW_CUSTOMER_ID=$EX_AW_CUSTOMER_ID
-    -e EX_AW_TEST_ACCOUNT_ID=$EX_AW_TEST_ACCOUNT_ID
-    -e CODECLIMATE_REPO_TOKEN=$CODECLIMATE_REPO_TOKEN
-    tests
+  - docker-compose run --rm tests
 after_success:
   - docker images
 
