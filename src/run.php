@@ -79,7 +79,8 @@ try {
         $oauthData['refresh_token'],
         $config['parameters']['customer_id'],
         "{$arguments['data']}/out/tables",
-        $config['parameters']['bucket']
+        $config['parameters']['bucket'],
+        \Keboola\AdWordsExtractor\LoggerFactory::createLogger()
     );
 
     $since = date('Ymd', strtotime(isset($config['parameters']['since']) ? $config['parameters']['since'] : '-1 day'));

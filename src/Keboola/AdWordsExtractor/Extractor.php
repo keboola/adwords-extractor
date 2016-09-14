@@ -7,6 +7,7 @@
 namespace Keboola\AdWordsExtractor;
 
 use Keboola\Temp\Temp;
+use Psr\Log\LoggerInterface;
 use ReportDownloadException;
 
 class Extractor
@@ -29,26 +30,32 @@ class Extractor
     /** @var  Api */
     protected $api;
 
-    public function __construct($clientId, $clientSecret, $developerToken, $refreshToken, $customerId, $folder, $bucket)
+    private $logger;
+
+    public function __construct($clientId, $clientSecret, $developerToken, $refreshToken, $customerId, $folder, $bucket, LoggerInterface $logger)
     {
         $this->api = new Api(
             $clientId,
             $clientSecret,
             $developerToken,
-            $refreshToken
+            $refreshToken,
+            $logger
         );
         $this->api
             ->setCustomerId($customerId)
             ->setUserAgent('keboola-adwords-extractor')
             ->setTemp(new Temp());
         $this->userStorage = new UserStorage(self::$userTables, $folder, $bucket);
+        $this->logger = $logger;
     }
 
     public function extract(array $queries, $since, $until)
     {
-        $customers = $this->api->getCustomers($since, $until);
+        $customers = array_values($this->api->getCustomers($since, $until));
+        $customersCount = count($customers);
 
-        foreach ($customers as $customer) {
+        foreach ($customers as $i => $customer) {
+            $this->logger->info(sprintf(sprintf('Extraction - Customer %d/%d  [%-30s] start', $i + 1, $customersCount, $customer->name)));
             $this->userStorage->save('customers', $customer);
             $this->api->setCustomerId($customer->customerId);
 

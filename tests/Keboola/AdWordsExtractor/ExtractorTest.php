@@ -7,6 +7,10 @@
 
 namespace Keboola\AdWordsExtractor;
 
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+
 class ExtractorTest extends AbstractTest
 {
 
@@ -23,7 +27,8 @@ class ExtractorTest extends AbstractTest
             EX_AW_REFRESH_TOKEN,
             EX_AW_CUSTOMER_ID,
             sys_get_temp_dir(),
-            'out.c-main'
+            'out.c-main',
+            LoggerFactory::createLogger()
         );
         $e->extract([
             [

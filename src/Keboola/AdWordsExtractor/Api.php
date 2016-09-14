@@ -8,6 +8,7 @@ namespace Keboola\AdWordsExtractor;
 
 require_once 'Google/Api/Ads/Common/Util/ErrorUtils.php';
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Process\Process;
 use Keboola\Temp\Temp;
 
@@ -32,7 +33,12 @@ class Api
      */
     private $temp;
 
-    public function __construct($clientId, $clientSecret, $developerToken, $refreshToken)
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct($clientId, $clientSecret, $developerToken, $refreshToken, LoggerInterface $logger)
     {
         $this->user = new \AdWordsUser();
         $this->user->SetDeveloperToken($developerToken);
@@ -41,6 +47,7 @@ class Api
             'client_secret' => $clientSecret,
             'refresh_token' => $refreshToken
         ]);
+        $this->logger = $logger;
         try {
             $handler = $this->user->GetOAuth2Handler();
             $credentials = $handler->RefreshAccessToken($this->user->GetOAuth2Info());
@@ -207,6 +214,7 @@ class Api
                 );
             }
 
+            $this->logger->info(sprintf('Report downloaded - %s (%d bytes)', $query, filesize($reportFile)));
 
             // Do not save empty reports (with one line only)
             $process = new Process('wc -l ' . escapeshellarg($reportFile) . ' | awk \'{print $1}\'');

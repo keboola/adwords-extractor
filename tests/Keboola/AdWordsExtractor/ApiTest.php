@@ -17,7 +17,7 @@ class ApiTest extends AbstractTest
     {
         parent::setUp();
 
-        $this->api = new Api(EX_AW_CLIENT_ID, EX_AW_CLIENT_SECRET, EX_AW_DEVELOPER_TOKEN, EX_AW_REFRESH_TOKEN);
+        $this->api = new Api(EX_AW_CLIENT_ID, EX_AW_CLIENT_SECRET, EX_AW_DEVELOPER_TOKEN, EX_AW_REFRESH_TOKEN, LoggerFactory::createLogger());
         $this->api->setUserAgent(EX_AW_USER_AGENT);
     }
 
