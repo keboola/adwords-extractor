@@ -249,6 +249,7 @@ class Api
         } catch (\ReportDownloadException $e) {
             if (strstr($e->getMessage(), 'ERROR_GETTING_RESPONSE_FROM_BACKEND') !== false && $retries > 0) {
                 sleep(rand(5, 60));
+                $this->logger->info('Error: ' . $e->getMessage());
                 $this->getReport($query, $since, $until, $file, $retries-1);
             } else {
                 throw $e;
@@ -256,6 +257,7 @@ class Api
         } catch (\Exception $e) {
             if (strstr($e->getMessage(), 'RateExceededError') !== false) {
                 sleep(5 * 60);
+                $this->logger->info('RateError: ' . $e->getMessage());
                 $this->getReport($query, $since, $until, $file);
             } else {
                 throw Exception::reportError(
