@@ -225,7 +225,9 @@ class Api
             // skip header
             $csv->next();
 
-            if ($csv->next() !== false > 1 || $isFirstReportInFile) {
+            $this->logger->info(sprintf('Report header checked - %s', $query));
+
+            if ($csv->next() !== false  || $isFirstReportInFile) {
                 // If first report, include header
                 $process = new Process(
                     'cat ' . escapeshellarg($reportFile)
@@ -236,6 +238,8 @@ class Api
                 $process->run();
                 $output = $process->getOutput();
                 $error = $process->getErrorOutput();
+
+                $this->logger->info(sprintf('Report appended to file', $query));
 
                 if (!$process->isSuccessful() || $error) {
                     throw Exception::reportError(
