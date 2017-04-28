@@ -7,6 +7,7 @@
 namespace Keboola\AdWordsExtractor;
 
 use Keboola\Temp\Temp;
+use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use ReportDownloadException;
 
@@ -30,23 +31,31 @@ class Extractor
     /** @var  Api */
     protected $api;
 
+    /** @var  Logger */
     private $logger;
 
-    public function __construct($clientId, $clientSecret, $developerToken, $refreshToken, $customerId, $folder, $bucket, LoggerInterface $logger)
+    public function __construct($options)
     {
+        $required = ['oauthKey', 'oauthSecret', 'refreshToken', 'developerToken', 'customerId', 'outputPath', 'logger'];
+        foreach ($required as $item) {
+            if (!isset($option[$item])) {
+                throw new \Exception("Option $item is not set");
+            }
+        }
+
         $this->api = new Api(
-            $clientId,
-            $clientSecret,
-            $developerToken,
-            $refreshToken,
-            $logger
+            $options['oauthKey'],
+            $options['oauthSecret'],
+            $options['developerToken'],
+            $options['refreshToken'],
+            $options['logger']
         );
         $this->api
-            ->setCustomerId($customerId)
+            ->setCustomerId($options['customerId'])
             ->setUserAgent('keboola-adwords-extractor')
             ->setTemp(new Temp());
-        $this->userStorage = new UserStorage(self::$userTables, $folder, $bucket);
-        $this->logger = $logger;
+        $this->userStorage = new UserStorage(self::$userTables, $options['outputPath']);
+        $this->logger = $options['logger'];
     }
 
     public function extract(array $queries, $since, $until)

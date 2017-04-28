@@ -2,18 +2,41 @@ version: "2"
 
 services:
 
-  tests:
+  app:
     build: .
     image: keboola/adwords-extractor
     tty: true
-    stdin_open: true
-    command: >
-      sh -c '
-      composer install
-      && ./tests.sh
-      '
+    command: bash
     volumes:
       - ./:/code
+
+  app-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile-tests
+    command: sh -c './tests.sh'
+    volumes:
+      - ./:/code
+    environment:
+      - EX_AW_CLIENT_ID
+      - EX_AW_CLIENT_SECRET
+      - EX_AW_DEVELOPER_TOKEN
+      - EX_AW_REFRESH_TOKEN
+      - EX_AW_CUSTOMER_ID
+      - EX_AW_TEST_ACCOUNT_ID
+      - CODECLIMATE_REPO_TOKEN
+
+  app-tests-with-report:
+    build:
+      context: .
+      dockerfile: Dockerfile-tests
+    command: >
+             sh -c '
+             ./tests.sh
+             && ./vendor/bin/test-reporter
+             '
+    volumes:
+      - ./.git:/code/.git
     environment:
       - EX_AW_CLIENT_ID
       - EX_AW_CLIENT_SECRET

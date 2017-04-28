@@ -6,8 +6,6 @@
  */
 namespace Keboola\AdWordsExtractor;
 
-require_once 'Google/Api/Ads/Common/Util/ErrorUtils.php';
-
 use Keboola\Csv\CsvFile;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Process\Process;
@@ -26,7 +24,7 @@ class Api
     const BACKOFF_INTERVAL = 60;
 
     /**
-     * @var \AdWordsUser
+     * @var AdWordsUser
      */
     private $user;
     /**

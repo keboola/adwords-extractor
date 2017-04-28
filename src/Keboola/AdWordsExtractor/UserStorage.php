@@ -8,7 +8,8 @@
 namespace Keboola\AdWordsExtractor;
 
 use Keboola\Csv\CsvFile;
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Serializer\Encoder\JsonEncode;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
 class UserStorage
 {
@@ -18,25 +19,24 @@ class UserStorage
 
     protected $files = [];
 
-    public function __construct(array $tables, $path, $bucket)
+    public function __construct(array $tables, $path)
     {
         $this->tables = $tables;
         $this->path = $path;
-        $this->bucket = $bucket;
     }
 
     public function save($table, $data)
     {
         if (!isset($this->files[$table])) {
-            $file = new CsvFile("$this->path/$this->bucket.$table.csv");
+            $file = new CsvFile("$this->path/$table.csv");
             $file->writeRow($this->tables[$table]['columns']);
             $this->files[$table] = $file;
 
-            file_put_contents("$this->path/$this->bucket.$table.csv.manifest", Yaml::dump([
-                'destination' => "$this->bucket.$table",
-                'incremental' => true,
-                'primary_key' => isset($this->tables[$table]['primary']) ? $this->tables[$table]['primary'] : []
-            ]));
+            $this->createManifest(
+                "$this->path/$table.csv.manifest",
+                $table,
+                isset($this->tables[$table]['primary']) ? $this->tables[$table]['primary'] : []
+            );
         }
 
         if (!is_array($data)) {
@@ -54,17 +54,18 @@ class UserStorage
 
     public function getReportFilename($table)
     {
-        return "$this->path/$this->bucket.report-$table.csv";
+        return "$this->path/report-$table.csv";
     }
 
     public function createManifest($fileName, $table, array $primary = [])
     {
         if (!file_exists("$fileName.manifest")) {
-            file_put_contents("$fileName.manifest", Yaml::dump([
-                'destination' => "$this->bucket.$table",
+            $jsonEncode = new JsonEncode();
+            file_put_contents("$fileName.manifest", $jsonEncode->encode([
+                'destination' => $table,
                 'incremental' => true,
                 'primary_key' => $primary
-            ]));
+            ], JsonEncoder::FORMAT));
         }
     }
 }
