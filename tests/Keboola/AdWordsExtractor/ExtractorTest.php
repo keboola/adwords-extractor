@@ -4,11 +4,10 @@
  * @copyright Keboola
  * @author Jakub Matejka <jakub@keboola.com>
  */
+namespace Keboola\AdWordsExtractor\Tests;
 
-namespace Keboola\AdWordsExtractor;
-
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
+use Keboola\AdWordsExtractor\Extractor;
+use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
 
 class ExtractorTest extends AbstractTest
@@ -20,16 +19,15 @@ class ExtractorTest extends AbstractTest
 
         $date = date('Ymd', strtotime('-1 day'));
         $report = uniqid();
-        $e = new Extractor(
-            EX_AW_CLIENT_ID,
-            EX_AW_CLIENT_SECRET,
-            EX_AW_DEVELOPER_TOKEN,
-            EX_AW_REFRESH_TOKEN,
-            EX_AW_CUSTOMER_ID,
-            sys_get_temp_dir(),
-            'out.c-main',
-            LoggerFactory::createLogger()
-        );
+        $e = new Extractor([
+            'oauthKey' => EX_AW_CLIENT_ID,
+            'oauthSecret' => EX_AW_CLIENT_SECRET,
+            'refreshToken' => EX_AW_REFRESH_TOKEN,
+            'developerToken' => EX_AW_DEVELOPER_TOKEN,
+            'customerId' => EX_AW_CUSTOMER_ID,
+            'outputPath' => sys_get_temp_dir(),
+            'logger' => new Logger('app-errors', [new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, Logger::ERROR)])
+        ]);
         $e->extract([
             [
                 'name' => $report,
@@ -37,16 +35,16 @@ class ExtractorTest extends AbstractTest
             ]
         ], $date, $date);
 
-        $this->assertFileExists(sys_get_temp_dir().'/out.c-main.customers.csv');
-        $fp = file(sys_get_temp_dir().'/out.c-main.customers.csv');
+        $this->assertFileExists(sys_get_temp_dir().'/customers.csv');
+        $fp = file(sys_get_temp_dir().'/customers.csv');
         $this->assertGreaterThan(1, count($fp));
 
-        $this->assertFileExists(sys_get_temp_dir().'/out.c-main.campaigns.csv');
-        $fp = file(sys_get_temp_dir().'/out.c-main.campaigns.csv');
+        $this->assertFileExists(sys_get_temp_dir().'/campaigns.csv');
+        $fp = file(sys_get_temp_dir().'/campaigns.csv');
         $this->assertGreaterThan(1, count($fp));
 
-        $this->assertFileExists(sys_get_temp_dir().'/out.c-main.report-'.$report.'.csv');
-        $fp = file(sys_get_temp_dir().'/out.c-main.report-'.$report.'.csv');
+        $this->assertFileExists(sys_get_temp_dir().'/report-'.$report.'.csv');
+        $fp = file(sys_get_temp_dir().'/report-'.$report.'.csv');
         $this->assertGreaterThan(1, count($fp));
     }
 }

@@ -4,9 +4,11 @@
  * @copyright Keboola
  * @author Jakub Matejka <jakub@keboola.com>
  */
-namespace Keboola\AdWordsExtractor;
+namespace Keboola\AdWordsExtractor\Tests;
 
-class ExceptionTest extends \PHPUnit_Framework_TestCase
+use Keboola\AdWordsExtractor\Exception;
+
+class ExceptionTest extends \PHPUnit\Framework\TestCase
 {
     public function testException()
     {

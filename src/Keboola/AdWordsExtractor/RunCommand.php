@@ -8,7 +8,6 @@ namespace Keboola\AdWordsExtractor;
 
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -39,40 +38,15 @@ class RunCommand extends Command
         $config = $jsonDecode->decode(file_get_contents($configFile), JsonEncoder::FORMAT);
 
         try {
-            $oauthParameters = new Parameters(new OAuthParametersDefinition(), $config);
-        } catch (InvalidConfigurationException $e) {
-            $consoleOutput->writeln('Authorization credentials are missing. Have you authorized our app for your AdWords account?');
-            return 1;
-        }
-        $oauthData = $jsonDecode->decode($oauthParameters['authorization']['oauth_api']['credentials']['#data'], JsonEncoder::FORMAT);
-        if (!isset($oauthData['refresh_token'])) {
-            $consoleOutput->writeln('Missing refresh token, check your oAuth configuration');
-            return 1;
-        }
+            $outputPath = "$dataDirectory/out/tables";
+            (new Filesystem())->mkdir([$outputPath]);
 
-        try {
-            $configParameters = new Parameters(new ConfigParametersDefinition(), $config);
-        } catch (InvalidConfigurationException $e) {
-            $consoleOutput->writeln($e->getMessage());
-            return 1;
-        }
+            $validatedConfig = $this->validateInput($config);
+            $validatedConfig['outputPath'] = $outputPath;
+            $validatedConfig['logger'] = $logger;
 
-        $outputPath = "$dataDirectory/out/tables";
-        (new Filesystem())->mkdir([$outputPath]);
-
-        try {
-            $app = new Extractor([
-                'oauthKey' => $oauthParameters['authorization']['oauth_api']['credentials']['appKey'],
-                'oauthSecret' => $oauthParameters['authorization']['oauth_api']['credentials']['#appSecret'],
-                'refreshToken' => $oauthData['refresh_token'],
-                'developerToken' => $configParameters['parameters']['#developer_token'],
-                'customerId' => $configParameters['parameters']['customer_id'],
-                'outputPath' => $outputPath
-            ]);
-
-            $since = date('Ymd', strtotime(isset($config['parameters']['since']) ? $config['parameters']['since'] : '-1 day'));
-            $until = date('Ymd', strtotime(isset($config['parameters']['until']) ? $config['parameters']['until'] : '-1 day'));
-            $app->extract($configParameters['parameters']['queries'], $since, $until);
+            $app = new Extractor($validatedConfig);
+            $app->extract($validatedConfig['queries'], $validatedConfig['since'], $validatedConfig['until']);
 
             return 0;
         } catch (Exception $e) {
@@ -84,5 +58,51 @@ class RunCommand extends Command
             ]);
             return 2;
         }
+    }
+
+    public function validateInput($config)
+    {
+        if (!isset($config['authorization']['oauth_api']['credentials']['appKey'])
+            || !isset($config['authorization']['oauth_api']['credentials']['#appSecret'])) {
+            throw new Exception("Authorization credentials are missing. Have you authorized our app "
+                . "for your AdWords account?");
+        }
+        $required = ['customer_id', '#developer_token', 'queries'];
+        foreach ($required as $r) {
+            if (!isset($config['parameters'][$r])) {
+                throw new Exception("Missing parameter '$r'");
+            }
+        }
+        if (!is_array($config['parameters']['queries'])) {
+            throw new Exception("Parameter 'queries' has to be array");
+        }
+        if (empty($config['parameters']['queries'])) {
+            throw new Exception("Parameter 'queries' is empty");
+        }
+        foreach ($config['parameters']['queries'] as $q) {
+            if (!isset($q['name']) || !isset($q['query'])) {
+                throw new Exception("Items of array in parameter queries has to contain 'name', 'query' "
+                    . "and optionally 'primary'");
+            }
+        }
+        if (!isset($config['authorization']['oauth_api']['credentials']['#data'])) {
+            throw new Exception("App configuration is missing oauth data, contact support please.");
+        }
+        $oauthData = json_decode($config['authorization']['oauth_api']['credentials']['#data'], true);
+        if (!isset($oauthData['refresh_token'])) {
+            throw new Exception("Missing refresh token, check your oAuth configuration");
+        }
+        return [
+            'oauthKey' => $config['authorization']['oauth_api']['credentials']['appKey'],
+            'oauthSecret' => $config['authorization']['oauth_api']['credentials']['#appSecret'],
+            'refreshToken' => $oauthData['refresh_token'],
+            'developerToken' => $config['parameters']['#developer_token'],
+            'customerId' => $config['parameters']['customer_id'],
+            'since' => date('Ymd', strtotime(isset($config['parameters']['since'])
+                ? $config['parameters']['since'] : '-1 day')),
+            'until' => date('Ymd', strtotime(isset($config['parameters']['until'])
+                ? $config['parameters']['until'] : '-1 day')),
+            'queries' => $config['parameters']['queries']
+        ];
     }
 }

@@ -6,10 +6,10 @@
  */
 namespace Keboola\AdWordsExtractor;
 
+use Google\AdsApi\AdWords\v201702\cm\ApiException;
 use Keboola\Temp\Temp;
+use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
-use Psr\Log\LoggerInterface;
-use ReportDownloadException;
 
 class Extractor
 {
@@ -21,7 +21,7 @@ class Extractor
         'campaigns' => [
             'primary' => ['customerId', 'id'],
             'columns' => ['customerId', 'id', 'name', 'status', 'servingStatus', 'startDate', 'endDate',
-                'adServingOptimizationStatus', 'advertisingChannelType', 'displaySelect']
+                'adServingOptimizationStatus', 'advertisingChannelType']
         ]
     ];
 
@@ -38,7 +38,7 @@ class Extractor
     {
         $required = ['oauthKey', 'oauthSecret', 'refreshToken', 'developerToken', 'customerId', 'outputPath', 'logger'];
         foreach ($required as $item) {
-            if (!isset($option[$item])) {
+            if (!isset($options[$item])) {
                 throw new \Exception("Option $item is not set");
             }
         }
@@ -48,47 +48,67 @@ class Extractor
             $options['oauthSecret'],
             $options['developerToken'],
             $options['refreshToken'],
-            $options['logger']
+            new Logger('adwords-api', [new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, Logger::WARNING)])
         );
         $this->api
             ->setCustomerId($options['customerId'])
-            ->setUserAgent('keboola-adwords-extractor')
             ->setTemp(new Temp());
         $this->userStorage = new UserStorage(self::$userTables, $options['outputPath']);
         $this->logger = $options['logger'];
     }
 
+    protected function parseApiResult($in)
+    {
+        $out = (array)$in;
+        foreach ($out as $key => $val) {
+            if ($key[0] === "\0") {
+                $out[substr($key, 3)] = $val;
+                unset($out[$key]);
+            }
+        }
+        return $out;
+    }
+
     public function extract(array $queries, $since, $until)
     {
-        $customers = array_values($this->api->getCustomers($since, $until));
-        $customersCount = count($customers);
+        $current = 0;
+        foreach ($this->api->getCustomersYielded($since, $until) as $result) {
+            foreach ($result['entries'] as $customer) {
+                $parsedCustomer = $this->parseApiResult($customer);
+                $current++;
+                $this->logger->info(sprintf(
+                    'Extraction of data for customer %s (%d/%d) started',
+                    $parsedCustomer['name'],
+                    $current,
+                    $result['total']
+                ));
+                $this->userStorage->save('customers', $parsedCustomer);
+                $this->api->setCustomerId($parsedCustomer['customerId']);
 
-        foreach ($customers as $i => $customer) {
-            $this->logger->info(sprintf(sprintf('Extraction - Customer %d/%d  [%-30s] start', $i + 1, $customersCount, $customer->name)));
-            $this->userStorage->save('customers', $customer);
-            $this->api->setCustomerId($customer->customerId);
+                foreach ($this->api->getCampaignsYielded($since, $until) as $campaigns) {
+                    foreach ($campaigns['entries'] as $campaign) {
+                        $parsedCampaign = $this->parseApiResult($campaign);
+                        $parsedCampaign['customerId'] = $parsedCustomer['customerId'];
+                        $this->userStorage->save('campaigns', $parsedCampaign);
+                    }
+                }
 
-            foreach ($this->api->getCampaigns($since, $until) as $campaign) {
-                $campaign = (array)$campaign;
-                $campaign['customerId'] = $customer->customerId;
-                $this->userStorage->save('campaigns', $campaign);
-            }
-
-            foreach ($queries as $query) {
-                try {
-                    $fileName = $this->userStorage->getReportFilename($query['name']);
-                    $this->api->getReport($query['query'], $since, $until, $fileName);
-                    $this->userStorage->createManifest(
-                        $fileName,
-                        $query['name'],
-                        isset($query['primary']) ? $query['primary'] : []
-                    );
-                } catch (ReportDownloadException $e) {
-                    throw new Exception(
-                        "Getting report for client '{$customer->name}' failed:{$e->getMessage()}",
-                        400,
-                        $e
-                    );
+                foreach ($queries as $query) {
+                    try {
+                        $fileName = $this->userStorage->getReportFilename($query['name']);
+                        $this->api->getReport($query['query'], $since, $until, $fileName);
+                        $this->userStorage->createManifest(
+                            $fileName,
+                            $query['name'],
+                            isset($query['primary']) ? $query['primary'] : []
+                        );
+                    } catch (ApiException $e) {
+                        throw new Exception(
+                            "Downloading report for client '{$parsedCustomer['name']}' failed:{$e->getMessage()}",
+                            400,
+                            $e
+                        );
+                    }
                 }
             }
         }

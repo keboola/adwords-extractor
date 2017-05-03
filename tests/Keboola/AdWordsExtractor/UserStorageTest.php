@@ -4,20 +4,22 @@
  * @copyright Keboola
  * @author Jakub Matejka <jakub@keboola.com>
  */
-namespace Keboola\AdWordsExtractor;
+namespace Keboola\AdWordsExtractor\Tests;
 
-class UserStorageTest extends \PHPUnit_Framework_TestCase
+use Keboola\AdWordsExtractor\UserStorage;
+
+class UserStorageTest extends \PHPUnit\Framework\TestCase
 {
     public function testSaving()
     {
         $row1 = uniqid();
         $row2 = uniqid();
-        $storage = new UserStorage(['table' => ['columns' => ['first', 'second']]], sys_get_temp_dir(), 'out.c-main');
+        $storage = new UserStorage(['table' => ['columns' => ['first', 'second']]], sys_get_temp_dir());
         $storage->save('table', ['first' => 'row1', 'second' => $row1]);
         $storage->save('table', ['first' => 'row2', 'second' => $row2]);
 
-        $this->assertFileExists(sys_get_temp_dir().'/out.c-main.table.csv');
-        $fp = fopen(sys_get_temp_dir().'/out.c-main.table.csv', 'r');
+        $this->assertFileExists(sys_get_temp_dir().'/table.csv');
+        $fp = fopen(sys_get_temp_dir().'/table.csv', 'r');
         $row = 0;
         while (($data = fgetcsv($fp, 1000, ",")) !== false) {
             $row++;

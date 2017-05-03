@@ -4,9 +4,12 @@
  * @copyright Keboola
  * @author Jakub Matejka <jakub@keboola.com>
  */
-namespace Keboola\AdWordsExtractor;
+namespace Keboola\AdWordsExtractor\Tests;
 
+use Keboola\AdWordsExtractor\Api;
 use Keboola\Temp\Temp;
+use Monolog\Handler\ErrorLogHandler;
+use Monolog\Logger;
 
 class ApiTest extends AbstractTest
 {
@@ -17,8 +20,7 @@ class ApiTest extends AbstractTest
     {
         parent::setUp();
 
-        $this->api = new Api(EX_AW_CLIENT_ID, EX_AW_CLIENT_SECRET, EX_AW_DEVELOPER_TOKEN, EX_AW_REFRESH_TOKEN, LoggerFactory::createLogger());
-        $this->api->setUserAgent(EX_AW_USER_AGENT);
+        $this->api = new Api(EX_AW_CLIENT_ID, EX_AW_CLIENT_SECRET, EX_AW_DEVELOPER_TOKEN, EX_AW_REFRESH_TOKEN, new Logger('adwords-api', [new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, Logger::WARNING)]));
     }
 
     public function testApiGetCustomers()
@@ -26,9 +28,11 @@ class ApiTest extends AbstractTest
         $this->api->setCustomerId(EX_AW_CUSTOMER_ID);
 
         $accountFound = false;
-        foreach ($this->api->getCustomers() as $r) {
-            if ($r->customerId == EX_AW_TEST_ACCOUNT_ID) {
-                $accountFound = true;
+        foreach ($this->api->getCustomersYielded() as $result) {
+            foreach ($result['entries'] as $r) {
+                if ($r->getCustomerId() == EX_AW_TEST_ACCOUNT_ID) {
+                    $accountFound = true;
+                }
             }
         }
         $this->assertTrue($accountFound);
@@ -42,9 +46,11 @@ class ApiTest extends AbstractTest
         $campaignId = $this->prepareCampaign($campaignName);
 
         $campaignFound = false;
-        foreach ($this->api->getCampaigns() as $r) {
-            if ($r->id == $campaignId) {
-                $campaignFound = true;
+        foreach ($this->api->getCampaignsYielded() as $result) {
+            foreach ($result['entries'] as $r) {
+                if ($r->getId() == $campaignId) {
+                    $campaignFound = true;
+                }
             }
         }
         $this->assertTrue($campaignFound);

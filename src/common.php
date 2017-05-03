@@ -1,7 +1,7 @@
 <?php
-set_error_handler(function ($severity, $message) {
-    if (!(error_reporting() & $severity)) {
+set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+    if (0 === error_reporting()) {
         return false;
     }
-    throw new \ErrorException($message);
+    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
 });
