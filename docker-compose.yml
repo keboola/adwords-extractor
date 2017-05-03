@@ -4,7 +4,6 @@ services:
 
   app:
     build: .
-    image: keboola/adwords-extractor
     tty: true
     command: bash
     volumes:
@@ -13,7 +12,7 @@ services:
   app-tests:
     build:
       context: .
-      dockerfile: Dockerfile-tests
+      dockerfile: Dockerfile
     command: sh -c './tests.sh'
     volumes:
       - ./:/code
@@ -29,7 +28,7 @@ services:
   app-tests-with-report:
     build:
       context: .
-      dockerfile: Dockerfile-tests
+      dockerfile: Dockerfile
     command: >
              sh -c '
              ./tests.sh

@@ -1,4 +1,0 @@
-FROM keboola/adwords-extractor
-
-RUN pecl install xdebug \
-  && docker-php-ext-enable xdebug
