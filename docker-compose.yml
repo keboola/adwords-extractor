@@ -4,6 +4,7 @@ services:
 
   app:
     build: .
+    image: keboola/adwords-extractor
     tty: true
     command: bash
     volumes:
