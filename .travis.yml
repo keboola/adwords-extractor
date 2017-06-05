@@ -11,10 +11,7 @@ before_script:
   - docker-compose build app
 
 script:
-  - >
-    docker-compose run
-    --rm
-    app-tests
+  - docker-compose run --rm tests
 
 after_success:
   - docker images

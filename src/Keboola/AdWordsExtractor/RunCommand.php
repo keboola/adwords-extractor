@@ -67,7 +67,7 @@ class RunCommand extends Command
             throw new Exception("Authorization credentials are missing. Have you authorized our app "
                 . "for your AdWords account?");
         }
-        $required = ['customer_id', '#developer_token', 'queries'];
+        $required = ['customerId', '#developerToken', 'queries'];
         foreach ($required as $r) {
             if (!isset($config['parameters'][$r])) {
                 throw new Exception("Missing parameter '$r'");
@@ -96,8 +96,8 @@ class RunCommand extends Command
             'oauthKey' => $config['authorization']['oauth_api']['credentials']['appKey'],
             'oauthSecret' => $config['authorization']['oauth_api']['credentials']['#appSecret'],
             'refreshToken' => $oauthData['refresh_token'],
-            'developerToken' => $config['parameters']['#developer_token'],
-            'customerId' => $config['parameters']['customer_id'],
+            'developerToken' => $config['parameters']['#developerToken'],
+            'customerId' => $config['parameters']['customerId'],
             'since' => date('Ymd', strtotime(isset($config['parameters']['since'])
                 ? $config['parameters']['since'] : '-1 day')),
             'until' => date('Ymd', strtotime(isset($config['parameters']['until'])

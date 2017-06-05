@@ -8,8 +8,8 @@ namespace Keboola\AdWordsExtractor;
 
 use Google\AdsApi\AdWords\AdWordsServices;
 use Google\AdsApi\AdWords\AdWordsSessionBuilder;
-use Google\AdsApi\AdWords\Reporting\v201702\DownloadFormat;
-use Google\AdsApi\AdWords\Reporting\v201702\ReportDownloader;
+use Google\AdsApi\AdWords\Reporting\v201705\DownloadFormat;
+use Google\AdsApi\AdWords\Reporting\v201705\ReportDownloader;
 use Google\AdsApi\AdWords\ReportSettings;
 use Google\AdsApi\AdWords\ReportSettingsBuilder;
 use Google\AdsApi\AdWords\v201702\cm\CampaignPage;

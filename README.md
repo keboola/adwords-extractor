@@ -20,8 +20,8 @@ Please note that refresh token is bound to used Google account and will stop wor
 ## Configuration
 
 - **parameters**:
-    - **developer_token** - Your developer token
-    - **customer_id** - Instructions to get it are here: https://support.google.com/adwords/answer/1704344?hl=en
+    - **developerToken** - Your developer token
+    - **customerId** - Instructions to get it are here: https://support.google.com/adwords/answer/1704344?hl=en
     - **bucket** - Name of bucket where the data will be saved
     - **since** *(optional)* - start date of downloaded stats (default is "-1 day")
     - **until** *(optional)* - end date of downloaded stats (default is "-1 day")
@@ -38,9 +38,8 @@ Example:
 ```
 {
     "parameters": {
-        "developer_token": "...",
-        "refresh_token": "...",
-        "customer_id": "91165040",
+        "developerToken": "...",
+        "customerId": "91165040",
         "bucket": "in.c-ex-adwords",
         "queries": [
             {
@@ -111,9 +110,8 @@ If you want to run this app standalone:
 
     ```
     parameters:
-      developer_token:
-      customer_id:
-      bucket: in.c-ex-adwords
+      developerToken:
+      customerId:
       reports:
         ...
     authorization:

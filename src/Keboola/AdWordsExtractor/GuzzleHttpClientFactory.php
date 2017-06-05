@@ -7,9 +7,10 @@
 
 namespace Keboola\AdWordsExtractor;
 
+use Google\AdsApi\Common\GuzzleLogMessageFormatter;
 use Google\AdsApi\Common\GuzzleLogMessageHandler;
-use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -62,7 +63,10 @@ class GuzzleHttpClientFactory implements \Google\AdsApi\Common\GuzzleHttpClientF
         ));
 
         $handlerStack->push(Middleware::cookies());
-        $handlerStack->before('http_errors', GuzzleLogMessageHandler::log($this->logger));
+        $handlerStack->before('http_errors', GuzzleLogMessageHandler::log(
+            $this->logger,
+            new GuzzleLogMessageFormatter([], [], false)
+        ));
         return new \GuzzleHttp\Client([
             'handler' => $handlerStack
         ]);

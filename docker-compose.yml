@@ -9,7 +9,7 @@ services:
     volumes:
       - ./:/code
 
-  app-tests:
+  tests:
     build:
       context: .
       dockerfile: Dockerfile
