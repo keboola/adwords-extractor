@@ -6,7 +6,7 @@
  */
 namespace Keboola\AdWordsExtractor;
 
-use Google\AdsApi\AdWords\v201702\cm\ApiException;
+use Google\AdsApi\AdWords\v201705\cm\ApiException;
 use Keboola\Temp\Temp;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
@@ -85,30 +85,30 @@ class Extractor
                 $this->userStorage->save('customers', $parsedCustomer);
                 $this->api->setCustomerId($parsedCustomer['customerId']);
 
-                foreach ($this->api->getCampaignsYielded($since, $until) as $campaigns) {
-                    foreach ($campaigns['entries'] as $campaign) {
-                        $parsedCampaign = $this->parseApiResult($campaign);
-                        $parsedCampaign['customerId'] = $parsedCustomer['customerId'];
-                        $this->userStorage->save('campaigns', $parsedCampaign);
+                try {
+                    foreach ($this->api->getCampaignsYielded($since, $until) as $campaigns) {
+                        foreach ($campaigns['entries'] as $campaign) {
+                            $parsedCampaign = $this->parseApiResult($campaign);
+                            $parsedCampaign['customerId'] = $parsedCustomer['customerId'];
+                            $this->userStorage->save('campaigns', $parsedCampaign);
+                        }
                     }
-                }
 
-                foreach ($queries as $query) {
-                    try {
-                        $fileName = $this->userStorage->getReportFilename($query['name']);
-                        $this->api->getReport($query['query'], $since, $until, $fileName);
-                        $this->userStorage->createManifest(
-                            $fileName,
-                            $query['name'],
-                            isset($query['primary']) ? $query['primary'] : []
-                        );
-                    } catch (ApiException $e) {
-                        throw new Exception(
-                            "Downloading report for client '{$parsedCustomer['name']}' failed:{$e->getMessage()}",
-                            400,
-                            $e
-                        );
+                    foreach ($queries as $query) {
+                        try {
+                            $fileName = $this->userStorage->getReportFilename($query['name']);
+                            $this->api->getReport($query['query'], $since, $until, $fileName);
+                            $this->userStorage->createManifest(
+                                $fileName,
+                                $query['name'],
+                                isset($query['primary']) ? $query['primary'] : []
+                            );
+                        } catch (ApiException $e) {
+                            $this->logger->error("Getting report for client '{$parsedCustomer['name']}' failed:{$e->getMessage()}");
+                        }
                     }
+                } catch (ApiException $e) {
+                    $this->logger->error("Getting data for client '{$parsedCustomer['name']}' failed:{$e->getMessage()}");
                 }
             }
         }

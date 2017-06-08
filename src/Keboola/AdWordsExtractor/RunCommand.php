@@ -6,6 +6,7 @@
  */
 namespace Keboola\AdWordsExtractor;
 
+use Google\AdsApi\AdWords\v201705\cm\ApiException;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
 use Symfony\Component\Filesystem\Filesystem;
@@ -49,6 +50,9 @@ class RunCommand extends Command
             $app->extract($validatedConfig['queries'], $validatedConfig['since'], $validatedConfig['until']);
 
             return 0;
+        } catch (ApiException $e) {
+            $consoleOutput->writeln($e->getMessage());
+            return 1;
         } catch (Exception $e) {
             $consoleOutput->writeln($e->getMessage());
             return 1;
