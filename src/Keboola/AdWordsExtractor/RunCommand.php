@@ -69,7 +69,7 @@ class RunCommand extends Command
         }
         $required = ['customerId', '#developerToken', 'queries'];
         foreach ($required as $r) {
-            if (!isset($config['parameters'][$r])) {
+            if (empty($config['parameters'][$r])) {
                 throw new Exception("Missing parameter '$r'");
             }
         }
