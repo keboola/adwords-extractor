@@ -33,7 +33,7 @@ class UserStorage
             $this->files[$table] = $file;
 
             $this->createManifest(
-                "$this->path/$table.csv.manifest",
+                "$this->path/$table.csv",
                 $table,
                 isset($this->tables[$table]['primary']) ? $this->tables[$table]['primary'] : []
             );
@@ -47,9 +47,11 @@ class UserStorage
             $dataToSave[$c] = isset($data[$c]) ? $data[$c] : null;
         }
 
-        /** @var CsvFile $file */
-        $file = $this->files[$table];
-        $file->writeRow($dataToSave);
+        if (count($dataToSave)) {
+            /** @var CsvFile $file */
+            $file = $this->files[$table];
+            $file->writeRow($dataToSave);
+        }
     }
 
     public function getReportFilename($table)

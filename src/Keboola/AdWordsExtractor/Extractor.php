@@ -86,6 +86,7 @@ class Extractor
                 $this->api->setCustomerId($parsedCustomer['customerId']);
 
                 try {
+                    $this->userStorage->save('campaigns', []);
                     foreach ($this->api->getCampaignsYielded($since, $until) as $campaigns) {
                         foreach ($campaigns['entries'] as $campaign) {
                             $parsedCampaign = $this->parseApiResult($campaign);
