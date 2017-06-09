@@ -53,7 +53,8 @@ class Extractor
         $this->api
             ->setCustomerId($options['customerId'])
             ->setTemp(new Temp());
-        $bucket = isset($options['bucket']) ? $options['bucket'] : null;
+        $bucket = isset($options['bucket']) ? $options['bucket'] : 'in.c-ex-adwords-v201705'
+            . (defined('KBC_CONFIGID') ? '-' . getenv('KBC_CONFIGID') : null);
         $this->userStorage = new UserStorage(self::$userTables, $options['outputPath'], $bucket);
         $this->logger = $options['logger'];
     }
