@@ -53,7 +53,9 @@ class Extractor
         $this->api
             ->setCustomerId($options['customerId'])
             ->setTemp(new Temp());
-        $this->userStorage = new UserStorage(self::$userTables, $options['outputPath']);
+        $configId = getenv('KBC_CONFIGID') ? getenv('KBC_CONFIGID') : 'default';
+        $bucket = isset($options['bucket']) ? $options['bucket'] : UserStorage::getDefaultBucket($configId);
+        $this->userStorage = new UserStorage(self::$userTables, $options['outputPath'], $bucket);
         $this->logger = $options['logger'];
     }
 

@@ -45,6 +45,9 @@ class RunCommand extends Command
             $validatedConfig = $this->validateInput($config);
             $validatedConfig['outputPath'] = $outputPath;
             $validatedConfig['logger'] = $logger;
+            if (!empty($config['parameters']['bucket'])) {
+                $validatedConfig['bucket'] = $config['parameters']['bucket'];
+            }
 
             $app = new Extractor($validatedConfig);
             $app->extract($validatedConfig['queries'], $validatedConfig['since'], $validatedConfig['until']);

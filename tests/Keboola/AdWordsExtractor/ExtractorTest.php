@@ -7,6 +7,7 @@
 namespace Keboola\AdWordsExtractor\Tests;
 
 use Keboola\AdWordsExtractor\Extractor;
+use Keboola\AdWordsExtractor\UserStorage;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
 
@@ -35,16 +36,17 @@ class ExtractorTest extends AbstractTest
             ]
         ], $date, $date);
 
-        $this->assertFileExists(sys_get_temp_dir().'/customers.csv');
-        $fp = file(sys_get_temp_dir().'/customers.csv');
+        $bucket = UserStorage::getDefaultBucket('default');
+        $this->assertFileExists(sys_get_temp_dir()."/$bucket.customers.csv");
+        $fp = file(sys_get_temp_dir()."/$bucket.customers.csv");
         $this->assertGreaterThan(1, count($fp));
 
-        $this->assertFileExists(sys_get_temp_dir().'/campaigns.csv');
-        $fp = file(sys_get_temp_dir().'/campaigns.csv');
+        $this->assertFileExists(sys_get_temp_dir()."/$bucket.campaigns.csv");
+        $fp = file(sys_get_temp_dir()."/$bucket.campaigns.csv");
         $this->assertGreaterThan(1, count($fp));
 
-        $this->assertFileExists(sys_get_temp_dir().'/report-'.$report.'.csv');
-        $fp = file(sys_get_temp_dir().'/report-'.$report.'.csv');
+        $this->assertFileExists(sys_get_temp_dir()."/$bucket.report-$report.csv");
+        $fp = file(sys_get_temp_dir()."/$bucket.report-$report.csv");
         $this->assertGreaterThan(1, count($fp));
     }
 }
