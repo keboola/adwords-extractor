@@ -53,7 +53,8 @@ class Extractor
         $this->api
             ->setCustomerId($options['customerId'])
             ->setTemp(new Temp());
-        $this->userStorage = new UserStorage(self::$userTables, $options['outputPath']);
+        $bucket = isset($options['bucket']) ? $options['bucket'] : null;
+        $this->userStorage = new UserStorage(self::$userTables, $options['outputPath'], $bucket);
         $this->logger = $options['logger'];
     }
 
