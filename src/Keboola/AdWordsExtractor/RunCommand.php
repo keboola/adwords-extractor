@@ -7,8 +7,7 @@
 namespace Keboola\AdWordsExtractor;
 
 use Google\AdsApi\AdWords\v201705\cm\ApiException;
-use Monolog\Handler\ErrorLogHandler;
-use Monolog\Logger;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -29,7 +28,6 @@ class RunCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $consoleOutput)
     {
         $dataDirectory = $input->getArgument('data directory');
-        $logger = new Logger('app-errors', [new ErrorLogHandler]);
 
         $configFile = "$dataDirectory/config.json";
         if (!file_exists($configFile)) {
@@ -44,7 +42,7 @@ class RunCommand extends Command
 
             $validatedConfig = $this->validateInput($config);
             $validatedConfig['outputPath'] = $outputPath;
-            $validatedConfig['logger'] = $logger;
+            $validatedConfig['output'] = $consoleOutput;
             if (!empty($config['parameters']['bucket'])) {
                 $validatedConfig['bucket'] = $config['parameters']['bucket'];
             }
@@ -60,9 +58,11 @@ class RunCommand extends Command
             $consoleOutput->writeln($e->getMessage());
             return 1;
         } catch (\Exception $e) {
-            $logger->error($e->getMessage(), [
-                'trace' => $e->getTraceAsString()
-            ]);
+            if ($consoleOutput instanceof ConsoleOutput) {
+                $consoleOutput->getErrorOutput()->writeln("{$e->getMessage()}\n{$e->getTraceAsString()}");
+            } else {
+                $consoleOutput->writeln("{$e->getMessage()}\n{$e->getTraceAsString()}");
+            }
             return 2;
         }
     }

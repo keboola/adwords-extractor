@@ -10,6 +10,7 @@ use Google\AdsApi\AdWords\v201705\cm\ApiException;
 use Keboola\Temp\Temp;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Extractor
 {
@@ -31,12 +32,12 @@ class Extractor
     /** @var  Api */
     protected $api;
 
-    /** @var  Logger */
-    private $logger;
+    /** @var  ConsoleOutput */
+    private $output;
 
     public function __construct($options)
     {
-        $required = ['oauthKey', 'oauthSecret', 'refreshToken', 'developerToken', 'customerId', 'outputPath', 'logger'];
+        $required = ['oauthKey', 'oauthSecret', 'refreshToken', 'developerToken', 'customerId', 'outputPath', 'output'];
         foreach ($required as $item) {
             if (!isset($options[$item])) {
                 throw new \Exception("Option $item is not set");
@@ -56,7 +57,7 @@ class Extractor
         $configId = getenv('KBC_CONFIGID') ? getenv('KBC_CONFIGID') : 'default';
         $bucket = isset($options['bucket']) ? $options['bucket'] : UserStorage::getDefaultBucket($configId);
         $this->userStorage = new UserStorage(self::$userTables, $options['outputPath'], $bucket);
-        $this->logger = $options['logger'];
+        $this->output = $options['output'];
     }
 
     protected function parseApiResult($in)
@@ -78,12 +79,7 @@ class Extractor
             foreach ($result['entries'] as $customer) {
                 $parsedCustomer = $this->parseApiResult($customer);
                 $current++;
-                $this->logger->info(sprintf(
-                    'Extraction of data for customer %s (%d/%d) started',
-                    $parsedCustomer['name'],
-                    $current,
-                    $result['total']
-                ));
+                $this->output->writeln("Extraction of data for customer {$parsedCustomer['name']} ({$current}/{$result['total']}) started");
                 $this->userStorage->save('customers', $parsedCustomer);
                 $this->api->setCustomerId($parsedCustomer['customerId']);
 
@@ -107,11 +103,11 @@ class Extractor
                                 isset($query['primary']) ? $query['primary'] : []
                             );
                         } catch (ApiException $e) {
-                            $this->logger->error("Getting report for client '{$parsedCustomer['name']}' failed:{$e->getMessage()}");
+                            $this->output->getErrorOutput()->writeln("Getting report for client '{$parsedCustomer['name']}' failed:{$e->getMessage()}");
                         }
                     }
                 } catch (ApiException $e) {
-                    $this->logger->error("Getting data for client '{$parsedCustomer['name']}' failed:{$e->getMessage()}");
+                    $this->output->getErrorOutput()->writeln("Getting data for client '{$parsedCustomer['name']}' failed:{$e->getMessage()}");
                 }
             }
         }

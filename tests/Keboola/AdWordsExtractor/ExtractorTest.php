@@ -8,8 +8,7 @@ namespace Keboola\AdWordsExtractor\Tests;
 
 use Keboola\AdWordsExtractor\Extractor;
 use Keboola\AdWordsExtractor\UserStorage;
-use Monolog\Handler\ErrorLogHandler;
-use Monolog\Logger;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class ExtractorTest extends AbstractTest
 {
@@ -27,7 +26,7 @@ class ExtractorTest extends AbstractTest
             'developerToken' => EX_AW_DEVELOPER_TOKEN,
             'customerId' => EX_AW_CUSTOMER_ID,
             'outputPath' => sys_get_temp_dir(),
-            'logger' => new Logger('app-errors', [new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, Logger::ERROR)])
+            'output' => new ConsoleOutput()
         ]);
         $e->extract([
             [

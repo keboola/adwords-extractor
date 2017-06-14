@@ -16,7 +16,6 @@
     "googleads/googleads-php-lib": "~27.1.0",
     "keboola/csv": "~1.1",
     "keboola/php-temp": "0.1.3",
-    "monolog/monolog": "^1.22",
     "symfony/config": "^3.2",
     "symfony/console": "^3.2",
     "symfony/filesystem": "^3.2",
