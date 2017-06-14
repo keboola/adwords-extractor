@@ -107,13 +107,26 @@ class Api
         $selector->setPaging(new Paging(0, self::PAGE_LIMIT));
         $totalNumEntries = 0;
         do {
-            /** @var CampaignPage|ManagedCustomerPage $page */
-            $page = $service->get($selector);
-            if ($page->getEntries() !== null) {
-                $totalNumEntries = $page->getTotalNumEntries();
-                yield ['entries' => $page->getEntries(), 'total' => $totalNumEntries];
-            }
-            $selector->getPaging()->setStartIndex($selector->getPaging()->getStartIndex() + self::PAGE_LIMIT);
+            $retry = 0;
+            $repeat = true;
+            do {
+                try {
+                    /** @var CampaignPage|ManagedCustomerPage $page */
+                    $page = $service->get($selector);
+                    if ($page->getEntries() !== null) {
+                        $totalNumEntries = $page->getTotalNumEntries();
+                        yield ['entries' => $page->getEntries(), 'total' => $totalNumEntries];
+                    }
+                    $selector->getPaging()->setStartIndex($selector->getPaging()->getStartIndex() + self::PAGE_LIMIT);
+                    $repeat = false;
+                } catch (\Exception $e) {
+                    if (strpos($e->getMessage(), 'getaddrinfo failed') === false) {
+                        throw $e;
+                    }
+                    $retry++;
+                    sleep(rand(5, 15));
+                }
+            } while ($retry < 5 && $repeat);
         } while ($selector->getPaging()->getStartIndex() < $totalNumEntries);
     }
 
