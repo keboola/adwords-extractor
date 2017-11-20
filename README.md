@@ -7,22 +7,14 @@ The Extractor gets list of accessible clients, list of their campaigns and defin
 
 [![Build Status](https://travis-ci.org/keboola/adwords-extractor.svg)](https://travis-ci.org/keboola/adwords-extractor) [![Code Climate](https://codeclimate.com/github/keboola/adwords-extractor/badges/gpa.svg)](https://codeclimate.com/github/keboola/adwords-extractor)
 
-Uses [googleads-php-lib](https://github.com/googleads/googleads-php-lib) version **13.0** with API **v201607**.
-
-## Access Tokens
-You have to apply for AdWords Developer Token in your MCC, see [https://developers.google.com/adwords/api/docs/signingup#step2a]
-
-Once you get the Developer Token you can request Refresh Token using extractor's UI in Keboola or directly using oAuth API
-(see http://docs.oauthv2.apiary.io/#).
-
-Please note that refresh token is bound to used Google account and will stop working if someone changes it's password.
+Uses [googleads-php-lib](https://github.com/googleads/googleads-php-lib) version **32.0** with API **v201710**.
 
 ## Configuration
 
 - **parameters**:
-    - **developerToken** - Your developer token
     - **customerId** - Instructions to get it are here: https://support.google.com/adwords/answer/1704344?hl=en
     - **bucket** - Name of bucket where the data will be saved
+    - **developerToken** *(optional)* - Your developer token
     - **since** *(optional)* - start date of downloaded stats (default is "-1 day")
     - **until** *(optional)* - end date of downloaded stats (default is "-1 day")
     - **queries** - Array of reports to download as Ad-hoc report, each item must contain:
@@ -38,7 +30,6 @@ Example:
 ```
 {
     "parameters": {
-        "developerToken": "...",
         "customerId": "91165040",
         "bucket": "in.c-ex-adwords",
         "queries": [
@@ -109,8 +100,9 @@ If you want to run this app standalone:
 6. Create file `data/config.yml` with configuration, e.g.:
 
     ```
-    parameters:
+    image_parameters:
       developerToken:
+    parameters:
       customerId:
       reports:
         ...

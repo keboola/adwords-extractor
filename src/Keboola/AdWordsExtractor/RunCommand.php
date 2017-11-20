@@ -6,7 +6,7 @@
  */
 namespace Keboola\AdWordsExtractor;
 
-use Google\AdsApi\AdWords\v201705\cm\ApiException;
+use Google\AdsApi\AdWords\v201710\cm\ApiException;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
@@ -69,12 +69,15 @@ class RunCommand extends Command
 
     public function validateInput($config)
     {
+        if (!isset($config['image_parameters']['#developer_token'])) {
+            throw new \Exception("Developer token is missing from image parameters");
+        }
         if (!isset($config['authorization']['oauth_api']['credentials']['appKey'])
             || !isset($config['authorization']['oauth_api']['credentials']['#appSecret'])) {
             throw new Exception("Authorization credentials are missing. Have you authorized our app "
                 . "for your AdWords account?");
         }
-        $required = ['customerId', '#developerToken', 'queries'];
+        $required = ['customerId', 'queries'];
         foreach ($required as $r) {
             if (empty($config['parameters'][$r])) {
                 throw new Exception("Missing parameter '$r'");
@@ -103,7 +106,7 @@ class RunCommand extends Command
             'oauthKey' => $config['authorization']['oauth_api']['credentials']['appKey'],
             'oauthSecret' => $config['authorization']['oauth_api']['credentials']['#appSecret'],
             'refreshToken' => $oauthData['refresh_token'],
-            'developerToken' => $config['parameters']['#developerToken'],
+            'developerToken' => $config['image_parameters']['#developer_token'],
             'customerId' => $config['parameters']['customerId'],
             'since' => date('Ymd', strtotime(isset($config['parameters']['since'])
                 ? $config['parameters']['since'] : '-1 day')),
