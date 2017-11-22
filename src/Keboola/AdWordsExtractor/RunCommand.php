@@ -100,7 +100,7 @@ class RunCommand extends Command
         }
         $oauthData = json_decode($config['authorization']['oauth_api']['credentials']['#data'], true);
         if (!isset($oauthData['refresh_token'])) {
-            throw new Exception("Missing refresh token, check your oAuth configuration:".json_encode($oauthData));
+            throw new Exception("Missing refresh token, check your oAuth configuration");
         }
         return [
             'oauthKey' => $config['authorization']['oauth_api']['credentials']['appKey'],
