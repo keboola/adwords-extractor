@@ -8,19 +8,19 @@ namespace Keboola\AdWordsExtractor;
 
 use Google\AdsApi\AdWords\AdWordsServices;
 use Google\AdsApi\AdWords\AdWordsSessionBuilder;
-use Google\AdsApi\AdWords\Reporting\v201710\DownloadFormat;
-use Google\AdsApi\AdWords\Reporting\v201710\ReportDownloader;
+use Google\AdsApi\AdWords\Reporting\v201802\DownloadFormat;
+use Google\AdsApi\AdWords\Reporting\v201802\ReportDownloader;
 use Google\AdsApi\AdWords\ReportSettings;
 use Google\AdsApi\AdWords\ReportSettingsBuilder;
-use Google\AdsApi\AdWords\v201710\cm\CampaignPage;
-use Google\AdsApi\AdWords\v201710\cm\CampaignService;
-use Google\AdsApi\AdWords\v201710\cm\DateRange;
-use Google\AdsApi\AdWords\v201710\cm\OrderBy;
-use Google\AdsApi\AdWords\v201710\cm\Paging;
-use Google\AdsApi\AdWords\v201710\cm\Predicate;
-use Google\AdsApi\AdWords\v201710\cm\Selector;
-use Google\AdsApi\AdWords\v201710\mcm\ManagedCustomerPage;
-use Google\AdsApi\AdWords\v201710\mcm\ManagedCustomerService;
+use Google\AdsApi\AdWords\v201802\cm\CampaignPage;
+use Google\AdsApi\AdWords\v201802\cm\CampaignService;
+use Google\AdsApi\AdWords\v201802\cm\DateRange;
+use Google\AdsApi\AdWords\v201802\cm\OrderBy;
+use Google\AdsApi\AdWords\v201802\cm\Paging;
+use Google\AdsApi\AdWords\v201802\cm\Predicate;
+use Google\AdsApi\AdWords\v201802\cm\Selector;
+use Google\AdsApi\AdWords\v201802\mcm\ManagedCustomerPage;
+use Google\AdsApi\AdWords\v201802\mcm\ManagedCustomerService;
 use Google\Auth\Credentials\UserRefreshCredentials;
 use Monolog\Logger;
 use SoapClient;
@@ -113,7 +113,7 @@ class Api
                 try {
                     /** @var CampaignPage|ManagedCustomerPage $page */
                     $page = $service->get($selector);
-                    if ($page->getEntries() !== null) {
+                    if (count($page->getEntries())) {
                         $totalNumEntries = $page->getTotalNumEntries();
                         yield ['entries' => $page->getEntries(), 'total' => $totalNumEntries];
                     }

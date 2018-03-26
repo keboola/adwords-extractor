@@ -1,7 +1,7 @@
 <?php
 /**
  * @package adwords-extractor
- * @copyright 2017 Keboola
+ * @copyright 2018 Keboola
  * @author Jakub Matejka <jakub@keboola.com>
  */
 
