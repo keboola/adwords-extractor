@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "26e5201c7024c0a220cf24fd64f5f13b",
+    "content-hash": "619193ae34ce1b1cfe7a3034713fac6f",
     "packages": [
         {
             "name": "firebase/php-jwt",
@@ -101,16 +101,16 @@
         },
         {
             "name": "googleads/googleads-php-lib",
-            "version": "33.1.0",
+            "version": "34.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleads/googleads-php-lib.git",
-                "reference": "5dfa52cf77e3b599ebfb813eaa644022f0983512"
+                "reference": "7f086c308c3abd9198a64d70da7302085c73b19d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleads/googleads-php-lib/zipball/5dfa52cf77e3b599ebfb813eaa644022f0983512",
-                "reference": "5dfa52cf77e3b599ebfb813eaa644022f0983512",
+                "url": "https://api.github.com/repos/googleads/googleads-php-lib/zipball/7f086c308c3abd9198a64d70da7302085c73b19d",
+                "reference": "7f086c308c3abd9198a64d70da7302085c73b19d",
                 "shasum": ""
             },
             "require": {
@@ -150,7 +150,7 @@
             ],
             "description": "Google Ads APIs Client Library for PHP (AdWords and DFP)",
             "homepage": "https://github.com/googleads/googleads-php-lib",
-            "time": "2018-03-01T06:22:26+00:00"
+            "time": "2018-03-28T06:13:06+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
