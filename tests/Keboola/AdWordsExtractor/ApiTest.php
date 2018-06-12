@@ -28,7 +28,7 @@ class ApiTest extends AbstractTest
         $this->api->setCustomerId(EX_AW_CUSTOMER_ID);
 
         $accountFound = false;
-        foreach ($this->api->getCustomersYielded() as $result) {
+        foreach ($this->api->getCustomersYielded(null, null, 1) as $result) {
             foreach ($result['entries'] as $r) {
                 if ($r->getCustomerId() == EX_AW_TEST_ACCOUNT_ID) {
                     $accountFound = true;

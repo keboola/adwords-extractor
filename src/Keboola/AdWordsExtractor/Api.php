@@ -22,7 +22,11 @@ use Google\AdsApi\AdWords\v201802\cm\Selector;
 use Google\AdsApi\AdWords\v201802\mcm\ManagedCustomerPage;
 use Google\AdsApi\AdWords\v201802\mcm\ManagedCustomerService;
 use Google\Auth\Credentials\UserRefreshCredentials;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use Monolog\Logger;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use SoapClient;
 use Symfony\Component\Process\Process;
 use Keboola\Temp\Temp;
@@ -53,6 +57,14 @@ class Api
      * @var Temp
      */
     private $temp;
+    /**
+     * @var \GuzzleHttp\Client
+     */
+    private $guzzleClient;
+    /**
+     * @var GuzzleHttpClientFactory
+     */
+    private $guzzleClientFactory;
 
     public function __construct($clientId, $clientSecret, $developerToken, $refreshToken, Logger $logger)
     {
@@ -64,6 +76,8 @@ class Api
         $this->developerToken = $developerToken;
         $this->logger = $logger;
         $this->adWordsServices = new AdWordsServices();
+        $this->guzzleClient = $this->initGuzzleClient();
+        $this->guzzleClientFactory = new GuzzleHttpClientFactory($this->logger);
     }
 
     public function setTemp(Temp $temp)
@@ -93,9 +107,9 @@ class Api
      * @param Selector $selector
      * @return \Generator
      */
-    public function getAllYielded(SoapClient $service, Selector $selector)
+    public function getAllYielded(SoapClient $service, Selector $selector, $pageLimit = self::PAGE_LIMIT)
     {
-        $selector->setPaging(new Paging(0, self::PAGE_LIMIT));
+        $selector->setPaging(new Paging(0, $pageLimit));
         $totalNumEntries = 0;
         do {
             /** @var CampaignPage|ManagedCustomerPage $page */
@@ -104,14 +118,14 @@ class Api
                 $totalNumEntries = $page->getTotalNumEntries();
                 yield ['entries' => $page->getEntries(), 'total' => $totalNumEntries];
             }
-            $selector->getPaging()->setStartIndex($selector->getPaging()->getStartIndex() + self::PAGE_LIMIT);
+            $selector->getPaging()->setStartIndex($selector->getPaging()->getStartIndex() + $pageLimit);
         } while ($selector->getPaging()->getStartIndex() < $totalNumEntries);
     }
 
     /**
      * Returns accounts managed by current MCC
      */
-    public function getCustomersYielded($since = null, $until = null)
+    public function getCustomersYielded($since = null, $until = null, $pageLimit = self::PAGE_LIMIT)
     {
         $service = $this->retry($this->adWordsServices->get($this->session, ManagedCustomerService::class));
         $selector = new Selector();
@@ -121,10 +135,10 @@ class Api
         if ($since && $until) {
             $selector->setDateRange(new DateRange($since, $until));
         }
-        return $this->getAllYielded($service, $selector);
+        return $this->getAllYielded($service, $selector, $pageLimit);
     }
 
-    public function getCampaignsYielded($since = null, $until = null)
+    public function getCampaignsYielded($since = null, $until = null, $pageLimit = self::PAGE_LIMIT)
     {
         $service = $this->retry($this->adWordsServices->get($this->session, CampaignService::class));
         $selector = new Selector();
@@ -134,7 +148,7 @@ class Api
         if ($since && $until) {
             $selector->setDateRange(new DateRange($since, $until));
         }
-        return $this->getAllYielded($service, $selector);
+        return $this->getAllYielded($service, $selector, $pageLimit);
     }
 
 
@@ -142,15 +156,10 @@ class Api
     {
         $query .= sprintf(' DURING %d,%d', $since, $until);
         $isFirstReportInFile = !file_exists($file);
-
         $reportFile = $this->temp->createTmpFile();
-        $reportDownloader = new ReportDownloader(
-            $this->session,
-            null,
-            null,
-            new GuzzleHttpClientFactory($this->logger)
-        );
-        $result = $this->retry($reportDownloader->downloadReportWithAwql($query, DownloadFormat::CSV));
+
+        $reportDownloader = new ReportDownloader($this->session, null, $this->guzzleClient, $this->guzzleClientFactory);
+        $result = $reportDownloader->downloadReportWithAwql($query, DownloadFormat::CSV);
         $result->saveToFile($reportFile);
 
         // If first report, include header
@@ -188,5 +197,39 @@ class Api
             }
         } while ($retry < 5);
         throw $lastError ?: new \Exception('AdWords API is failing and backoff with retries did not help.');
+    }
+
+    protected function initGuzzleClient()
+    {
+        $handlerStack = HandlerStack::create();
+
+        /** @noinspection PhpUnusedParameterInspection */
+        $handlerStack->push(Middleware::retry(
+            function ($retries, RequestInterface $request, ResponseInterface $response = null, $error = null) {
+                return $response && $response->getStatusCode() == 503;
+            },
+            function ($retries) {
+                return rand(60, 600) * 1000;
+            }
+        ));
+        /** @noinspection PhpUnusedParameterInspection */
+        $handlerStack->push(Middleware::retry(
+            function ($retries, RequestInterface $request, ResponseInterface $response = null, $error = null) {
+                if ($retries >= 5) {
+                    return false;
+                } elseif ($response && $response->getStatusCode() > 499) {
+                    return true;
+                } elseif ($error) {
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            function ($retries) {
+                return (int) pow(2, $retries - 1) * 1000;
+            }
+        ));
+
+        return new \GuzzleHttp\Client(['handler' => $handlerStack]);
     }
 }
