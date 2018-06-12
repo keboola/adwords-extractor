@@ -23,9 +23,6 @@ use Google\AdsApi\AdWords\v201802\mcm\ManagedCustomerPage;
 use Google\AdsApi\AdWords\v201802\mcm\ManagedCustomerService;
 use Google\Auth\Credentials\UserRefreshCredentials;
 use Monolog\Logger;
-use Retry\BackOff\ExponentialBackOffPolicy;
-use Retry\Policy\SimpleRetryPolicy;
-use Retry\RetryProxy;
 use SoapClient;
 use Symfony\Component\Process\Process;
 use Keboola\Temp\Temp;
@@ -56,10 +53,6 @@ class Api
      * @var Temp
      */
     private $temp;
-    /**
-     * @var RetryProxy
-     */
-    private $retry;
 
     public function __construct($clientId, $clientSecret, $developerToken, $refreshToken, Logger $logger)
     {
@@ -71,7 +64,6 @@ class Api
         $this->developerToken = $developerToken;
         $this->logger = $logger;
         $this->adWordsServices = new AdWordsServices();
-        $this->retry = new RetryProxy(new SimpleRetryPolicy(3), new ExponentialBackOffPolicy(1000));
     }
 
     public function setTemp(Temp $temp)
@@ -106,15 +98,13 @@ class Api
         $selector->setPaging(new Paging(0, self::PAGE_LIMIT));
         $totalNumEntries = 0;
         do {
-            $this->retry->call(function () use ($service, $selector) {
-                /** @var CampaignPage|ManagedCustomerPage $page */
-                $page = $service->get($selector);
-                if (count($page->getEntries())) {
-                    $totalNumEntries = $page->getTotalNumEntries();
-                    yield ['entries' => $page->getEntries(), 'total' => $totalNumEntries];
-                }
-                $selector->getPaging()->setStartIndex($selector->getPaging()->getStartIndex() + self::PAGE_LIMIT);
-            });
+            /** @var CampaignPage|ManagedCustomerPage $page */
+            $page = $this->retry($service->get($selector));
+            if (count($page->getEntries())) {
+                $totalNumEntries = $page->getTotalNumEntries();
+                yield ['entries' => $page->getEntries(), 'total' => $totalNumEntries];
+            }
+            $selector->getPaging()->setStartIndex($selector->getPaging()->getStartIndex() + self::PAGE_LIMIT);
         } while ($selector->getPaging()->getStartIndex() < $totalNumEntries);
     }
 
@@ -123,78 +113,80 @@ class Api
      */
     public function getCustomersYielded($since = null, $until = null)
     {
-        $this->retry->call(function () use ($since, $until) {
-            $service = $this->adWordsServices->get($this->session, ManagedCustomerService::class);
-            $selector = new Selector();
-            $selector->setFields(['Name', 'CustomerId', 'CanManageClients', 'CurrencyCode', 'DateTimeZone']);
-            $selector->setOrdering([new OrderBy('CustomerId', 'ASCENDING')]);
-            $selector->setPredicates([new Predicate('CanManageClients', 'EQUALS', ['false'])]);
-            if ($since && $until) {
-                $selector->setDateRange(new DateRange($since, $until));
-            }
-            return $this->getAllYielded($service, $selector);
-        });
+        $service = $this->retry($this->adWordsServices->get($this->session, ManagedCustomerService::class));
+        $selector = new Selector();
+        $selector->setFields(['Name', 'CustomerId', 'CanManageClients', 'CurrencyCode', 'DateTimeZone']);
+        $selector->setOrdering([new OrderBy('CustomerId', 'ASCENDING')]);
+        $selector->setPredicates([new Predicate('CanManageClients', 'EQUALS', ['false'])]);
+        if ($since && $until) {
+            $selector->setDateRange(new DateRange($since, $until));
+        }
+        return $this->getAllYielded($service, $selector);
     }
 
     public function getCampaignsYielded($since = null, $until = null)
     {
-        $this->retry->call(function () use ($since, $until) {
-            $service = $this->adWordsServices->get($this->session, CampaignService::class);
-            $selector = new Selector();
-            $selector->setFields([
-                'Id',
-                'Name',
-                'Status',
-                'ServingStatus',
-                'StartDate',
-                'EndDate',
-                'AdServingOptimizationStatus',
-                'AdvertisingChannelType'
-            ]);
-            $selector->setOrdering([new OrderBy('Id', 'ASCENDING')]);
-            if ($since && $until) {
-                $selector->setDateRange(new DateRange($since, $until));
-            }
-            return $this->getAllYielded($service, $selector);
-        });
+        $service = $this->retry($this->adWordsServices->get($this->session, CampaignService::class));
+        $selector = new Selector();
+        $selector->setFields(['Id', 'Name', 'Status', 'ServingStatus', 'StartDate', 'EndDate',
+            'AdServingOptimizationStatus', 'AdvertisingChannelType']);
+        $selector->setOrdering([new OrderBy('Id', 'ASCENDING')]);
+        if ($since && $until) {
+            $selector->setDateRange(new DateRange($since, $until));
+        }
+        return $this->getAllYielded($service, $selector);
     }
 
 
     public function getReport($query, $since, $until, $file)
     {
-        $this->retry->call(function () use ($query, $since, $until, $file) {
-            $query .= sprintf(' DURING %d,%d', $since, $until);
-            $isFirstReportInFile = !file_exists($file);
+        $query .= sprintf(' DURING %d,%d', $since, $until);
+        $isFirstReportInFile = !file_exists($file);
 
-            $reportFile = $this->temp->createTmpFile();
-            $reportDownloader = new ReportDownloader(
-                $this->session,
-                null,
-                null,
-                new GuzzleHttpClientFactory($this->logger)
+        $reportFile = $this->temp->createTmpFile();
+        $reportDownloader = new ReportDownloader(
+            $this->session,
+            null,
+            null,
+            new GuzzleHttpClientFactory($this->logger)
+        );
+        $result = $this->retry($reportDownloader->downloadReportWithAwql($query, DownloadFormat::CSV));
+        $result->saveToFile($reportFile);
+
+        // If first report, include header
+        $process = new Process(
+            'cat ' . escapeshellarg($reportFile)
+            . (!$isFirstReportInFile ? ' | tail -n+2' : '')
+            . ' >> ' . escapeshellarg($file)
+        );
+        $process->setTimeout(null);
+        $process->run();
+        $output = $process->getOutput();
+        $error = $process->getErrorOutput();
+
+        if (!$process->isSuccessful() || $error) {
+            throw Exception::reportError(
+                'Creating of csv files failed',
+                $this->session->getClientCustomerId(),
+                $query,
+                ['output' => $error ? $error : $output]
             );
-            $result = $reportDownloader->downloadReportWithAwql($query, DownloadFormat::CSV);
-            $result->saveToFile($reportFile);
+        }
+    }
 
-            // If first report, include header
-            $process = new Process(
-                'cat ' . escapeshellarg($reportFile)
-                . (!$isFirstReportInFile ? ' | tail -n+2' : '')
-                . ' >> ' . escapeshellarg($file)
-            );
-            $process->setTimeout(null);
-            $process->run();
-            $output = $process->getOutput();
-            $error = $process->getErrorOutput();
-
-            if (!$process->isSuccessful() || $error) {
-                throw Exception::reportError(
-                    'Creating of csv files failed',
-                    $this->session->getClientCustomerId(),
-                    $query,
-                    ['output' => $error ? $error : $output]
-                );
+    protected function retry($function)
+    {
+        $retry = 0;
+        $lastError = null;
+        do {
+            try {
+                return $function;
+            } catch (\Exception $e) {
+                $lastError = $e;
+                $retry++;
+                sleep(rand(5, 15));
             }
-        });
+        } while ($retry < 5);
+        throw $lastError ?: new \Exception('AdWords API is failing and backoff with retries did not help.');
     }
 }
