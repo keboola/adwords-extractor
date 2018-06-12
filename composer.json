@@ -21,7 +21,8 @@
     "symfony/filesystem": "^3.3",
     "symfony/process": "^3.3",
     "symfony/serializer": "^3.3",
-    "monolog/monolog": "^1.22"
+    "monolog/monolog": "^1.22",
+    "vkartaviy/retry": "^0.2.2"
   },
   "require-dev": {
     "phpunit/phpunit": "~6.1",
