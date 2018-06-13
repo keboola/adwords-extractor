@@ -112,13 +112,26 @@ class Api
         $selector->setPaging(new Paging(0, $pageLimit));
         $totalNumEntries = 0;
         do {
-            /** @var CampaignPage|ManagedCustomerPage $page */
-            $page = $this->retry($service->get($selector));
-            if (count($page->getEntries())) {
-                $totalNumEntries = $page->getTotalNumEntries();
-                yield ['entries' => $page->getEntries(), 'total' => $totalNumEntries];
-            }
-            $selector->getPaging()->setStartIndex($selector->getPaging()->getStartIndex() + $pageLimit);
+            $retry = 0;
+            $repeat = true;
+            do {
+                try {
+                    /** @var CampaignPage|ManagedCustomerPage $page */
+                    $page = $service->get($selector);
+                    if (count($page->getEntries())) {
+                        $totalNumEntries = $page->getTotalNumEntries();
+                        yield ['entries' => $page->getEntries(), 'total' => $totalNumEntries];
+                    }
+                    $selector->getPaging()->setStartIndex($selector->getPaging()->getStartIndex() + $pageLimit);
+                    $repeat = false;
+                } catch (\Exception $e) {
+                    if (strpos($e->getMessage(), 'getaddrinfo failed') === false) {
+                        throw $e;
+                    }
+                    $retry++;
+                    sleep(rand(5, 15));
+                }
+            } while ($retry < 5 && $repeat);
         } while ($selector->getPaging()->getStartIndex() < $totalNumEntries);
     }
 
@@ -127,7 +140,7 @@ class Api
      */
     public function getCustomersYielded($since = null, $until = null, $pageLimit = self::PAGE_LIMIT)
     {
-        $service = $this->retry($this->adWordsServices->get($this->session, ManagedCustomerService::class));
+        $service = $this->getService($this->session, ManagedCustomerService::class);
         $selector = new Selector();
         $selector->setFields(['Name', 'CustomerId', 'CanManageClients', 'CurrencyCode', 'DateTimeZone']);
         $selector->setOrdering([new OrderBy('CustomerId', 'ASCENDING')]);
@@ -140,15 +153,39 @@ class Api
 
     public function getCampaignsYielded($since = null, $until = null, $pageLimit = self::PAGE_LIMIT)
     {
-        $service = $this->retry($this->adWordsServices->get($this->session, CampaignService::class));
+        $service = $this->getService($this->session, CampaignService::class);
         $selector = new Selector();
-        $selector->setFields(['Id', 'Name', 'Status', 'ServingStatus', 'StartDate', 'EndDate',
-            'AdServingOptimizationStatus', 'AdvertisingChannelType']);
+        $selector->setFields([
+            'Id',
+            'Name',
+            'Status',
+            'ServingStatus',
+            'StartDate',
+            'EndDate',
+            'AdServingOptimizationStatus',
+            'AdvertisingChannelType'
+        ]);
         $selector->setOrdering([new OrderBy('Id', 'ASCENDING')]);
         if ($since && $until) {
             $selector->setDateRange(new DateRange($since, $until));
         }
         return $this->getAllYielded($service, $selector, $pageLimit);
+    }
+
+    public function getService($session, $serviceClass)
+    {
+        $retry = 0;
+        $lastError = null;
+        do {
+            try {
+                return $this->adWordsServices->get($session, $serviceClass);
+            } catch (\Exception $e) {
+                $lastError = $e;
+                $retry++;
+                sleep(rand(5, 15));
+            }
+        } while ($retry < 5);
+        throw $lastError ?: new \Exception('AdWords API is failing and backoff with retries did not help.');
     }
 
 
@@ -181,22 +218,6 @@ class Api
                 ['output' => $error ? $error : $output]
             );
         }
-    }
-
-    protected function retry($function)
-    {
-        $retry = 0;
-        $lastError = null;
-        do {
-            try {
-                return $function;
-            } catch (\Exception $e) {
-                $lastError = $e;
-                $retry++;
-                sleep(rand(5, 15));
-            }
-        } while ($retry < 5);
-        throw $lastError ?: new \Exception('AdWords API is failing and backoff with retries did not help.');
     }
 
     protected function initGuzzleClient()
