@@ -21,6 +21,7 @@ class EntrypointTest extends \PHPUnit\Framework\TestCase
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
+        $this->assertEmpty($process->getErrorOutput());
         $this->assertContains(RunCommand::ERROR_DEPRECATED_COMPONENT, $process->getOutput());
     }
 }
