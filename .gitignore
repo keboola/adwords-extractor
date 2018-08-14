@@ -2,6 +2,6 @@
 composer.phar
 vendor
 run-test.sh
-data
+/data/
 build
 vars
