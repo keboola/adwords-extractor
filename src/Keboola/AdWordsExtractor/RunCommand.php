@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RunCommand extends Command
 {
-    const ERROR_DEPRECATED_COMPONENT = 'Google AdWords Reports (v201710) extractor is deprecated. Please migrate to newer version.';
+    const ERROR_DEPRECATED_COMPONENT = 'Google AdWords Reports (v201710) extractor is deprecated. Please migrate to a newer version.';
 
     protected function configure()
     {
