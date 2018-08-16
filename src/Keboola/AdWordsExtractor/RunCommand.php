@@ -6,9 +6,6 @@
  */
 namespace Keboola\AdWordsExtractor;
 
-use Google\AdsApi\AdWords\v201705\cm\ApiException;
-use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Console\Command\Command;
@@ -18,6 +15,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RunCommand extends Command
 {
+    const ERROR_DEPRECATED_COMPONENT = 'Google AdWords Reports (v201705) extractor is deprecated. Please migrate to a newer version.';
+
     protected function configure()
     {
         $this->setName('run');
@@ -36,35 +35,8 @@ class RunCommand extends Command
         $jsonDecode = new JsonDecode(true);
         $config = $jsonDecode->decode(file_get_contents($configFile), JsonEncoder::FORMAT);
 
-        try {
-            $outputPath = "$dataDirectory/out/tables";
-            (new Filesystem())->mkdir([$outputPath]);
-
-            $validatedConfig = $this->validateInput($config);
-            $validatedConfig['outputPath'] = $outputPath;
-            $validatedConfig['output'] = $consoleOutput;
-            if (!empty($config['parameters']['bucket'])) {
-                $validatedConfig['bucket'] = $config['parameters']['bucket'];
-            }
-
-            $app = new Extractor($validatedConfig);
-            $app->extract($validatedConfig['queries'], $validatedConfig['since'], $validatedConfig['until']);
-
-            return 0;
-        } catch (ApiException $e) {
-            $consoleOutput->writeln($e->getMessage());
-            return 1;
-        } catch (Exception $e) {
-            $consoleOutput->writeln($e->getMessage());
-            return 1;
-        } catch (\Exception $e) {
-            if ($consoleOutput instanceof ConsoleOutput) {
-                $consoleOutput->getErrorOutput()->writeln("{$e->getMessage()}\n{$e->getTraceAsString()}");
-            } else {
-                $consoleOutput->writeln("{$e->getMessage()}\n{$e->getTraceAsString()}");
-            }
-            return 2;
-        }
+        $consoleOutput->writeln(self::ERROR_DEPRECATED_COMPONENT);
+        return 1;
     }
 
     public function validateInput($config)
