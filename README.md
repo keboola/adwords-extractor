@@ -7,7 +7,7 @@ The Extractor gets list of accessible clients, list of their campaigns and defin
 
 [![Build Status](https://travis-ci.org/keboola/adwords-extractor.svg)](https://travis-ci.org/keboola/adwords-extractor) [![Code Climate](https://codeclimate.com/github/keboola/adwords-extractor/badges/gpa.svg)](https://codeclimate.com/github/keboola/adwords-extractor)
 
-Uses [googleads-php-lib](https://github.com/googleads/googleads-php-lib) version **34.0** with API **v201802**.
+Uses [googleads-php-lib](https://github.com/googleads/googleads-php-lib) version **38.0** with API **v201809**.
 
 ## Configuration
 
