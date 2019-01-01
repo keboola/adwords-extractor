@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
 class UserStorage
 {
-    const DEFAULT_BUCKET = 'in.c-keboola-ex-adwords-v201802-%s';
+    const DEFAULT_BUCKET = 'in.c-keboola-ex-adwords-v201809-%s';
 
     protected $tables;
     protected $path;

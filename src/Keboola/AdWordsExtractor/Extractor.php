@@ -6,7 +6,7 @@
  */
 namespace Keboola\AdWordsExtractor;
 
-use Google\AdsApi\AdWords\v201802\cm\ApiException;
+use Google\AdsApi\AdWords\v201809\cm\ApiException;
 use Keboola\Temp\Temp;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;

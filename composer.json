@@ -13,7 +13,7 @@
   "require": {
     "php": "~7.1",
     "ext-soap": "*",
-    "googleads/googleads-php-lib": "^34.0",
+    "googleads/googleads-php-lib": "^38.0",
     "keboola/csv": "~1.2",
     "keboola/php-temp": "1.0.0",
     "symfony/config": "^3.3",
