@@ -74,4 +74,30 @@ class ExtractorTest extends AbstractTest
             ]
         ], $date, $date);
     }
+
+    public function testWillFailWithInvalidFieldInAwql(): void
+    {
+        $date = date('Ymd', strtotime('-1 day'));
+        $e = new Extractor([
+            'oauthKey' => EX_AW_CLIENT_ID,
+            'oauthSecret' => EX_AW_CLIENT_SECRET,
+            'refreshToken' => EX_AW_REFRESH_TOKEN,
+            'developerToken' => EX_AW_DEVELOPER_TOKEN,
+            'customerId' => EX_AW_CUSTOMER_ID,
+            'outputPath' => sys_get_temp_dir(),
+            'output' => new ConsoleOutput()
+        ]);
+
+        $this->expectException(\Keboola\AdWordsExtractor\Exception::class);
+        $this->expectExceptionMessage(
+            'Failed to get results for some queries, please check the log'
+        );
+
+        $e->extract([
+            [
+                'name' => 'my_table',
+                'query' => 'SELECT Id, Status FROM CAMPAIGN_PERFORMANCE_REPORT'
+            ]
+        ], $date, $date);
+    }
 }
