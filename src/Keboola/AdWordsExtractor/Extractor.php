@@ -90,6 +90,7 @@ class Extractor
             }
         }
         $current = 0;
+        $anyQueryFailed = false;
         foreach ($this->api->getCustomersYielded($since, $until) as $result) {
             foreach ($result['entries'] as $customer) {
                 $parsedCustomer = $this->parseApiResult($customer);
@@ -119,12 +120,18 @@ class Extractor
                             );
                         } catch (ApiException $e) {
                             $this->output->getErrorOutput()->writeln("Getting report for client '{$parsedCustomer['name']}' failed:{$e->getMessage()}");
+                            $anyQueryFailed = true;
                         }
                     }
                 } catch (ApiException $e) {
                     $this->output->getErrorOutput()->writeln("Getting data for client '{$parsedCustomer['name']}' failed:{$e->getMessage()}");
+                    $anyQueryFailed = true;
                 }
             }
+        }
+
+        if ($anyQueryFailed) {
+            throw new Exception('Failed to get results for some queries, please check the log');
         }
     }
 }
