@@ -14,6 +14,12 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Extractor
 {
+
+    const RESERVED_TABLE_NAMES = [
+        'customers',
+        'campaigns',
+    ];
+
     protected static $userTables = [
         'customers' => [
             'primary' => ['customerId'],
@@ -74,6 +80,15 @@ class Extractor
 
     public function extract(array $queries, $since, $until)
     {
+        foreach ($queries as $query) {
+            if (in_array($query['name'], self::RESERVED_TABLE_NAMES)) {
+                throw new Exception(sprintf(
+                    '"%s" is reserved table name (%s) that cannot be used for query result',
+                    $query['name'],
+                    implode(', ', self::RESERVED_TABLE_NAMES)
+                ));
+            }
+        }
         $current = 0;
         foreach ($this->api->getCustomersYielded($since, $until) as $result) {
             foreach ($result['entries'] as $customer) {
