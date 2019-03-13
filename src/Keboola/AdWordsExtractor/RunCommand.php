@@ -51,6 +51,9 @@ class RunCommand extends Command
             $app->extract($validatedConfig['queries'], $validatedConfig['since'], $validatedConfig['until']);
 
             return 0;
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $consoleOutput->writeln($e->getMessage());
+            return 1;
         } catch (ApiException $e) {
             $consoleOutput->writeln($e->getMessage());
             return 1;
