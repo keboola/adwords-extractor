@@ -52,7 +52,11 @@ class RunCommand extends Command
 
             return 0;
         } catch (\GuzzleHttp\Exception\ClientException $e) {
-            $consoleOutput->writeln($e->getMessage());
+            $output = $e->getMessage();
+            if (strpos($e->getMessage(), 'invalid_grant') !== false) {
+                $output .= ' Try to re-authorize your component.';
+            }
+            $consoleOutput->writeln($output);
             return 1;
         } catch (ApiException $e) {
             $consoleOutput->writeln($e->getMessage());
