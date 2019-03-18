@@ -119,12 +119,12 @@ class Extractor
                                 isset($query['primary']) ? $query['primary'] : []
                             );
                         } catch (ApiException $e) {
-                            $this->output->getErrorOutput()->writeln("Getting report for client '{$parsedCustomer['name']}' failed:{$e->getMessage()}");
+                            $this->output->getErrorOutput()->writeln("Getting report for client '{$parsedCustomer['name']}' failed: {$e->getMessage()}");
                             $anyQueryFailed = true;
                         }
                     }
                 } catch (ApiException $e) {
-                    $this->output->getErrorOutput()->writeln("Getting data for client '{$parsedCustomer['name']}' failed:{$e->getMessage()}");
+                    $this->output->getErrorOutput()->writeln("Getting data for client '{$parsedCustomer['name']}' failed: {$e->getMessage()}");
                     $anyQueryFailed = true;
                 }
             }

@@ -51,6 +51,13 @@ class RunCommand extends Command
             $app->extract($validatedConfig['queries'], $validatedConfig['since'], $validatedConfig['until']);
 
             return 0;
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $output = $e->getMessage();
+            if (strpos($e->getMessage(), 'invalid_grant') !== false) {
+                $output .= ' Try to re-authorize your component.';
+            }
+            $consoleOutput->writeln($output);
+            return 1;
         } catch (ApiException $e) {
             $consoleOutput->writeln($e->getMessage());
             return 1;
