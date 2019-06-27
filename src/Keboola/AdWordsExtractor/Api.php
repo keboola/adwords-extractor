@@ -125,7 +125,9 @@ class Api
                     $selector->getPaging()->setStartIndex($selector->getPaging()->getStartIndex() + $pageLimit);
                     $repeat = false;
                 } catch (\Exception $e) {
-                    if (strpos($e->getMessage(), 'getaddrinfo failed') === false) {
+                    if (strpos($e->getMessage(), 'getaddrinfo failed') === false
+                        && strpos($e->getMessage(), 'currently unavailable') === false
+                    ) {
                         throw $e;
                     }
                     $retry++;
