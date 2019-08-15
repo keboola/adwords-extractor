@@ -1,4 +1,4 @@
-FROM php:7.1
+FROM php:7.3
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update -q \
@@ -14,4 +14,4 @@ WORKDIR /code
 
 RUN composer install --prefer-dist --no-interaction
 
-CMD php ./src/app.php run /data
+CMD php ./src/run.php --data=/data

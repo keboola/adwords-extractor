@@ -11,10 +11,8 @@ services:
       - ./:/code
 
   dev-tests:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: sh -c './tests.sh'
+    image: keboola/adwords-extractor
+    command: composer build
     volumes:
       - .:/code
     working_dir: /code
@@ -27,10 +25,8 @@ services:
       - EX_AW_TEST_ACCOUNT_ID
 
   tests:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: sh -c './tests.sh'
+    image: keboola/adwords-extractor
+    command: composer build
     environment:
       - EX_AW_CLIENT_ID
       - EX_AW_CLIENT_SECRET

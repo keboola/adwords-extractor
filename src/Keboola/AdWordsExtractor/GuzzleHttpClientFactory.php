@@ -1,42 +1,41 @@
 <?php
-/**
- * @package adwords-extractor
- * @copyright 2018 Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
+
+declare(strict_types=1);
 
 namespace Keboola\AdWordsExtractor;
 
 use Google\AdsApi\Common\GuzzleLogMessageFormatter;
 use Google\AdsApi\Common\GuzzleLogMessageHandler;
+use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class GuzzleHttpClientFactory implements \Google\AdsApi\Common\GuzzleHttpClientFactory
 {
-    const RETRIES_COUNT = 5;
-    const MAINTENANCE_RETRIES_COUNT = 3;
+    protected const RETRIES_COUNT = 5;
+    protected const MAINTENANCE_RETRIES_COUNT = 3;
 
+    /** @var LoggerInterface */
     protected $logger;
 
-    public function __construct($logger)
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
 
-    public function generateHttpClient()
+    public function generateHttpClient(): Client
     {
         $handlerStack = HandlerStack::create();
 
         // Retry from maintenance
         /** @noinspection PhpUnusedParameterInspection */
         $handlerStack->push(Middleware::retry(
-            function ($retries, RequestInterface $request, ResponseInterface $response = null, $error = null) {
+            function ($retries, RequestInterface $request, ?ResponseInterface $response = null, ?string $error = null) {
                 return $retries < self::MAINTENANCE_RETRIES_COUNT
-                    && $response && ($response->getStatusCode() == 503 || $response->getStatusCode() == 423);
+                    && $response && ($response->getStatusCode() === 503 || $response->getStatusCode() === 423);
             },
             function ($retries) {
                 return rand(60, 600) * 100;
@@ -46,7 +45,7 @@ class GuzzleHttpClientFactory implements \Google\AdsApi\Common\GuzzleHttpClientF
         // Retry for server errors
         /** @noinspection PhpUnusedParameterInspection */
         $handlerStack->push(Middleware::retry(
-            function ($retries, RequestInterface $request, ResponseInterface $response = null, $error = null) {
+            function ($retries, RequestInterface $request, ?ResponseInterface $response = null, ?string $error = null) {
                 if ($retries >= self::RETRIES_COUNT) {
                     return false;
                 } elseif ($response && $response->getStatusCode() > 499) {
@@ -67,8 +66,8 @@ class GuzzleHttpClientFactory implements \Google\AdsApi\Common\GuzzleHttpClientF
             $this->logger,
             new GuzzleLogMessageFormatter([], [], false)
         ));
-        return new \GuzzleHttp\Client([
-            'handler' => $handlerStack
+        return new Client([
+            'handler' => $handlerStack,
         ]);
     }
 }

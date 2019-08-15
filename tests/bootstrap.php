@@ -1,9 +1,6 @@
 <?php
-/**
- * @package adwords-extractor
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
+
+declare(strict_types=1);
 
 defined('EX_AW_CLIENT_ID') || define('EX_AW_CLIENT_ID', getenv('EX_AW_CLIENT_ID')
     ? getenv('EX_AW_CLIENT_ID') : '');
@@ -24,6 +21,6 @@ defined('EX_AW_TEST_ACCOUNT_ID') || define('EX_AW_TEST_ACCOUNT_ID', getenv('EX_A
     ? getenv('EX_AW_TEST_ACCOUNT_ID') : '');
 
 defined('EX_AW_USER_AGENT') || define('EX_AW_USER_AGENT', getenv('EX_AW_USER_AGENT')
-    ? getenv('EX_AW_USER_AGENT') : 'Keboola AdWords Extractor Testing');
+    ? getenv('EX_AW_USER_AGENT') : 'phpunit AdWords Extractor Testing');
 
 require_once __DIR__ . '/../vendor/autoload.php';

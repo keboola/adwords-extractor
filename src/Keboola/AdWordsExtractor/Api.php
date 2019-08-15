@@ -1,9 +1,7 @@
 <?php
-/**
- * @package adwords-extractor
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
+
+declare(strict_types=1);
+
 namespace Keboola\AdWordsExtractor;
 
 use Google\AdsApi\AdWords\AdWordsServices;
@@ -21,24 +19,24 @@ use Google\AdsApi\AdWords\v201809\cm\Predicate;
 use Google\AdsApi\AdWords\v201809\cm\Selector;
 use Google\AdsApi\AdWords\v201809\mcm\ManagedCustomerPage;
 use Google\AdsApi\AdWords\v201809\mcm\ManagedCustomerService;
+use Google\AdsApi\Common\AdsSession;
+use Google\AdsApi\Common\AdsSoapClient;
 use Google\Auth\Credentials\UserRefreshCredentials;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
-use Monolog\Logger;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Keboola\Component\UserException;
+use Psr\Log\LoggerInterface;
 use SoapClient;
 use Symfony\Component\Process\Process;
 use Keboola\Temp\Temp;
 
 class Api
 {
-    const PAGE_LIMIT = 500;
+    protected const PAGE_LIMIT = 500;
 
     /**
      * @var UserRefreshCredentials
      */
     private $credential;
+    /** @var string  */
     private $developerToken;
     /**
      * @var \Google\AdsApi\AdWords\AdWordsSession
@@ -50,7 +48,7 @@ class Api
     private $adWordsServices;
 
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     private $logger;
     /**
@@ -66,27 +64,32 @@ class Api
      */
     private $guzzleClientFactory;
 
-    public function __construct($clientId, $clientSecret, $developerToken, $refreshToken, Logger $logger)
+    public function __construct(string $developerToken, LoggerInterface $logger)
+    {
+        $this->developerToken = $developerToken;
+        $this->logger = $logger;
+        $this->adWordsServices = new AdWordsServices();
+        $this->guzzleClientFactory = new GuzzleHttpClientFactory($this->logger);
+        $this->guzzleClient = $this->guzzleClientFactory->generateHttpClient();
+    }
+
+    public function setOAuthCredentials(string $clientId, string $clientSecret, string $refreshToken): Api
     {
         $this->credential = new UserRefreshCredentials('https://www.googleapis.com/auth/adwords', [
             'client_id' => $clientId,
             'client_secret' => $clientSecret,
-            'refresh_token' => $refreshToken
+            'refresh_token' => $refreshToken,
         ]);
-        $this->developerToken = $developerToken;
-        $this->logger = $logger;
-        $this->adWordsServices = new AdWordsServices();
-        $this->guzzleClient = $this->initGuzzleClient();
-        $this->guzzleClientFactory = new GuzzleHttpClientFactory($this->logger);
+        return $this;
     }
 
-    public function setTemp(Temp $temp)
+    public function setTemp(Temp $temp): Api
     {
         $this->temp = $temp;
         return $this;
     }
 
-    public function setCustomerId($customerId)
+    public function setCustomerId(string $customerId): Api
     {
         $reportSettingsBuilder = new ReportSettingsBuilder();
         $reportSettingsBuilder->skipReportHeader(true)->skipReportSummary(true);
@@ -102,13 +105,11 @@ class Api
         return $this;
     }
 
-    /**
-     * @param CampaignService|ManagedCustomerService $service
-     * @param Selector $selector
-     * @return \Generator
-     */
-    public function getAllYielded(SoapClient $service, Selector $selector, $pageLimit = self::PAGE_LIMIT)
-    {
+    public function getAllYielded(
+        SoapClient $service,
+        Selector $selector,
+        ?int $pageLimit = self::PAGE_LIMIT
+    ): \Generator {
         $selector->setPaging(new Paging(0, $pageLimit));
         $totalNumEntries = 0;
         do {
@@ -118,13 +119,13 @@ class Api
                 try {
                     /** @var CampaignPage|ManagedCustomerPage $page */
                     $page = $service->get($selector);
-                    if (count($page->getEntries())) {
+                    if (count((array) $page->getEntries())) {
                         $totalNumEntries = $page->getTotalNumEntries();
                         yield ['entries' => $page->getEntries(), 'total' => $totalNumEntries];
                     }
                     $selector->getPaging()->setStartIndex($selector->getPaging()->getStartIndex() + $pageLimit);
                     $repeat = false;
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     if (strpos($e->getMessage(), 'getaddrinfo failed') === false
                         && strpos($e->getMessage(), 'currently unavailable') === false
                     ) {
@@ -137,11 +138,11 @@ class Api
         } while ($selector->getPaging()->getStartIndex() < $totalNumEntries);
     }
 
-    /**
-     * Returns accounts managed by current MCC
-     */
-    public function getCustomersYielded($since = null, $until = null, $pageLimit = self::PAGE_LIMIT)
-    {
+    public function getCustomersYielded(
+        ?string $since = null,
+        ?string $until = null,
+        ?int $pageLimit = self::PAGE_LIMIT
+    ): \Generator {
         $service = $this->getService($this->session, ManagedCustomerService::class);
         $selector = new Selector();
         $selector->setFields(['Name', 'CustomerId', 'CanManageClients', 'CurrencyCode', 'DateTimeZone']);
@@ -153,8 +154,11 @@ class Api
         return $this->getAllYielded($service, $selector, $pageLimit);
     }
 
-    public function getCampaignsYielded($since = null, $until = null, $pageLimit = self::PAGE_LIMIT)
-    {
+    public function getCampaignsYielded(
+        ?string $since = null,
+        ?string $until = null,
+        ?int $pageLimit = self::PAGE_LIMIT
+    ): \Generator {
         $service = $this->getService($this->session, CampaignService::class);
         $selector = new Selector();
         $selector->setFields([
@@ -165,7 +169,7 @@ class Api
             'StartDate',
             'EndDate',
             'AdServingOptimizationStatus',
-            'AdvertisingChannelType'
+            'AdvertisingChannelType',
         ]);
         $selector->setOrdering([new OrderBy('Id', 'ASCENDING')]);
         if ($since && $until) {
@@ -174,36 +178,36 @@ class Api
         return $this->getAllYielded($service, $selector, $pageLimit);
     }
 
-    public function getService($session, $serviceClass)
+    public function getService(AdsSession $session, string $serviceClass): AdsSoapClient
     {
         $retry = 0;
-        $lastError = null;
         do {
             try {
                 return $this->adWordsServices->get($session, $serviceClass);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $lastError = $e;
                 $retry++;
                 sleep(rand(5, 15));
             }
         } while ($retry < 5);
-        throw $lastError ?: new \Exception('AdWords API is failing and backoff with retries did not help.');
+        throw $lastError;
     }
 
 
-    public function getReport($query, $since, $until, $file)
+    public function getReport(string $query, string $since, string $until, string $file): void
     {
         $query .= sprintf(' DURING %d,%d', $since, $until);
         $isFirstReportInFile = !file_exists($file);
         $reportFile = $this->temp->createTmpFile();
+        $reportFilePath = (string) $reportFile->getRealPath();
 
         $reportDownloader = new ReportDownloader($this->session, null, $this->guzzleClient, $this->guzzleClientFactory);
         $result = $reportDownloader->downloadReportWithAwql($query, DownloadFormat::CSV);
-        $result->saveToFile($reportFile);
+        $result->saveToFile($reportFilePath);
 
         // If first report, include header
-        $process = new Process(
-            'cat ' . escapeshellarg($reportFile)
+        $process = Process::fromShellCommandline(
+            'cat ' . escapeshellarg($reportFilePath)
             . (!$isFirstReportInFile ? ' | tail -n+2' : '')
             . ' >> ' . escapeshellarg($file)
         );
@@ -215,44 +219,10 @@ class Api
         if (!$process->isSuccessful() || $error) {
             throw Exception::reportError(
                 'Creating of csv files failed',
-                $this->session->getClientCustomerId(),
+                (string) $this->session->getClientCustomerId(),
                 $query,
                 ['output' => $error ? $error : $output]
             );
         }
-    }
-
-    protected function initGuzzleClient()
-    {
-        $handlerStack = HandlerStack::create();
-
-        /** @noinspection PhpUnusedParameterInspection */
-        $handlerStack->push(Middleware::retry(
-            function ($retries, RequestInterface $request, ResponseInterface $response = null, $error = null) {
-                return $response && $response->getStatusCode() == 503;
-            },
-            function ($retries) {
-                return rand(60, 600) * 1000;
-            }
-        ));
-        /** @noinspection PhpUnusedParameterInspection */
-        $handlerStack->push(Middleware::retry(
-            function ($retries, RequestInterface $request, ResponseInterface $response = null, $error = null) {
-                if ($retries >= 5) {
-                    return false;
-                } elseif ($response && $response->getStatusCode() > 499) {
-                    return true;
-                } elseif ($error) {
-                    return true;
-                } else {
-                    return false;
-                }
-            },
-            function ($retries) {
-                return (int) pow(2, $retries - 1) * 1000;
-            }
-        ));
-
-        return new \GuzzleHttp\Client(['handler' => $handlerStack]);
     }
 }

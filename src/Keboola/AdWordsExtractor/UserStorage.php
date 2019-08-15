@@ -1,39 +1,37 @@
 <?php
-/**
- * @package adwords-extractor
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
+
+declare(strict_types=1);
 
 namespace Keboola\AdWordsExtractor;
 
 use Keboola\Csv\CsvFile;
-use Symfony\Component\Serializer\Encoder\JsonEncode;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
 class UserStorage
 {
-    const DEFAULT_BUCKET = 'in.c-keboola-ex-adwords-v201809-%s';
+    protected const DEFAULT_BUCKET = 'in.c-keboola-ex-adwords-v201809-%s';
 
+    /** @var array  */
     protected $tables;
+    /** @var string */
     protected $path;
+    /** @var string|null */
     protected $bucket;
-
+    /** @var array  */
     protected $files = [];
 
-    public function __construct(array $tables, $path, $bucket = null)
+    public function __construct(array $tables, string $path, ?string $bucket = null)
     {
         $this->tables = $tables;
         $this->path = $path;
         $this->bucket = $bucket;
     }
 
-    public static function getDefaultBucket($configId)
+    public static function getDefaultBucket(string $configId): string
     {
         return sprintf(UserStorage::DEFAULT_BUCKET, $configId);
     }
 
-    public function save($table, $data)
+    public function save(string $table, array $data): void
     {
         if (!isset($this->files[$table])) {
             $fileName = "$this->path/" . ($this->bucket ? "$this->bucket." : null) . "$table.csv";
@@ -48,9 +46,6 @@ class UserStorage
             );
         }
 
-        if (!is_array($data)) {
-            $data = (array)$data;
-        }
         $dataToSave = [];
         foreach ($this->tables[$table]['columns'] as $c) {
             $dataToSave[$c] = isset($data[$c]) ? $data[$c] : null;
@@ -63,20 +58,19 @@ class UserStorage
         }
     }
 
-    public function getReportFilename($table)
+    public function getReportFilename(string $table): string
     {
         return "$this->path/" . ($this->bucket ? "$this->bucket." : null) . "report-$table.csv";
     }
 
-    public function createManifest($fileName, $table, array $primary = [])
+    public function createManifest(string $fileName, string $table, array $primary = []): void
     {
         if (!file_exists("$fileName.manifest")) {
-            $jsonEncode = new JsonEncode();
-            file_put_contents("$fileName.manifest", $jsonEncode->encode([
+            file_put_contents("$fileName.manifest", \GuzzleHttp\json_encode([
                 'destination' => ($this->bucket ? "$this->bucket." : null) . $table,
                 'incremental' => true,
-                'primary_key' => $primary
-            ], JsonEncoder::FORMAT));
+                'primary_key' => $primary,
+            ]));
         }
     }
 }

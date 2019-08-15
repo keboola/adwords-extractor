@@ -1,10 +1,8 @@
 <?php
-/**
- * @package adwords-extractor
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
-namespace Keboola\AdWordsExtractor\Tests;
+
+declare(strict_types=1);
+
+namespace Keboola\AdWordsExtractor\Test;
 
 use Keboola\AdWordsExtractor\Api;
 use Keboola\Temp\Temp;
@@ -16,21 +14,28 @@ class ApiTest extends AbstractTest
     /** @var  Api */
     protected $api;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
-        $this->api = new Api(EX_AW_CLIENT_ID, EX_AW_CLIENT_SECRET, EX_AW_DEVELOPER_TOKEN, EX_AW_REFRESH_TOKEN, new Logger('adwords-api', [new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, Logger::WARNING)]));
+        $this->api = new Api(EX_AW_DEVELOPER_TOKEN, new Logger(
+            'adwords-api',
+            [new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, Logger::WARNING)]
+        ));
+        $this->api->setOAuthCredentials(
+            EX_AW_CLIENT_ID,
+            EX_AW_CLIENT_SECRET,
+            EX_AW_REFRESH_TOKEN
+        );
     }
 
-    public function testApiGetCustomers()
+    public function testApiGetCustomers(): void
     {
         $this->api->setCustomerId(EX_AW_CUSTOMER_ID);
-
         $accountFound = false;
         foreach ($this->api->getCustomersYielded(null, null, 1) as $result) {
             foreach ($result['entries'] as $r) {
-                if ($r->getCustomerId() == EX_AW_TEST_ACCOUNT_ID) {
+                if ((string) $r->getCustomerId() === (string) EX_AW_TEST_ACCOUNT_ID) {
                     $accountFound = true;
                 }
             }
@@ -38,7 +43,7 @@ class ApiTest extends AbstractTest
         $this->assertTrue($accountFound);
     }
 
-    public function testApiGetCampaigns()
+    public function testApiGetCampaigns(): void
     {
         $this->api->setCustomerId(EX_AW_TEST_ACCOUNT_ID);
 
@@ -48,7 +53,7 @@ class ApiTest extends AbstractTest
         $campaignFound = false;
         foreach ($this->api->getCampaignsYielded() as $result) {
             foreach ($result['entries'] as $r) {
-                if ($r->getId() == $campaignId) {
+                if ((string) $r->getId() === (string) $campaignId) {
                     $campaignFound = true;
                 }
             }
@@ -56,7 +61,7 @@ class ApiTest extends AbstractTest
         $this->assertTrue($campaignFound);
     }
 
-    public function testApiGetReport()
+    public function testApiGetReport(): void
     {
         $this->api->setCustomerId(EX_AW_TEST_ACCOUNT_ID);
 
@@ -78,13 +83,16 @@ class ApiTest extends AbstractTest
         $campaignFound = false;
         $isHeader = true;
         $fp = fopen($file, 'r');
-        while (($data = fgetcsv($fp, 1000, ",")) !== false) {
+        if ($fp === false) {
+            throw new \Exception("Report file ($file) empty.");
+        }
+        while (($data = fgetcsv($fp, 1000, ',')) !== false) {
             if ($isHeader) {
                 $this->assertEquals(['Campaign ID', 'Impressions', 'Clicks'], $data);
                 $isHeader = false;
             }
-            $this->assertCount(3, $data);
-            if ($data[0] == $campaignId) {
+            $this->assertCount(3, (array) $data);
+            if ($data[0] === $campaignId) {
                 $campaignFound = true;
             }
         }
