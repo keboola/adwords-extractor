@@ -1,16 +1,14 @@
 <?php
-/**
- * @package adwords-extractor
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
-namespace Keboola\AdWordsExtractor\Tests;
+
+declare(strict_types=1);
+
+namespace Keboola\AdWordsExtractor\Test;
 
 use Keboola\AdWordsExtractor\Exception;
 
 class ExceptionTest extends \PHPUnit\Framework\TestCase
 {
-    public function testException()
+    public function testException(): void
     {
         $message = uniqid();
         $customerId = uniqid();

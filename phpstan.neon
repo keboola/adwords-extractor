@@ -1,0 +1,6 @@
+parameters:
+    ignoreErrors:
+        - '#Call to an undefined method SoapClient::get().#'
+    bootstrap: %rootDir%/../../../tests/bootstrap.php
+    excludes_analyse:
+        - %rootDir%/../../../src/Keboola/AdWordsExtractor/ConfigDefinition.php

@@ -14,7 +14,6 @@ Uses [googleads-php-lib](https://github.com/googleads/googleads-php-lib) version
 - **parameters**:
     - **customerId** - Instructions to get it are here: https://support.google.com/adwords/answer/1704344?hl=en
     - **bucket** - Name of bucket where the data will be saved
-    - **developerToken** *(optional)* - Your developer token
     - **since** *(optional)* - start date of downloaded stats (default is "-1 day")
     - **until** *(optional)* - end date of downloaded stats (default is "-1 day")
     - **queries** - Array of reports to download as Ad-hoc report, each item must contain:

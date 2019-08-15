@@ -1,51 +1,60 @@
 <?php
-/**
- * @package adwords-extractor
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
-namespace Keboola\AdWordsExtractor\Tests;
+
+declare(strict_types=1);
+
+namespace Keboola\AdWordsExtractor\Test;
 
 use Keboola\AdWordsExtractor\Extractor;
 use Keboola\AdWordsExtractor\UserStorage;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use Keboola\Component\Logger;
 
 class ExtractorTest extends AbstractTest
 {
 
-    public function testExtraction()
+    public function testExtraction(): void
     {
         $this->prepareCampaign(uniqid());
 
         $date = date('Ymd', strtotime('-1 day'));
         $report = uniqid();
-        $e = new Extractor([
-            'oauthKey' => EX_AW_CLIENT_ID,
-            'oauthSecret' => EX_AW_CLIENT_SECRET,
-            'refreshToken' => EX_AW_REFRESH_TOKEN,
-            'developerToken' => EX_AW_DEVELOPER_TOKEN,
-            'customerId' => EX_AW_CUSTOMER_ID,
-            'outputPath' => sys_get_temp_dir(),
-            'output' => new ConsoleOutput()
-        ]);
-        $e->extract([
+        $queries = [
             [
                 'name' => $report,
-                'query' => 'SELECT CampaignId, Impressions, Clicks FROM CAMPAIGN_PERFORMANCE_REPORT'
-            ]
-        ], $date, $date);
+                'query' => 'SELECT CampaignId, Impressions, Clicks FROM CAMPAIGN_PERFORMANCE_REPORT',
+            ],
+        ];
+        $e = new Extractor([
+            'developerToken' => EX_AW_DEVELOPER_TOKEN,
+            'oauthAppKey' => EX_AW_CLIENT_ID,
+            'oauthAppSecret' => EX_AW_CLIENT_SECRET,
+            'oauthRefreshToken' => EX_AW_REFRESH_TOKEN,
+            'customerId' => EX_AW_CUSTOMER_ID,
+        ], new Logger(), sys_get_temp_dir());
+        $e->extract($queries, $date, $date);
 
         $bucket = UserStorage::getDefaultBucket('default');
         $this->assertFileExists(sys_get_temp_dir()."/$bucket.customers.csv");
+        /** @var array $fp */
         $fp = file(sys_get_temp_dir()."/$bucket.customers.csv");
+        if (!count($fp)) {
+            throw new \Exception('Report file not exists:' . sys_get_temp_dir()."/$bucket.customers.csv");
+        }
         $this->assertGreaterThan(1, count($fp));
 
         $this->assertFileExists(sys_get_temp_dir()."/$bucket.campaigns.csv");
+        /** @var array $fp */
         $fp = file(sys_get_temp_dir()."/$bucket.campaigns.csv");
+        if (!count($fp)) {
+            throw new \Exception('Report file not exists:' . sys_get_temp_dir()."/$bucket.camapigns.csv");
+        }
         $this->assertGreaterThan(1, count($fp));
 
         $this->assertFileExists(sys_get_temp_dir()."/$bucket.report-$report.csv");
+        /** @var array $fp */
         $fp = file(sys_get_temp_dir()."/$bucket.report-$report.csv");
+        if (!count($fp)) {
+            throw new \Exception('Report file not exists:' . sys_get_temp_dir()."/$bucket.report-$report.csv");
+        }
         $this->assertGreaterThan(1, count($fp));
     }
 
@@ -53,14 +62,12 @@ class ExtractorTest extends AbstractTest
     {
         $date = date('Ymd', strtotime('-1 day'));
         $e = new Extractor([
-            'oauthKey' => EX_AW_CLIENT_ID,
-            'oauthSecret' => EX_AW_CLIENT_SECRET,
-            'refreshToken' => EX_AW_REFRESH_TOKEN,
             'developerToken' => EX_AW_DEVELOPER_TOKEN,
+            'oauthAppKey' => EX_AW_CLIENT_ID,
+            'oauthAppSecret' => EX_AW_CLIENT_SECRET,
+            'oauthRefreshToken' => EX_AW_REFRESH_TOKEN,
             'customerId' => EX_AW_CUSTOMER_ID,
-            'outputPath' => sys_get_temp_dir(),
-            'output' => new ConsoleOutput()
-        ]);
+        ], new Logger(), sys_get_temp_dir());
 
         $this->expectException(\Keboola\AdWordsExtractor\Exception::class);
         $this->expectExceptionMessage(
@@ -70,8 +77,8 @@ class ExtractorTest extends AbstractTest
         $e->extract([
             [
                 'name' => 'campaigns',
-                'query' => 'SELECT CampaignId, Impressions, Clicks FROM CAMPAIGN_PERFORMANCE_REPORT'
-            ]
+                'query' => 'SELECT CampaignId, Impressions, Clicks FROM CAMPAIGN_PERFORMANCE_REPORT',
+            ],
         ], $date, $date);
     }
 
@@ -79,14 +86,12 @@ class ExtractorTest extends AbstractTest
     {
         $date = date('Ymd', strtotime('-1 day'));
         $e = new Extractor([
-            'oauthKey' => EX_AW_CLIENT_ID,
-            'oauthSecret' => EX_AW_CLIENT_SECRET,
-            'refreshToken' => EX_AW_REFRESH_TOKEN,
             'developerToken' => EX_AW_DEVELOPER_TOKEN,
+            'oauthAppKey' => EX_AW_CLIENT_ID,
+            'oauthAppSecret' => EX_AW_CLIENT_SECRET,
+            'oauthRefreshToken' => EX_AW_REFRESH_TOKEN,
             'customerId' => EX_AW_CUSTOMER_ID,
-            'outputPath' => sys_get_temp_dir(),
-            'output' => new ConsoleOutput()
-        ]);
+        ], new Logger(), sys_get_temp_dir());
 
         $this->expectException(\Keboola\AdWordsExtractor\Exception::class);
         $this->expectExceptionMessage(
@@ -96,8 +101,8 @@ class ExtractorTest extends AbstractTest
         $e->extract([
             [
                 'name' => 'my_table',
-                'query' => 'SELECT Id, Status FROM CAMPAIGN_PERFORMANCE_REPORT'
-            ]
+                'query' => 'SELECT Id, Status FROM CAMPAIGN_PERFORMANCE_REPORT',
+            ],
         ], $date, $date);
     }
 }

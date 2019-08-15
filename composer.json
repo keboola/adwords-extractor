@@ -11,28 +11,61 @@
     }
   ],
   "require": {
-    "php": "~7.1",
+    "php": ">=7.3",
+    "ext-json": "*",
     "ext-soap": "*",
-    "googleads/googleads-php-lib": "^38.0",
+    "googleads/googleads-php-lib": "^42.0",
     "keboola/csv": "~1.2",
+    "keboola/php-component": "^7.0",
     "keboola/php-temp": "1.0.0",
-    "symfony/config": "^3.3",
-    "symfony/console": "^3.3",
-    "symfony/filesystem": "^3.3",
-    "symfony/process": "^3.3",
-    "symfony/serializer": "^3.3",
-    "monolog/monolog": "^1.22"
+    "symfony/process": "^4.3"
   },
   "require-dev": {
-    "phpunit/phpunit": "~6.1",
-    "squizlabs/php_codesniffer": "^3.2.3",
-    "phpstan/phpstan": "^0.9.2"
+    "jakub-onderka/php-parallel-lint": "^1.0",
+    "keboola/coding-standard": "^8.0",
+    "keboola/datadir-tests": "^2.3",
+    "phpstan/phpstan-shim": "^0.11.12",
+    "phpunit/phpunit": "^7"
   },
   "minimum-stability": "stable",
   "autoload": {
     "psr-4": {
-      "Keboola\\AdWordsExtractor\\": "src/Keboola/AdWordsExtractor/",
-      "Keboola\\AdWordsExtractor\\Tests\\": "tests/Keboola/AdWordsExtractor/"
+      "Keboola\\AdWordsExtractor\\": "src/Keboola/AdWordsExtractor/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Keboola\\AdWordsExtractor\\Test\\": "tests/phpunit/",
+      "Keboola\\AdWordsExtractor\\Test\\Functional\\": "tests/functional/"
+    }
+  },
+  "scripts": {
+    "test-phpunit": "phpunit --bootstrap tests/bootstrap.php --fail-on-warning --stop-on-failure --testsuite main --default-time-limit=600 tests/phpunit",
+    "test-datadir": "phpunit --bootstrap tests/bootstrap.php --fail-on-warning --stop-on-failure --testsuite functional tests/functional",
+    "test": [
+      "@test-phpunit",
+      "@test-datadir"
+    ],
+    "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
+    "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
+    "phpcbf": "phpcbf -n --ignore=vendor --extensions=php .",
+    "phplint": "parallel-lint -j 10 --exclude vendor .",
+    "cs": [
+      "@phplint",
+      "@phpcs",
+      "@phpstan"
+    ],
+    "build": [
+      "@cs",
+      "@test"
+    ],
+    "ci": [
+      "@composer validate --no-check-publish --no-check-all",
+      "@build"
+    ]
+  },
+  "config": {
+    "sort-packages": true,
+    "optimize-autoloader": true
   }
 }

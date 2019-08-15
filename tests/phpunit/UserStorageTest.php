@@ -1,16 +1,14 @@
 <?php
-/**
- * @package adwords-extractor
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
-namespace Keboola\AdWordsExtractor\Tests;
+
+declare(strict_types=1);
+
+namespace Keboola\AdWordsExtractor\Test;
 
 use Keboola\AdWordsExtractor\UserStorage;
 
 class UserStorageTest extends \PHPUnit\Framework\TestCase
 {
-    public function testSaving()
+    public function testSaving(): void
     {
         $row1 = uniqid();
         $row2 = uniqid();
@@ -19,11 +17,15 @@ class UserStorageTest extends \PHPUnit\Framework\TestCase
         $storage->save('table', ['first' => 'row2', 'second' => $row2]);
 
         $this->assertFileExists(sys_get_temp_dir().'/table.csv');
+        /** @var resource $fp */
         $fp = fopen(sys_get_temp_dir().'/table.csv', 'r');
+        if (!is_resource($fp)) {
+            throw new \Exception('File does not exist: ' . sys_get_temp_dir().'/table.csv');
+        }
         $row = 0;
-        while (($data = fgetcsv($fp, 1000, ",")) !== false) {
+        while (($data = fgetcsv($fp, 1000, ',')) !== false) {
             $row++;
-            $this->assertCount(2, $data);
+            $this->assertCount(2, (array) $data);
             switch ($row) {
                 case 1:
                     $this->assertEquals(['first', 'second'], $data);
@@ -42,7 +44,7 @@ class UserStorageTest extends \PHPUnit\Framework\TestCase
         fclose($fp);
     }
 
-    public function testSavingToBucket()
+    public function testSavingToBucket(): void
     {
         $row1 = uniqid();
         $row2 = uniqid();
@@ -51,11 +53,15 @@ class UserStorageTest extends \PHPUnit\Framework\TestCase
         $storage->save('table', ['first' => 'row2', 'second' => $row2]);
 
         $this->assertFileExists(sys_get_temp_dir().'/in.c-adwords.table.csv');
+        /** @var resource $fp */
         $fp = fopen(sys_get_temp_dir().'/in.c-adwords.table.csv', 'r');
+        if (!is_resource($fp)) {
+            throw new \Exception('File does not exist: ' . sys_get_temp_dir().'/in.c-adwords.table.csv');
+        }
         $row = 0;
-        while (($data = fgetcsv($fp, 1000, ",")) !== false) {
+        while (($data = fgetcsv($fp, 1000, ',')) !== false) {
             $row++;
-            $this->assertCount(2, $data);
+            $this->assertCount(2, (array) $data);
             switch ($row) {
                 case 1:
                     $this->assertEquals(['first', 'second'], $data);

@@ -1,36 +1,38 @@
 <?php
-/**
- * @package adwords-extractor
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
+
+declare(strict_types=1);
+
 namespace Keboola\AdWordsExtractor;
 
 use Google\AdsApi\AdWords\v201809\cm\ApiException;
 use Keboola\Temp\Temp;
-use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use Monolog\Logger as MonologLogger;
+use Psr\Log\LoggerInterface;
 
 class Extractor
 {
 
-    const RESERVED_TABLE_NAMES = [
+    protected const RESERVED_TABLE_NAMES = [
         'customers',
         'campaigns',
     ];
 
+    /** @var array  */
     protected static $userTables = [
         'customers' => [
             'primary' => ['customerId'],
-            'columns' => ['customerId', 'name', 'companyName', 'canManageClients', 'currencyCode', 'dateTimeZone']
+            'columns' => ['customerId', 'name', 'companyName', 'canManageClients', 'currencyCode', 'dateTimeZone'],
         ],
         'campaigns' => [
             'primary' => ['customerId', 'id'],
             'columns' => ['customerId', 'id', 'name', 'status', 'servingStatus', 'startDate', 'endDate',
-                'adServingOptimizationStatus', 'advertisingChannelType']
-        ]
+                'adServingOptimizationStatus', 'advertisingChannelType'],
+        ],
     ];
+
+    /** @var LoggerInterface  */
+    protected $logger;
 
     /** @var UserStorage */
     protected $userStorage;
@@ -38,37 +40,25 @@ class Extractor
     /** @var  Api */
     protected $api;
 
-    /** @var  ConsoleOutput */
-    private $output;
-
-    public function __construct($options)
+    public function __construct(array $config, LoggerInterface $logger, string $folder)
     {
-        $required = ['oauthKey', 'oauthSecret', 'refreshToken', 'developerToken', 'customerId', 'outputPath', 'output'];
-        foreach ($required as $item) {
-            if (!isset($options[$item])) {
-                throw new \Exception("Option $item is not set");
-            }
-        }
+        $this->logger = $logger;
+        $apiLogHandler = \Keboola\Component\Logger::getDefaultLogHandler();
+        $apiLogHandler->setLevel(Logger::ERROR);
 
-        $this->api = new Api(
-            $options['oauthKey'],
-            $options['oauthSecret'],
-            $options['developerToken'],
-            $options['refreshToken'],
-            new Logger('adwords-api', [new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, Logger::WARNING)])
-        );
+        $this->api = new Api($config['developerToken'], new Logger('api', [$apiLogHandler]));
         $this->api
-            ->setCustomerId($options['customerId'])
+            ->setOAuthCredentials($config['oauthAppKey'], $config['oauthAppSecret'], $config['oauthRefreshToken'])
+            ->setCustomerId($config['customerId'])
             ->setTemp(new Temp());
-        $configId = getenv('KBC_CONFIGID') ? getenv('KBC_CONFIGID') : 'default';
-        $bucket = isset($options['bucket']) ? $options['bucket'] : UserStorage::getDefaultBucket($configId);
-        $this->userStorage = new UserStorage(self::$userTables, $options['outputPath'], $bucket);
-        $this->output = $options['output'];
+        $configId = getenv('KBC_CONFIGID') ? (string) getenv('KBC_CONFIGID') : 'default';
+        $bucket = !empty($config['bucket']) ? $config['bucket'] : UserStorage::getDefaultBucket($configId);
+        $this->userStorage = new UserStorage(self::$userTables, $folder, $bucket);
     }
 
-    protected function parseApiResult($in)
+    protected function parseApiResult(array $in): array
     {
-        $out = (array)$in;
+        $out = $in;
         foreach ($out as $key => $val) {
             if ($key[0] === "\0") {
                 $out[substr($key, 3)] = $val;
@@ -78,7 +68,7 @@ class Extractor
         return $out;
     }
 
-    public function extract(array $queries, $since, $until)
+    public function extract(array $queries, string $since, string $until): void
     {
         foreach ($queries as $query) {
             if (in_array($query['name'], self::RESERVED_TABLE_NAMES)) {
@@ -93,17 +83,18 @@ class Extractor
         $anyQueryFailed = false;
         foreach ($this->api->getCustomersYielded($since, $until) as $result) {
             foreach ($result['entries'] as $customer) {
-                $parsedCustomer = $this->parseApiResult($customer);
+                $parsedCustomer = $this->parseApiResult((array) $customer);
                 $current++;
-                $this->output->writeln("Extraction of data for customer {$parsedCustomer['name']} ({$current}/{$result['total']}) started");
+                $this->logger->info('Extraction of data for customer '
+                    . "{$parsedCustomer['name']} ({$current}/{$result['total']}) started");
                 $this->userStorage->save('customers', $parsedCustomer);
-                $this->api->setCustomerId($parsedCustomer['customerId']);
+                $this->api->setCustomerId((string) $parsedCustomer['customerId']);
 
                 try {
                     $this->userStorage->save('campaigns', []);
                     foreach ($this->api->getCampaignsYielded($since, $until) as $campaigns) {
                         foreach ($campaigns['entries'] as $campaign) {
-                            $parsedCampaign = $this->parseApiResult($campaign);
+                            $parsedCampaign = $this->parseApiResult((array) $campaign);
                             $parsedCampaign['customerId'] = $parsedCustomer['customerId'];
                             $this->userStorage->save('campaigns', $parsedCampaign);
                         }
@@ -119,12 +110,14 @@ class Extractor
                                 isset($query['primary']) ? $query['primary'] : []
                             );
                         } catch (ApiException $e) {
-                            $this->output->getErrorOutput()->writeln("Getting report for client '{$parsedCustomer['name']}' failed: {$e->getMessage()}");
+                            $this->logger->error('Getting report for client '
+                                . "'{$parsedCustomer['name']}' failed: {$e->getMessage()}");
                             $anyQueryFailed = true;
                         }
                     }
                 } catch (ApiException $e) {
-                    $this->output->getErrorOutput()->writeln("Getting data for client '{$parsedCustomer['name']}' failed: {$e->getMessage()}");
+                    $this->logger->error("Getting data for client '{$parsedCustomer['name']}' "
+                        . "failed: {$e->getMessage()}");
                     $anyQueryFailed = true;
                 }
             }

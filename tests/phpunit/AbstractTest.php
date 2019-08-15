@@ -1,13 +1,11 @@
 <?php
-/**
- * @package adwords-extractor
- * @copyright Keboola
- * @author Jakub Matejka <jakub@keboola.com>
- */
 
-namespace Keboola\AdWordsExtractor\Tests;
+declare(strict_types=1);
+
+namespace Keboola\AdWordsExtractor\Test;
 
 use Google\AdsApi\AdWords\AdWordsServices;
+use Google\AdsApi\AdWords\AdWordsSession;
 use Google\AdsApi\AdWords\AdWordsSessionBuilder;
 use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyConfiguration;
 use Google\AdsApi\AdWords\v201809\cm\Budget;
@@ -28,12 +26,12 @@ use Monolog\Logger;
 abstract class AbstractTest extends \PHPUnit\Framework\TestCase
 {
 
-    private function initSession()
+    private function initSession(): AdWordsSession
     {
         $credential = new UserRefreshCredentials('https://www.googleapis.com/auth/adwords', [
             'client_id' => EX_AW_CLIENT_ID,
             'client_secret' => EX_AW_CLIENT_SECRET,
-            'refresh_token' => EX_AW_REFRESH_TOKEN
+            'refresh_token' => EX_AW_REFRESH_TOKEN,
         ]);
         $logger = new Logger('adwords-api', [new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, Logger::WARNING)]);
         return (new AdWordsSessionBuilder())
@@ -45,7 +43,7 @@ abstract class AbstractTest extends \PHPUnit\Framework\TestCase
             ->build();
     }
 
-    protected function prepareCampaign($name)
+    protected function prepareCampaign(string $name): string
     {
         $session = $this->initSession();
         $services = new AdWordsServices();
@@ -95,7 +93,6 @@ abstract class AbstractTest extends \PHPUnit\Framework\TestCase
         $result = $budgetService->mutate($operations);
         $budget = $result->getValue()[0];
 
-
         $campaign = new Campaign();
         $campaign->setName($name);
         $campaign->setAdvertisingChannelType('SEARCH');
@@ -113,6 +110,6 @@ abstract class AbstractTest extends \PHPUnit\Framework\TestCase
 
         $result = $service->mutate($operations);
         $campaign = $result->getValue()[0];
-        return (string)$campaign->getId();
+        return (string) $campaign->getId();
     }
 }
