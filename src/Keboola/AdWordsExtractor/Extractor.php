@@ -7,7 +7,6 @@ namespace Keboola\AdWordsExtractor;
 use Google\AdsApi\AdWords\v201809\cm\ApiException;
 use Keboola\Temp\Temp;
 use Monolog\Logger;
-use Monolog\Logger as MonologLogger;
 use Psr\Log\LoggerInterface;
 
 class Extractor
@@ -40,19 +39,23 @@ class Extractor
     /** @var  Api */
     protected $api;
 
-    public function __construct(array $config, LoggerInterface $logger, string $folder)
+    public function __construct(Config $config, LoggerInterface $logger, string $folder)
     {
         $this->logger = $logger;
         $apiLogHandler = \Keboola\Component\Logger::getDefaultLogHandler();
         $apiLogHandler->setLevel(Logger::ERROR);
 
-        $this->api = new Api($config['developerToken'], new Logger('api', [$apiLogHandler]));
+        $this->api = new Api($config->getDeveloperToken(), new Logger('api', [$apiLogHandler]));
         $this->api
-            ->setOAuthCredentials($config['oauthAppKey'], $config['oauthAppSecret'], $config['oauthRefreshToken'])
-            ->setCustomerId($config['customerId'])
+            ->setOAuthCredentials(
+                $config->getOAuthApiAppKey(),
+                $config->getOAuthApiAppSecret(),
+                $config->getRefreshToken()
+            )
+            ->setCustomerId($config->getCustomerId())
             ->setTemp(new Temp());
         $configId = getenv('KBC_CONFIGID') ? (string) getenv('KBC_CONFIGID') : 'default';
-        $bucket = !empty($config['bucket']) ? $config['bucket'] : UserStorage::getDefaultBucket($configId);
+        $bucket = !empty($config->getBucket()) ? $config->getBucket() : UserStorage::getDefaultBucket($configId);
         $this->userStorage = new UserStorage(self::$userTables, $folder, $bucket);
     }
 
