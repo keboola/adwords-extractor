@@ -20,14 +20,7 @@ class Component extends BaseComponent
             mkdir($this->getDataDir() . '/out/tables');
         }
 
-        $app = new Extractor([
-            'developerToken' => $config->getDeveloperToken(),
-            'oauthAppKey' => $config->getOAuthApiAppKey(),
-            'oauthAppSecret' => $config->getOAuthApiAppSecret(),
-            'oauthRefreshToken' => $config->getRefreshToken(),
-            'customerId' => $config->getCustomerId(),
-            'bucket' => $config->getBucket(),
-        ], $this->getLogger(), $this->getDataDir() . '/out/tables');
+        $app = new Extractor($config, $this->getLogger(), $this->getDataDir() . '/out/tables');
         $app->extract($config->getQueries(), $config->getSince(), $config->getUntil());
     }
 

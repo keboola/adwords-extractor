@@ -4,12 +4,37 @@ declare(strict_types=1);
 
 namespace Keboola\AdWordsExtractor\Test;
 
+use Keboola\AdWordsExtractor\Config;
+use Keboola\AdWordsExtractor\ConfigDefinition;
+use Keboola\AdWordsExtractor\Exception;
 use Keboola\AdWordsExtractor\Extractor;
 use Keboola\AdWordsExtractor\UserStorage;
 use Keboola\Component\Logger;
 
 class ExtractorTest extends AbstractTest
 {
+    /** @var array  */
+    protected $config = [
+        'image_parameters' => [
+            '#developer_token' => EX_AW_DEVELOPER_TOKEN,
+        ],
+        'authorization' => [
+            'oauth_api' => [
+                'credentials' => [
+                    'appKey' => EX_AW_CLIENT_ID,
+                    '#appSecret' => EX_AW_CLIENT_SECRET,
+                    '#data' => '{"refresh_token":"' . EX_AW_REFRESH_TOKEN . '"}',
+                ],
+            ],
+        ],
+        'parameters' => [
+            'customerId' => EX_AW_CUSTOMER_ID,
+            'queries' => [[
+                'name' => 'dummy',
+                'query' => 'SELECT',
+            ]],
+        ],
+    ];
 
     public function testExtraction(): void
     {
@@ -23,13 +48,7 @@ class ExtractorTest extends AbstractTest
                 'query' => 'SELECT CampaignId, Impressions, Clicks FROM CAMPAIGN_PERFORMANCE_REPORT',
             ],
         ];
-        $e = new Extractor([
-            'developerToken' => EX_AW_DEVELOPER_TOKEN,
-            'oauthAppKey' => EX_AW_CLIENT_ID,
-            'oauthAppSecret' => EX_AW_CLIENT_SECRET,
-            'oauthRefreshToken' => EX_AW_REFRESH_TOKEN,
-            'customerId' => EX_AW_CUSTOMER_ID,
-        ], new Logger(), sys_get_temp_dir());
+        $e = new Extractor(new Config($this->config, new ConfigDefinition()), new Logger(), sys_get_temp_dir());
         $e->extract($queries, $date, $date);
 
         $bucket = UserStorage::getDefaultBucket('default');
@@ -61,15 +80,9 @@ class ExtractorTest extends AbstractTest
     public function testWillFailIfTableUsesReservedName(): void
     {
         $date = date('Ymd', strtotime('-1 day'));
-        $e = new Extractor([
-            'developerToken' => EX_AW_DEVELOPER_TOKEN,
-            'oauthAppKey' => EX_AW_CLIENT_ID,
-            'oauthAppSecret' => EX_AW_CLIENT_SECRET,
-            'oauthRefreshToken' => EX_AW_REFRESH_TOKEN,
-            'customerId' => EX_AW_CUSTOMER_ID,
-        ], new Logger(), sys_get_temp_dir());
+        $e = new Extractor(new Config($this->config, new ConfigDefinition()), new Logger(), sys_get_temp_dir());
 
-        $this->expectException(\Keboola\AdWordsExtractor\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage(
             '"campaigns" is reserved table name (customers, campaigns) that cannot be used for query result'
         );
@@ -85,15 +98,9 @@ class ExtractorTest extends AbstractTest
     public function testWillFailWithInvalidFieldInAwql(): void
     {
         $date = date('Ymd', strtotime('-1 day'));
-        $e = new Extractor([
-            'developerToken' => EX_AW_DEVELOPER_TOKEN,
-            'oauthAppKey' => EX_AW_CLIENT_ID,
-            'oauthAppSecret' => EX_AW_CLIENT_SECRET,
-            'oauthRefreshToken' => EX_AW_REFRESH_TOKEN,
-            'customerId' => EX_AW_CUSTOMER_ID,
-        ], new Logger(), sys_get_temp_dir());
+        $e = new Extractor(new Config($this->config, new ConfigDefinition()), new Logger(), sys_get_temp_dir());
 
-        $this->expectException(\Keboola\AdWordsExtractor\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage(
             'Failed to get results for some queries, please check the log'
         );
