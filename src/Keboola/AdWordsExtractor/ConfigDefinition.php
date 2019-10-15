@@ -19,6 +19,7 @@ class ConfigDefinition extends BaseConfigDefinition
             ->scalarNode('customerId')->isRequired()->cannotBeEmpty()->end()
             ->scalarNode('since')->end()
             ->scalarNode('until')->end()
+            ->scalarNode('#developerToken')->end()
             ->scalarNode('bucket')->end()
             ->arrayNode('queries')->isRequired()->cannotBeEmpty()->arrayPrototype()
             ->children()
