@@ -21,6 +21,11 @@ class Config extends BaseConfig
 
     public function getDeveloperToken(): string
     {
+        $token = $this->getValue(['parameters', '#developerToken'], '');
+        if ($token) {
+            return $token;
+        }
+
         if (!isset($this->getImageParameters()['#developer_token'])) {
             throw new \Exception('Developer token is missing from image parameters');
         }

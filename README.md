@@ -16,6 +16,7 @@ Uses [googleads-php-lib](https://github.com/googleads/googleads-php-lib) version
     - **bucket** - Name of bucket where the data will be saved
     - **since** *(optional)* - start date of downloaded stats (default is "-1 day")
     - **until** *(optional)* - end date of downloaded stats (default is "-1 day")
+    - **#developerToken** *(optional)* - client can use his own AdWords developer token
     - **queries** - Array of reports to download as Ad-hoc report, each item must contain:
         - **name** - Name of query, data will be saved to table `[bucket].[name]`.
         *Note that `customers` and `campaigns` are reserved names, thus cannot be used as query names.*
