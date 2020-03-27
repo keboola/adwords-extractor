@@ -130,7 +130,7 @@ class DatadirTest extends AbstractDatadirTestCase
             'image_parameters' => ['#developer_token' => 'invalid'],
         ];
 
-        // @phpcs: disable
+        // @phpcs:disable
         $specification = new DatadirTestSpecification(
             __DIR__ . '/run/source/data',
             1,
