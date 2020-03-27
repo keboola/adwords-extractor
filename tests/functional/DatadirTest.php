@@ -106,4 +106,41 @@ class DatadirTest extends AbstractDatadirTestCase
         $this->assertEmpty($process->getErrorOutput());
         $this->assertEquals(0, $process->getExitCode());
     }
+
+    public function testRunWithUserException(): void
+    {
+        $config = [
+            'action' => 'run',
+            'parameters' => [
+                'customerId' => getenv('EX_AW_CUSTOMER_ID'),
+                '#developerToken' => getenv('EX_AW_DEVELOPER_TOKEN'),
+                'queries' => [
+                    [
+                        'name' => uniqid(),
+                        'query' => 'SELECT CampaignId, Impressions, Clicks FROM CAMPAIGN_PERFORMANCE_REPORTa',
+                        'primary' => ['CampaignId'],
+                    ],
+                ],
+            ],
+            'authorization' => ['oauth_api' => ['credentials' => [
+                'appKey' => 'invalidAppKey',
+                '#appSecret' => getenv('EX_AW_CLIENT_SECRET'),
+                '#data' => \GuzzleHttp\json_encode(['refresh_token' => getenv('EX_AW_REFRESH_TOKEN')]),
+            ]]],
+            'image_parameters' => ['#developer_token' => 'invalid'],
+        ];
+
+        // @phpcs: disable
+        $specification = new DatadirTestSpecification(
+            __DIR__ . '/run/source/data',
+            1,
+            '',
+            "Client error: `POST https://oauth2.googleapis.com/token` resulted in a `401 Unauthorized` response: {   \"error\": \"invalid_client\",   \"error_description\": \"The OAuth client was not found.\" } \n",
+        );
+        // @phpcs:enable
+        $tempDatadir = $this->getTempDatadir($specification);
+        file_put_contents($tempDatadir->getTmpFolder() . '/config.json', \GuzzleHttp\json_encode($config));
+        $process = $this->runScript($tempDatadir->getTmpFolder());
+        $this->assertMatchesSpecification($specification, $process, $tempDatadir->getTmpFolder());
+    }
 }
