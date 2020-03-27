@@ -26,7 +26,7 @@ class Component extends BaseComponent
         try {
             $app->extract($config->getQueries(), $config->getSince(), $config->getUntil());
         } catch (ClientException $e) {
-            throw new UserException($e->getMessage(), 0, $e);
+            throw new UserException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
