@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Keboola\AdWordsExtractor;
 
+use GuzzleHttp\Exception\ClientException;
 use Keboola\Component\BaseComponent;
+use Keboola\Component\UserException;
 
 class Component extends BaseComponent
 {
@@ -21,7 +23,11 @@ class Component extends BaseComponent
         }
 
         $app = new Extractor($config, $this->getLogger(), $this->getDataDir() . '/out/tables');
-        $app->extract($config->getQueries(), $config->getSince(), $config->getUntil());
+        try {
+            $app->extract($config->getQueries(), $config->getSince(), $config->getUntil());
+        } catch (ClientException $e) {
+            throw new UserException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     protected function getConfigClass(): string
