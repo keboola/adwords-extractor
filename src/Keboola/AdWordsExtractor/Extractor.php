@@ -113,9 +113,14 @@ class Extractor
                                 isset($query['primary']) ? $query['primary'] : []
                             );
                         } catch (ApiException $e) {
-                            $this->logger->error('Getting report for client '
-                                . "'{$parsedCustomer['name']}' failed: {$e->getMessage()}");
-                            $anyQueryFailed = true;
+                            // Not active customer is warning
+                            if (strpos($e->getMessage(), 'AuthorizationError.CUSTOMER_NOT_ACTIVE') !== false) {
+                                $this->logger->warning("Customer not active: '{$parsedCustomer['name']}'");
+                            } else {
+                                $this->logger->error('Getting report for client '
+                                    . "'{$parsedCustomer['name']}' failed: {$e->getMessage()}");
+                                $anyQueryFailed = true;
+                            }
                         }
                     }
                 } catch (ApiException $e) {
