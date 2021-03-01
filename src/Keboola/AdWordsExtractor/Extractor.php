@@ -71,7 +71,7 @@ class Extractor
         return $out;
     }
 
-    public function extract(array $queries, string $since, string $until): void
+    public function extract(array $queries, ?string $since, ?string $until): void
     {
         foreach ($queries as $query) {
             if (in_array($query['name'], self::RESERVED_TABLE_NAMES)) {

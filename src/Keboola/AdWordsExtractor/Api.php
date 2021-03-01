@@ -194,9 +194,11 @@ class Api
     }
 
 
-    public function getReport(string $query, string $since, string $until, string $file): void
+    public function getReport(string $query, ?string $since, ?string $until, string $file): void
     {
-        $query .= sprintf(' DURING %d,%d', $since, $until);
+        if ($since && $until) {
+            $query .= sprintf(' DURING %d,%d', $since, $until);
+        }
         $isFirstReportInFile = !file_exists($file);
         $reportFile = $this->temp->createTmpFile();
         $reportFilePath = (string) $reportFile->getRealPath();

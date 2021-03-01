@@ -37,9 +37,8 @@ class Config extends BaseConfig
         return $this->getValue(['parameters', 'bucket'], '');
     }
 
-    protected function getDate(string $name): string
+    protected function getDate(string $date, string $name): string
     {
-        $date = $this->getValue(['parameters', $name], '-1 day');
         $time = strtotime($date);
         if ($time === false) {
             throw new UserException("Date $name in configuration is invalid.");
@@ -47,14 +46,22 @@ class Config extends BaseConfig
         return date('Ymd', $time);
     }
 
-    public function getSince(): string
+    public function getSince(): ?string
     {
-        return $this->getDate('since');
+        $since = $this->getValue(['parameters', 'since'], '-1 day');
+        if ($since) {
+            return $this->getDate($since, 'since');
+        }
+        return null;
     }
 
-    public function getUntil(): string
+    public function getUntil(): ?string
     {
-        return $this->getDate('until');
+        $until = $this->getValue(['parameters', 'since'], '-1 day');
+        if ($until) {
+            return $this->getDate($until, 'until');
+        }
+        return null;
     }
 
     public function getCustomerId(): string
