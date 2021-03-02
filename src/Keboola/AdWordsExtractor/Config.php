@@ -57,7 +57,7 @@ class Config extends BaseConfig
 
     public function getUntil(): ?string
     {
-        $until = $this->getValue(['parameters', 'since'], '-1 day');
+        $until = $this->getValue(['parameters', 'until'], '-1 day');
         if ($until) {
             return $this->getDate($until, 'until');
         }
