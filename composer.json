@@ -18,6 +18,7 @@
     "keboola/csv": "~1.2",
     "keboola/php-component": "^7.0",
     "keboola/php-temp": "1.0.0",
+    "keboola/retry": "^0.5.0",
     "symfony/process": "^4.3"
   },
   "require-dev": {

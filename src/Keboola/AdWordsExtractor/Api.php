@@ -10,6 +10,7 @@ use Google\AdsApi\AdWords\Reporting\v201809\DownloadFormat;
 use Google\AdsApi\AdWords\Reporting\v201809\ReportDownloader;
 use Google\AdsApi\AdWords\ReportSettings;
 use Google\AdsApi\AdWords\ReportSettingsBuilder;
+use Google\AdsApi\AdWords\v201809\cm\ApiException;
 use Google\AdsApi\AdWords\v201809\cm\CampaignPage;
 use Google\AdsApi\AdWords\v201809\cm\CampaignService;
 use Google\AdsApi\AdWords\v201809\cm\DateRange;
@@ -22,8 +23,11 @@ use Google\AdsApi\AdWords\v201809\mcm\ManagedCustomerService;
 use Google\AdsApi\Common\AdsSession;
 use Google\AdsApi\Common\AdsSoapClient;
 use Google\Auth\Credentials\UserRefreshCredentials;
-use Keboola\Component\UserException;
+use GuzzleHttp\Exception\RequestException;
 use Psr\Log\LoggerInterface;
+use Retry\BackOff\ExponentialBackOffPolicy;
+use Retry\Policy\SimpleRetryPolicy;
+use Retry\RetryProxy;
 use SoapClient;
 use Symfony\Component\Process\Process;
 use Keboola\Temp\Temp;
@@ -31,6 +35,8 @@ use Keboola\Temp\Temp;
 class Api
 {
     protected const PAGE_LIMIT = 500;
+
+    private const DEFAULT_MAX_ATTEMPTS = 5;
 
     /**
      * @var UserRefreshCredentials
@@ -203,9 +209,27 @@ class Api
         $reportFile = $this->temp->createTmpFile();
         $reportFilePath = (string) $reportFile->getRealPath();
 
-        $reportDownloader = new ReportDownloader($this->session, null, $this->guzzleClient, $this->guzzleClientFactory);
-        $result = $reportDownloader->downloadReportWithAwql($query, DownloadFormat::CSV);
-        $result->saveToFile($reportFilePath);
+        $retryProxy = new RetryProxy(
+            new SimpleRetryPolicy(
+                self::DEFAULT_MAX_ATTEMPTS,
+                [
+                    RequestException::class,
+                    ApiException::class,
+                ]
+            ),
+            new ExponentialBackOffPolicy(),
+            $this->logger
+        );
+
+        $retryProxy->call(function () use ($query, $reportFilePath): void {
+            $reportDownloader = new ReportDownloader(
+                $this->session, null,
+                $this->guzzleClient,
+                $this->guzzleClientFactory
+            );
+            $result = $reportDownloader->downloadReportWithAwql($query, DownloadFormat::CSV);
+            $result->saveToFile($reportFilePath);
+        });
 
         // If first report, include header
         $process = Process::fromShellCommandline(
