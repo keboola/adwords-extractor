@@ -223,7 +223,8 @@ class Api
 
         $retryProxy->call(function () use ($query, $reportFilePath): void {
             $reportDownloader = new ReportDownloader(
-                $this->session, null,
+                $this->session,
+                null,
                 $this->guzzleClient,
                 $this->guzzleClientFactory
             );
