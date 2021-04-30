@@ -24,11 +24,11 @@ class ApiTest extends AbstractTest
 
         $this->logger = new TestLogger();
 
-        $this->api = new Api(getenv('EX_AW_DEVELOPER_TOKEN'), $this->logger);
+        $this->api = new Api((string) getenv('EX_AW_DEVELOPER_TOKEN'), $this->logger);
         $this->api->setOAuthCredentials(
-            getenv('EX_AW_CLIENT_ID'),
-            getenv('EX_AW_CLIENT_SECRET'),
-            getenv('EX_AW_REFRESH_TOKEN')
+            (string) getenv('EX_AW_CLIENT_ID'),
+            (string) getenv('EX_AW_CLIENT_SECRET'),
+            (string) getenv('EX_AW_REFRESH_TOKEN')
         );
     }
 
@@ -105,7 +105,7 @@ class ApiTest extends AbstractTest
 
     public function testRetry(): void
     {
-        $this->api->setCustomerId(getenv('EX_AW_TEST_ACCOUNT_ID'));
+        $this->api->setCustomerId((string) getenv('EX_AW_TEST_ACCOUNT_ID'));
 
         $temp = new Temp();
         $this->api->setTemp($temp);
