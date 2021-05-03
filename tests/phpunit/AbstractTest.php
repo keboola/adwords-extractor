@@ -29,15 +29,15 @@ abstract class AbstractTest extends \PHPUnit\Framework\TestCase
     private function initSession(): AdWordsSession
     {
         $credential = new UserRefreshCredentials('https://www.googleapis.com/auth/adwords', [
-            'client_id' => EX_AW_CLIENT_ID,
-            'client_secret' => EX_AW_CLIENT_SECRET,
-            'refresh_token' => EX_AW_REFRESH_TOKEN,
+            'client_id' => (string) getenv('EX_AW_CLIENT_ID'),
+            'client_secret' => (string) getenv('EX_AW_CLIENT_SECRET'),
+            'refresh_token' => (string) getenv('EX_AW_REFRESH_TOKEN'),
         ]);
         $logger = new Logger('adwords-api', [new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, Logger::WARNING)]);
         return (new AdWordsSessionBuilder())
-            ->withDeveloperToken(EX_AW_DEVELOPER_TOKEN)
+            ->withDeveloperToken((string) getenv('EX_AW_DEVELOPER_TOKEN'))
             ->withOAuth2Credential($credential)
-            ->withClientCustomerId(EX_AW_TEST_ACCOUNT_ID)
+            ->withClientCustomerId((string) getenv('EX_AW_TEST_ACCOUNT_ID'))
             ->withSoapLogger($logger)
             ->withReportDownloaderLogger($logger)
             ->build();

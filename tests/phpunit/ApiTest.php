@@ -4,28 +4,31 @@ declare(strict_types=1);
 
 namespace Keboola\AdWordsExtractor\Test;
 
+use Google\AdsApi\AdWords\v201809\cm\ApiException;
 use Keboola\AdWordsExtractor\Api;
 use Keboola\Temp\Temp;
-use Monolog\Handler\ErrorLogHandler;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
+use Psr\Log\Test\TestLogger;
 
 class ApiTest extends AbstractTest
 {
     /** @var  Api */
     protected $api;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->api = new Api(EX_AW_DEVELOPER_TOKEN, new Logger(
-            'adwords-api',
-            [new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, Logger::WARNING)]
-        ));
+        $this->logger = new TestLogger();
+
+        $this->api = new Api((string) getenv('EX_AW_DEVELOPER_TOKEN'), $this->logger);
         $this->api->setOAuthCredentials(
-            EX_AW_CLIENT_ID,
-            EX_AW_CLIENT_SECRET,
-            EX_AW_REFRESH_TOKEN
+            (string) getenv('EX_AW_CLIENT_ID'),
+            (string) getenv('EX_AW_CLIENT_SECRET'),
+            (string) getenv('EX_AW_REFRESH_TOKEN')
         );
     }
 
@@ -97,5 +100,31 @@ class ApiTest extends AbstractTest
             }
         }
         $this->assertTrue($campaignFound);
+    }
+
+
+    public function testRetry(): void
+    {
+        $this->api->setCustomerId((string) getenv('EX_AW_TEST_ACCOUNT_ID'));
+
+        $temp = new Temp();
+        $this->api->setTemp($temp);
+        $file = $temp->getTmpFolder() . '/' . uniqid();
+
+        $date = date('Ymd', strtotime('-1 day'));
+        try {
+            $this->api->getReport(
+                'SELECT CampaignIda, Impressions, Clicks FROM CAMPAIGN_PERFORMANCE_REPORT',
+                $date,
+                $date,
+                $file
+            );
+        } catch (ApiException $e) {
+            $this->assertStringContainsString('INVALID_FIELD_NAME_FOR_REPORT', $e->getMessage());
+        }
+        $this->assertTrue($this->logger->hasInfoThatContains('Retrying... [1x]'));
+        $this->assertTrue($this->logger->hasInfoThatContains('Retrying... [2x]'));
+        $this->assertTrue($this->logger->hasInfoThatContains('Retrying... [3x]'));
+        $this->assertTrue($this->logger->hasInfoThatContains('Retrying... [4x]'));
     }
 }

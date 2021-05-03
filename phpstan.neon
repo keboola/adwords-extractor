@@ -1,6 +1,7 @@
 parameters:
     ignoreErrors:
         - '#Call to an undefined method SoapClient::get().#'
+        - '#Call to an undefined method Psr\\Log\\LoggerInterface::hasInfoThatContains\(\)\.#'
     bootstrap: %rootDir%/../../../tests/bootstrap.php
     excludes_analyse:
         - %rootDir%/../../../src/Keboola/AdWordsExtractor/ConfigDefinition.php
