@@ -41,8 +41,8 @@
     }
   },
   "scripts": {
-    "test-phpunit": "phpunit --bootstrap tests/bootstrap.php --fail-on-warning --stop-on-failure --testsuite main --default-time-limit=600 tests/phpunit",
-    "test-datadir": "phpunit --bootstrap tests/bootstrap.php --fail-on-warning --stop-on-failure --testsuite functional tests/functional",
+    "test-phpunit": "phpunit --bootstrap tests/bootstrap.php --testsuite main --default-time-limit=600 tests/phpunit",
+    "test-datadir": "phpunit --bootstrap tests/bootstrap.php --testsuite functional tests/functional",
     "test": [
       "@test-phpunit",
       "@test-datadir"
