@@ -138,7 +138,7 @@ class Api
                         throw $e;
                     }
                     $retry++;
-                    sleep(rand(5, 15));
+                    sleep(rand(35, 45));
                 }
             } while ($retry < 5 && $repeat);
         } while ($selector->getPaging()->getStartIndex() < $totalNumEntries);
