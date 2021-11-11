@@ -141,12 +141,13 @@ class Api
                     }
                     return null;
                 } catch (Throwable $e) {
-                    if (strpos($e->getMessage(), 'getaddrinfo failed') === false
-                        && strpos($e->getMessage(), 'currently unavailable') === false
+                    if (strpos($e->getMessage(), 'getaddrinfo failed') !== false
+                        || strpos($e->getMessage(), 'currently unavailable') !== false
+                        || strpos($e->getMessage(), 'UNEXPECTED_INTERNAL_API_ERROR') !== false
                     ) {
-                        throw $e;
+                        throw new RetryException($e->getMessage(), $e->getCode(), $e);
                     }
-                    throw new RetryException($e->getMessage(), $e->getCode(), $e);
+                    throw $e;
                 }
             });
             if ($result) {
