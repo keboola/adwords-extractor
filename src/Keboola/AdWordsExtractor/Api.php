@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\AdWordsExtractor;
 
+use Generator;
 use Google\AdsApi\AdWords\AdWordsServices;
 use Google\AdsApi\AdWords\AdWordsSessionBuilder;
 use Google\AdsApi\AdWords\Reporting\v201809\DownloadFormat;
@@ -31,6 +32,7 @@ use Retry\RetryProxy;
 use SoapClient;
 use Symfony\Component\Process\Process;
 use Keboola\Temp\Temp;
+use Throwable;
 
 class Api
 {
@@ -115,32 +117,43 @@ class Api
         SoapClient $service,
         Selector $selector,
         ?int $pageLimit = self::PAGE_LIMIT
-    ): \Generator {
+    ): Generator {
         $selector->setPaging(new Paging(0, $pageLimit));
         $totalNumEntries = 0;
+        $retryProxy = new RetryProxy(
+            new SimpleRetryPolicy(self::DEFAULT_MAX_ATTEMPTS, [RetryException::class]),
+            new ExponentialBackOffPolicy(30000, 1.1, 45000)
+        );
         do {
-            $retry = 0;
-            $repeat = true;
-            do {
+            $result = $retryProxy->call(function () use ($service, $selector, $pageLimit): ?array {
                 try {
                     /** @var CampaignPage|ManagedCustomerPage $page */
                     $page = $service->get($selector);
+                    $selector
+                        ->getPaging()
+                        ->setStartIndex($selector->getPaging()->getStartIndex() + $pageLimit)
+                    ;
                     if (count((array) $page->getEntries())) {
-                        $totalNumEntries = $page->getTotalNumEntries();
-                        yield ['entries' => $page->getEntries(), 'total' => $totalNumEntries];
+                        return [
+                            'entries' => $page->getEntries(),
+                            'total' => $page->getTotalNumEntries(),
+                        ];
                     }
-                    $selector->getPaging()->setStartIndex($selector->getPaging()->getStartIndex() + $pageLimit);
-                    $repeat = false;
-                } catch (\Throwable $e) {
-                    if (strpos($e->getMessage(), 'getaddrinfo failed') === false
-                        && strpos($e->getMessage(), 'currently unavailable') === false
+                    return null;
+                } catch (Throwable $e) {
+                    if (strpos($e->getMessage(), 'getaddrinfo failed') !== false
+                        || strpos($e->getMessage(), 'currently unavailable') !== false
+                        || strpos($e->getMessage(), 'UNEXPECTED_INTERNAL_API_ERROR') !== false
                     ) {
-                        throw $e;
+                        throw new RetryException($e->getMessage(), $e->getCode(), $e);
                     }
-                    $retry++;
-                    sleep(rand(35, 45));
+                    throw $e;
                 }
-            } while ($retry < 5 && $repeat);
+            });
+            if ($result) {
+                $totalNumEntries = $result['total'];
+                yield $result;
+            }
         } while ($selector->getPaging()->getStartIndex() < $totalNumEntries);
     }
 
@@ -148,7 +161,7 @@ class Api
         ?string $since = null,
         ?string $until = null,
         ?int $pageLimit = self::PAGE_LIMIT
-    ): \Generator {
+    ): Generator {
         $service = $this->getService($this->session, ManagedCustomerService::class);
         $selector = new Selector();
         $selector->setFields(['Name', 'CustomerId', 'CanManageClients', 'CurrencyCode', 'DateTimeZone']);
@@ -164,7 +177,7 @@ class Api
         ?string $since = null,
         ?string $until = null,
         ?int $pageLimit = self::PAGE_LIMIT
-    ): \Generator {
+    ): Generator {
         $service = $this->getService($this->session, CampaignService::class);
         $selector = new Selector();
         $selector->setFields([
@@ -190,7 +203,7 @@ class Api
         do {
             try {
                 return $this->adWordsServices->get($session, $serviceClass);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $lastError = $e;
                 $retry++;
                 sleep(rand(5, 15));
