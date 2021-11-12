@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Keboola\AdWordsExtractor;
 
-use \Exception;
+use Keboola\Component\UserException;
 
-class RetryException extends Exception
+class RetryException extends UserException
 {
 
 }
