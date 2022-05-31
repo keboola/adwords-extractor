@@ -130,3 +130,7 @@ Run `docker-compose run --rm tests` with these env variables set from previous s
 - **EX_AW_REFRESH_TOKEN** - generated refresh token
 - **EX_AW_CUSTOMER_ID** - customer id of testing manager account
 - **EX_AW_TEST_ACCOUNT** - customer id of testing client account
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
